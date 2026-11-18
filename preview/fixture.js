@@ -10,7 +10,7 @@ window.__ModuleLoader__ = { load(reg) { captured.push(reg) } }
 function boot() {
   const reg = captured[0]
   if (!reg) throw new Error('plugin factory was not registered')
-  const hooks = []
+  let hooks = []
   let cursor = 0
   const effects = []
   const react = {
@@ -25,6 +25,8 @@ function boot() {
       return hooks[index]
     },
     useEffect(fn) { effects.push(fn) },
+    useLayoutEffect(fn) { effects.push(fn) },
+    useId() { return 'fx-' + (cursor++) },
     createElement(type, props, ...children) {
       return { type, props: { ...(props || {}), children: props && 'children' in props ? props.children : children } }
     },
@@ -69,8 +71,14 @@ function boot() {
     if (Array.isArray(node)) { node.forEach((child) => render(child, parent)); return }
     if (typeof node === 'string' || typeof node === 'number') { parent.appendChild(document.createTextNode(String(node))); return }
     if (typeof node.type === 'function') {
+      const priorHooks = hooks
+      const priorCursor = cursor
+      hooks = []
       cursor = 0
-      render(node.type(node.props || {}), parent)
+      const children = node.type(node.props || {})
+      hooks = priorHooks
+      cursor = priorCursor
+      render(children, parent)
       return
     }
     if (typeof node.type !== 'string') return
@@ -80,6 +88,7 @@ function boot() {
     if (props.className) el.setAttribute('class', props.className)
     if (props.title) el.setAttribute('title', props.title)
     if (props.role) el.setAttribute('role', props.role)
+    if (props.hidden) el.hidden = true
     if (props['aria-label']) el.setAttribute('aria-label', props['aria-label'])
     if (props['aria-hidden']) el.setAttribute('aria-hidden', props['aria-hidden'])
     for (const [key, value] of Object.entries(props)) if (/^(data|aria)-/.test(key) && value != null) el.setAttribute(key, String(value))
@@ -91,6 +100,7 @@ function boot() {
     if (props.stroke) el.setAttribute('stroke', props.stroke)
     if (props.strokeWidth) el.setAttribute('stroke-width', props.strokeWidth)
     if (props.points) el.setAttribute('points', props.points)
+    for (const key of ['d', 'cx', 'cy', 'r']) if (props[key] != null) el.setAttribute(key, String(props[key]))
     if (props.style) for (const [key, value] of Object.entries(props.style)) el.style.setProperty(key, String(value))
     if (props.ref) props.ref.current = el
     const children = Array.isArray(props.children) ? props.children : props.children == null ? [] : [props.children]

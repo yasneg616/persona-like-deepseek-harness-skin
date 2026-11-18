@@ -1,0 +1,220 @@
+/* =====================================================================
+ * P4G — P4 mode, Golden pause-menu edition. The P3R composition (p3r.css,
+ * re-scoped to html[data-dsh-persona="p4g"] at runtime) in the P4 Golden
+ * palette: yellow-to-orange paper, a sky band with clouds, a black slab
+ * carrying heavy serif commands, chromatic white on the chosen one, flowers.
+ * The conversation is the picture on the 3D room's CRT (p4-room/); without
+ * WebGL or with reduced motion it sits on a dark midnight backdrop instead.
+ * Original vector shapes only; no characters, logos or game assets.
+ * ===================================================================== */
+@font-face {
+  font-family: P4GSerif;
+  src: url("../../assets/fonts/AbrilFatface-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+html[data-dsh-persona="p4g"] {
+  --p3r-ink: #12110d; --p3r-navy: #12110d; --p3r-royal: #ff8a00; --p3r-deep: #12110d; --p3r-cyan: #ffd400;
+  --p3r-pale: #ffe600; --p3r-paper: #ffe600; --p3r-red: #ff4a1c;
+  --p4g-yellow: #ffe600; --p4g-orange: #ff9d00; --p4g-sky: #38b6ff; --p4g-black: #12110d; --p4g-cyan: #26d4ff; --p4g-magenta: #ff2f8e;
+  --p4g-serif: P4GSerif, "Abril Fatface", "Didot", "Bodoni MT", Georgia, "Noto Serif SC", "Songti SC", serif;
+}
+/* Midnight Channel hours: the paper goes the yellow-green of the midnight broadcast */
+html[data-dsh-persona="p4g"] [data-p3r-dark] { --p3r-paper: #dfe86a; --p3r-cyan: #c9ff3a; --p3r-royal: #6f7d10; --p3r-pale: #f2ff9e; }
+
+/* ------------------------------------------------------------------ frame, backdrop, paper */
+html[data-dsh-persona="p4g"] [data-p3r] { background: #0e0c07 !important; }
+html[data-dsh-persona="p4g"] .p4g-room { position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.2) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse 70% 60% at 68% 45%, #4a3c12, #17130a 68%, #0b0905); }
+html[data-dsh-persona="p4g"] .p3r-seam .paper { fill: url(#p4g-paper-grad); }
+html[data-dsh-persona="p4g"] [data-p3r-dark] .p3r-seam .paper { fill: var(--p3r-paper); }
+html[data-dsh-persona="p4g"] .p3r-seam .rim1 { stroke: var(--p4g-black); stroke-width: 14; }
+html[data-dsh-persona="p4g"] .p3r-seam .rim2 { stroke: var(--p4g-sky); stroke-width: 6; opacity: 1; }
+html[data-dsh-persona="p4g"] .p4g-art .sky { fill: var(--p4g-sky); }
+html[data-dsh-persona="p4g"] .p4g-art .clouds { fill: #fff; opacity: .94; }
+html[data-dsh-persona="p4g"] .p4g-art .slab { fill: var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-vword,
+html[data-dsh-persona="p4g"] .p3r-fade { display: none !important; }
+
+/* ------------------------------------------------------------------ title bar: black tab, yellow ink */
+html[data-dsh-persona="p4g"] .p3r-tl { background: var(--p4g-black); box-shadow: 6px 6px 0 var(--p4g-orange); }
+html[data-dsh-persona="p4g"] .p3r-tl button { color: var(--p4g-yellow); }
+html[data-dsh-persona="p4g"] .p3r-tl button:hover, html[data-dsh-persona="p4g"] .p3r-tl button[aria-expanded="true"] { background: var(--p4g-yellow); color: var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-tl button[aria-expanded="true"]::after { background: var(--p4g-sky); }
+html[data-dsh-persona="p4g"] .p3r-tl button:focus-visible { outline-color: #fff; }
+html[data-dsh-persona="p4g"] .p3r-tbar .dsh-cc-win { border-color: var(--p4g-black); background: var(--p4g-yellow); color: var(--p4g-black); box-shadow: 4px 4px 0 var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-tbar .dsh-cc-win:hover { background: var(--p4g-black); color: var(--p4g-yellow); border-color: var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-tbar .dsh-cc-win[data-win="close"]:hover { background: var(--p3r-red); border-color: var(--p4g-black); color: #fff; }
+html[data-dsh-persona="p4g"] .p3r-tbar .dsh-cc-win:focus-visible { outline-color: var(--p4g-sky); }
+
+/* ------------------------------------------------------------------ the commands on the black slab */
+html[data-dsh-persona="p4g"] .p3r-menu { left: 46px; top: 96px; transform: rotate(-7deg); transition: scale .4s var(--p3r-ease); transform-origin: 0 0; }
+html[data-dsh-persona="p4g"] .p3r-menu button { font: 400 clamp(30px, 2.5vw, 48px)/1.04 var(--p4g-serif); letter-spacing: -.01em; text-transform: none; font-style: normal;
+  color: var(--p4g-yellow); -webkit-text-stroke: 5px var(--p4g-black); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-menu button:nth-child(1) { margin-left: 0; } html[data-dsh-persona="p4g"] .p3r-menu button:nth-child(2) { margin-left: 30px; }
+html[data-dsh-persona="p4g"] .p3r-menu button:nth-child(3) { margin-left: 60px; } html[data-dsh-persona="p4g"] .p3r-menu button:nth-child(4) { margin-left: 90px; }
+html[data-dsh-persona="p4g"] .p3r-menu button small { color: #fff6c0; font: 700 12px var(--p3r-sans); -webkit-text-stroke: 0; text-shadow: none; opacity: .8; }
+html[data-dsh-persona="p4g"] .p3r-menu button[aria-current]:not(.on) { color: #fff; }
+/* the chosen command: white, larger, split into cyan and magenta like the Golden pause menu */
+html[data-dsh-persona="p4g"] .p3r-menu button.on { color: #fff; -webkit-text-stroke: 5px var(--p4g-black); font-size: clamp(38px, 3.1vw, 60px); margin-top: 2px; margin-bottom: 6px;
+  text-shadow: -4px 2px 0 var(--p4g-cyan), 4px -2px 0 var(--p4g-magenta), 5px 7px 0 var(--p4g-black); animation: p4g-chroma 1.6s steps(1) infinite; }
+html[data-dsh-persona="p4g"] .p3r-menu button.on small { color: var(--p4g-black); background: var(--p4g-yellow); opacity: 1; padding: 0 6px; }
+/* the Golden triangle cursor: P3R's two reshaping wedges, here white and yellow, with cyan/magenta ghosts of the white one;
+   the label copies clipped by each wedge turn ink-black, so the word reads dark inside the triangle and white outside */
+html[data-dsh-persona="p4g"] .p3r-menu .cur { left: -58px; right: -84px; top: -22px; bottom: -18px; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur span { padding: 22px 0 0 58px; -webkit-text-stroke: 0; text-shadow: none; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur .tw { background: #fff; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur .tr { background: var(--p4g-yellow); }
+html[data-dsh-persona="p4g"] .p3r-menu .cur :is(.tc, .tm) { z-index: -2; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur .tc { background: var(--p4g-cyan); translate: -7px 4px; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur .tm { background: var(--p4g-magenta); translate: 7px -4px; }
+html[data-dsh-persona="p4g"] .p3r-menu .cur :is(.cw, .cr) { color: var(--p4g-black); }
+@keyframes p4g-chroma { 0%, 100% { text-shadow: -4px 2px 0 var(--p4g-cyan), 4px -2px 0 var(--p4g-magenta), 5px 7px 0 var(--p4g-black); }
+  50% { text-shadow: -3px -2px 0 var(--p4g-cyan), 3px 2px 0 var(--p4g-magenta), 5px 7px 0 var(--p4g-black); } }
+html[data-dsh-persona="p4g"] .p3r-collapsed .p3r-menu { scale: .62; }
+
+/* ------------------------------------------------------------------ flowers on the lower paper */
+html[data-dsh-persona="p4g"] .p3r-gear { left: calc(var(--p3r-seam, 400px) - 120px); top: auto; bottom: 62px; width: clamp(120px, 9.5vw, 180px); height: clamp(130px, 10.5vw, 200px); z-index: 3; }
+html[data-dsh-persona="p4g"] .p3r-gear .bob { animation-duration: 5s; }
+html[data-dsh-persona="p4g"] .p3r-gear .flower, html[data-dsh-persona="p4g"] .p3r-gear .spark { position: absolute; }
+html[data-dsh-persona="p4g"] .p3r-gear .flower path { fill: currentColor; stroke: var(--p4g-black); stroke-width: 7; stroke-linejoin: round; }
+html[data-dsh-persona="p4g"] .p3r-gear .flower .eye { fill: #fff; stroke: var(--p4g-black); stroke-width: 7; }
+html[data-dsh-persona="p4g"] .p3r-gear .flower .dot { fill: var(--p4g-orange); }
+html[data-dsh-persona="p4g"] .p3r-gear .big { left: 0; bottom: 0; width: 78%; aspect-ratio: 1; color: var(--p4g-yellow); animation: p4g-spin 36s linear infinite; }
+html[data-dsh-persona="p4g"] .p3r-gear .mid { right: 0; top: 4%; width: 44%; aspect-ratio: 1; color: #fff; animation: p4g-spin 24s linear infinite reverse; }
+html[data-dsh-persona="p4g"] .p3r-gear .spark { left: 6%; top: 10%; width: 20%; aspect-ratio: 1; animation: p4g-twinkle 2.4s ease-in-out infinite; }
+html[data-dsh-persona="p4g"] .p3r-gear .spark path { fill: #fff; stroke: var(--p4g-black); stroke-width: 5; }
+@keyframes p4g-spin { to { rotate: 360deg; } }
+@keyframes p4g-twinkle { 50% { scale: .55; rotate: 45deg; } }
+
+/* ------------------------------------------------------------------ date + weather medallion */
+html[data-dsh-persona="p4g"] .p3r-clock { right: 36px; top: 56px; align-items: center; gap: 12px; padding: 6px 54px 8px 24px; background: var(--p4g-black); border-radius: 40px 0 0 40px; box-shadow: 0 0 0 3px var(--p4g-yellow), 6px 6px 0 3px var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-clock b { color: #fff; font: italic 900 clamp(34px, 2.8vw, 52px)/.9 var(--p3r-cond); letter-spacing: -1px; text-shadow: none; }
+html[data-dsh-persona="p4g"] .p3r-clock .meta { padding-bottom: 0; }
+html[data-dsh-persona="p4g"] .p3r-clock .meta span { background: var(--p4g-yellow); color: var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-clock .meta em { color: var(--p4g-yellow); }
+html[data-dsh-persona="p4g"] .p3r-clock .wx { position: absolute; right: -30px; top: 50%; margin-top: -36px; width: 72px; height: 72px; box-sizing: border-box; border-radius: 50%;
+  display: grid; place-items: center; background: #fff7d6; border: 6px solid var(--p4g-yellow); box-shadow: 0 0 0 3px var(--p4g-black); }
+html[data-dsh-persona="p4g"] .p3r-clock .wx svg { width: 38px; height: 38px; fill: none; stroke: #2b56a8; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+html[data-dsh-persona="p4g"] .p3r-clock .wx svg > * { display: none; }
+html[data-dsh-persona="p4g"] .p3r-clock svg[data-persona-weather="sun"] :is(.w-sun, .w-rays) { display: inline; stroke: #ff8a00; }
+html[data-dsh-persona="p4g"] .p3r-clock svg[data-persona-weather="cloud"] .w-cloud,
+html[data-dsh-persona="p4g"] .p3r-clock svg[data-persona-weather="rain"] :is(.w-cloud, .w-rain),
+html[data-dsh-persona="p4g"] .p3r-clock svg[data-persona-weather="fog"] .w-fog { display: inline; }
+
+/* ------------------------------------------------------------------ sidebar tree on the paper, below the slab */
+html[data-dsh-persona="p4g"] [data-p3r] [class*="_scrollRegion"] { padding-top: 34vh !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [class*="_scrollArea"] { padding-top: 10px !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [class*="_sidebarCol"] [class*="_root"]:not(:has([class*="_scrollRegion"])) [class*="_regionArea"] { padding-top: 34vh !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [class*="_sidebarCol"]::after { background: linear-gradient(transparent, #ffa600 62%); }
+html[data-dsh-persona="p4g"] [data-p3r-dark] [class*="_sidebarCol"]::after { background: linear-gradient(transparent, var(--p3r-paper) 62%); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"] [class*="_title"] { font-family: var(--p4g-serif), var(--p3r-sans) !important; font-style: normal !important; font-weight: 400 !important; letter-spacing: 0; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"] [class*="_time"] { color: #8a4b00 !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"]:hover:not([aria-selected="true"]) { background: rgba(18,17,13,.1) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"]) :is([class*="_title"], [class*="_time"]) { color: var(--p4g-yellow) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"][data-p3r-now]::after { content: "ON AIR"; }
+html[data-dsh-persona="p4g"] .p3r-tip { box-shadow: 5px 5px 0 var(--p4g-orange); color: var(--p4g-yellow); }
+
+/* ------------------------------------------------------------------ the conversation */
+/* on the CRT: a lit warm-dark picture with modest insets (the 3D TV is the frame) */
+html[data-dsh-persona="p4g"][data-p4-3d] [data-p3r] [data-p4-screen]:is(#center, [data-p4-screen]) { padding: 16px 26px 10px !important;
+  background: radial-gradient(ellipse 85% 75% at 50% 38%, #2d2610, #14110a 70%, #0c0a06) !important; }
+/* without the room: the chat sits on the dark backdrop to the right of the paper */
+html[data-dsh-persona="p4g"]:not([data-p4-3d]) [data-p3r] :is([class*="_centerCol"], #center) { padding-left: 56px !important; padding-top: 112px !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-conversation-header-leading] { text-shadow: 0 3px 0 rgba(0,0,0,.6); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-conversation-header-leading]::after { content: "ON AIR"; background: var(--p3r-red); }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-conversation-scroll], [data-chat-flow-kind]) { color: #fbf4dc; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind] { text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind="user"] { color: var(--p4g-black) !important; text-shadow: none; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind="user"]::after { background: var(--p4g-orange); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind] a { color: var(--p4g-yellow); border-bottom-color: var(--p4g-orange); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind] pre { background: rgba(0,0,0,.5) !important; border-left-color: var(--p4g-orange); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind] :not(pre) > code { background: rgba(0,0,0,.45); color: var(--p4g-yellow); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-chat-flow-kind="tool-call"]:not([data-chat-flow-kind="user"]) :is(h1, h2, h3, h4) { background: var(--p4g-yellow); color: var(--p4g-black); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-composer-card]::after { background: var(--p4g-orange); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-composer-card] [class*="_primary"] { background: var(--p4g-yellow) !important; color: var(--p4g-black) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-composer-seat] [class*="_dock"] { color: #e7d9a8 !important; }
+
+/* ------------------------------------------------------------------ popover menus: black plate, yellow blade */
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) { background: #12110d !important; color: #fbf4dc !important; border-color: #ffe600 !important; filter: drop-shadow(6px 6px 0 #ff9d00); }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]) { color: #fbf4dc !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]) :is(svg, [class*="_itemIcon"]) { color: #ffd400 !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):is(:hover, :focus-visible, [data-highlighted], [aria-expanded="true"]):not(:disabled):not([aria-disabled="true"]) { color: #12110d !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):is(:hover, :focus-visible, [data-highlighted], [aria-expanded="true"]):not(:disabled):not([aria-disabled="true"]) :is(svg, [class*="_itemIcon"], [class*="_shortcut"] > *) { color: #12110d !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):is(:hover, :focus-visible, [data-highlighted], [aria-expanded="true"]):not(:disabled):not([aria-disabled="true"])::before { background: #ffe600; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) :is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]):is(:hover, :focus-visible, [data-highlighted], [aria-expanded="true"]):not(:disabled):not([aria-disabled="true"])::after { background: #ff4a1c; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) [role^="menuitem"]:is([class*="_selected"], [aria-checked="true"]) { box-shadow: inset 4px 0 0 #ffd400 !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) [class*="_check"],
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) [class*="_label_"][role="presentation"] { color: #ffd400 !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu], span[role="tooltip"]) [class*="_shortcut"] > :is(kbd, span), html[data-dsh-persona="p4g"] span[role="tooltip"] kbd { color: #ffd400 !important; }
+html[data-dsh-persona="p4g"] :is([data-menu-material], [data-dockkit-tab-menu]) [role="separator"] { background: linear-gradient(90deg, #ffd400, transparent) !important; }
+html[data-dsh-persona="p4g"] span[role="tooltip"] { background: #12110d !important; border-color: #ffe600 !important; box-shadow: 4px 4px 0 #ff9d00 !important; }
+
+/* ------------------------------------------------------------------ the workspace tree as the Investigation Team cork board */
+/* workspaces are pinned case folders, conversations are notes taped under them; red string ties the clues (drawn in overlay.ts) */
+html[data-dsh-persona="p4g"] [data-p3r] [class*="_sidebarCol"] [class*="_scrollArea"] { margin-right: 12px !important; padding: 18px 16px 150px 14px !important;
+  background: radial-gradient(circle at 20% 30%, rgba(0,0,0,.09) 1px, transparent 2px) 0 0 / 9px 9px, radial-gradient(circle at 70% 60%, rgba(255,255,255,.13) 1px, transparent 2px) 0 0 / 13px 13px, #b88a52 !important;
+  border: 6px solid #6b4520; border-left: 0; box-shadow: inset 0 0 30px rgba(0,0,0,.35); clip-path: polygon(0 0, 100% 0, calc(100% - 34px) 100%, 0 100%); }
+html[data-dsh-persona="p4g"] [data-p3r] :is([class*="_listArea"], [class*="GAkraW_list"]:not([class*="_listArea"])) { background: none !important; display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-content: flex-start; gap: 6px 10px; counter-reset: p4case; padding-right: 30px; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"] { flex: 0 0 calc(100% - 12px); counter-increment: p4case; min-height: 50px !important; margin: 18px 0 4px 2px !important; padding: 16px 40px 8px 14px !important;
+  background: #e8c97a !important; border: 3px solid var(--p4g-black); box-shadow: 4px 5px 0 rgba(0,0,0,.35); rotate: -1deg; color: var(--p4g-black) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"]::before { content: ""; left: -3px; top: -16px; width: 92px; height: 16px; margin: 0; border-radius: 0; box-shadow: none;
+  background: #e8c97a; border: 3px solid var(--p4g-black); border-bottom: 0; box-sizing: border-box; transform: none !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"]::after,
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"][data-p3r-now]::after { content: "CASE " counter(p4case, decimal-leading-zero); position: absolute; left: 14px; top: 2px; padding: 0; background: none; transform: none;
+  font: italic 900 11px var(--p3r-cond); letter-spacing: 2px; color: #8a3a12; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"] [class*="_title"] { color: var(--p4g-black) !important; font-size: clamp(18px, 1.4vw, 24px) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"] [class*="_projectText"]::before { content: ""; position: absolute; right: 22px; top: -7px; width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, #e8231a 60%, #7a0d08); box-shadow: 1px 2px 0 rgba(0,0,0,.4); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"]:hover::before { transform: none !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"]:hover { background: #f0d690 !important; }
+/* the case being worked on: yellow folder, circled in red marker */
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"][data-p3r-now] { background: radial-gradient(ellipse 38% 64% at 24% 62%, transparent 82%, #e8231a 85% 92%, transparent 95%), var(--p4g-yellow) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"][data-p3r-now]::before { background: var(--p4g-yellow); box-shadow: none; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="workspace:"][data-p3r-now] [class*="_title"] { color: var(--p4g-black) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"] { flex: 0 0 calc(50% - 14px); box-sizing: border-box; min-height: 60px !important; margin: 6px 0 6px 6px !important; padding: 13px 26px 6px 10px !important;
+  display: flex !important; flex-wrap: wrap; align-content: flex-start; gap: 2px 6px; background: #fffbe2 !important; border: 2px solid var(--p4g-black); box-shadow: 2px 3px 0 rgba(0,0,0,.3);
+  rotate: 2deg; color: var(--p4g-black) !important; transition: rotate .15s, scale .15s cubic-bezier(.3,1.6,.5,1); }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"]:nth-child(even) { rotate: -2deg; background: #e7f6ff !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"]::before { content: ""; left: 50%; top: -7px; width: 34px; height: 12px; margin: 0 0 0 -17px; border: 0; border-radius: 0; z-index: 1;
+  background: rgba(255,230,0,.85); rotate: -5deg; box-shadow: none; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"] [class*="_title"] { flex: 1 1 100%; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal !important;
+  font: 700 12.5px/1.35 var(--p3r-sans) !important; color: var(--p4g-black) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"] [class*="_time"] { font: italic 800 11px var(--p3r-cond) !important; color: #8a3a12 !important; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"] [class*="_rowActions"] { position: absolute; right: 2px; top: 2px; scale: .85; }
+html[data-dsh-persona="p4g"] [data-p3r] [data-row-key^="session:"]:hover:not([aria-selected="true"]) { background: #fff !important; rotate: 0deg; scale: 1.04; z-index: 2; }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"]) { outline: 3px solid #e8231a; outline-offset: 2px; color: var(--p4g-black) !important; z-index: 2; }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"])::before { background: rgba(255,230,0,.85); }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"])::after { content: "!"; position: absolute; z-index: 3; left: auto; right: -11px; top: -13px; bottom: auto; width: 22px; height: 22px;
+  display: grid; place-items: center; background: #e8231a; color: #fff; font: 900 14px/1 var(--p3r-sans); border-radius: 50%; clip-path: none; box-shadow: 0 0 0 2px var(--p4g-black); }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"]) :is([class*="_title"], [class*="_iconButton"]) { color: var(--p4g-black) !important; }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][class*="_selected"]) [class*="_time"] { color: #8a3a12 !important; }
+html[data-dsh-persona="p4g"] [data-p3r] :is([data-row-key^="workspace:"], [data-row-key^="session:"]):focus-visible { outline: 3px dashed var(--p4g-sky) !important; outline-offset: 2px; }
+/* the red string */
+html[data-dsh-persona="p4g"] .p4g-strings { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
+html[data-dsh-persona="p4g"] .p4g-strings path { fill: none; stroke: #e8231a; stroke-width: 1.6; stroke-linecap: round; opacity: .85; filter: drop-shadow(1px 2px 0 rgba(0,0,0,.35)); }
+html[data-dsh-persona="p4g"] .p4g-strings path.sel { stroke-width: 3.2; opacity: 1; }
+html[data-dsh-persona="p4g"] .p4g-strings circle { fill: #e8231a; stroke: var(--p4g-black); stroke-width: 1.5; }
+/* collapsed: the notes go back into their folders; only the folders stay on the strip */
+html[data-dsh-persona="p4g"] .p3r-strip { left: 32px; gap: 26px; }
+html[data-dsh-persona="p4g"] .p3r-strip::before, html[data-dsh-persona="p4g"] .p3r-strip::after { display: none; }
+html[data-dsh-persona="p4g"] .p3r-strip button { width: 62px; height: 44px; border-radius: 0; border: 3px solid var(--p4g-black); background: #e8c97a; box-shadow: 3px 4px 0 rgba(0,0,0,.35); rotate: -3deg; }
+html[data-dsh-persona="p4g"] .p3r-strip button:nth-child(even) { rotate: 2deg; }
+html[data-dsh-persona="p4g"] .p3r-strip button::before { content: ""; position: absolute; left: -3px; top: -13px; width: 28px; height: 11px; background: inherit; border: 3px solid var(--p4g-black); border-bottom: 0; }
+html[data-dsh-persona="p4g"] .p3r-strip button i { position: absolute; right: 8px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a80, #e8231a 60%, #7a0d08); }
+html[data-dsh-persona="p4g"] .p3r-strip button[aria-current] { background: var(--p4g-yellow); box-shadow: 3px 4px 0 rgba(0,0,0,.35), 0 0 0 6px #e8231a; }
+html[data-dsh-persona="p4g"] .p3r-strip button:hover, html[data-dsh-persona="p4g"] .p3r-strip button:focus-visible { transform: none; scale: 1.1; }
+html[data-dsh-persona="p4g"] .p3r-tip { background: var(--p4g-black); }
+/* the slab has an orange edge */
+html[data-dsh-persona="p4g"] .p4g-art .slab { filter: drop-shadow(0 9px 0 #ff9d00); }
+
+/* while the host slides the sidebar, decoration holds still so the slide gets the frames */
+html[data-dsh-persona="p4g"] [data-animating] :is(.p3r-ui, .p3r-back) :is(*, ::before, ::after),
+html[data-dsh-persona="p4g"] [data-animating] .p3r-menu button.on { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-dsh-persona="p4g"] .p3r-menu button.on, html[data-dsh-persona="p4g"] :is(.p3r-gear :is(.big, .mid, .spark), .p3r-menu .cur *) { animation: none !important; }
+  html[data-dsh-persona="p4g"] .p3r-menu .cur .m-w { clip-path: polygon(0% 74%, 95% 0%, 82% 100%); }
+  html[data-dsh-persona="p4g"] .p3r-menu .cur .m-r { clip-path: polygon(0% 98%, 56% 46%, 38% 100%); }
+}

@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 真 3D 電視房間</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800;1,900&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=VT323&display=swap">
+<style>
+  :root { --page: #f1eee6; --ink: #141414; --mute: #6b6760; --line: #d9d5cc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.65 "Noto Sans TC", system-ui, sans-serif; }
+  header.top { max-width: 1240px; margin: 0 auto; padding: 28px 16px 8px; }
+  header.top h1 { margin: 0 0 6px; font: 900 28px/1.25 "Noto Sans TC"; }
+  header.top p { margin: 0; color: var(--mute); max-width: 880px; }
+  .controls { max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; position: sticky; top: 0; z-index: 50; background: var(--page); border-bottom: 1px solid var(--line); }
+  .controls button { font: 800 14px "Noto Sans TC"; border: 2px solid var(--ink); background: #fff; padding: 5px 13px; cursor: pointer; color: var(--ink); }
+  .controls button:hover { background: #ffd400; }
+  main.wrap { max-width: 1240px; margin: 0 auto; padding: 18px 16px 56px; }
+  .frame { width: 100%; aspect-ratio: 1440 / 900; position: relative; overflow: hidden; border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,.25); background: #000; }
+  .stage { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; transform-origin: 0 0; overflow: hidden; background: #07080c; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 24px; }
+  .notes article { background: #fff; border: 1px solid var(--line); padding: 16px 18px; border-radius: 4px; }
+  .notes h3 { margin: 0 0 8px; font: 900 16px "Noto Sans TC"; }
+  .notes ul { margin: 0; padding-left: 18px; } .notes li { margin: 4px 0; }
+  .notes .tag { display: inline-block; font: 800 11px "Noto Sans TC"; padding: 1px 7px; margin-right: 6px; color: #111; background: #ffd400; }
+  .notes article.ask { border: 2px solid var(--ink); }
+  .notes a { color: inherit; }
+  .loading { position: absolute; inset: 0; display: grid; place-items: center; color: #8dff7e; font: 400 30px "VT323"; z-index: 99; background: #07080c; }
+  .loading.done { display: none; }
+
+  /* ===== 舞台內共用 ===== */
+  #st { --y: #ffd400; --blk: #0d0b07; --red: #e2241b; --org: #f08a1c; font-family: "Noto Sans TC", sans-serif; }
+  :where(#st) button { all: unset; cursor: pointer; box-sizing: border-box; }
+  #st button:focus-visible { outline: 2px dashed #ffd400; outline-offset: 3px; }
+  #gl, #css { position: absolute; inset: 0; }
+  #gl canvas { display: block; transition: filter .7s ease; filter: blur(0px) grayscale(0) sepia(0) saturate(1) hue-rotate(0deg) contrast(1) brightness(1); }
+  .dive #gl canvas { transition-duration: .28s; filter: blur(0px) grayscale(1) sepia(1) saturate(7) hue-rotate(20deg) contrast(2.8) brightness(1.1); }
+  /* 房間模式推近：房間退到景深後面，只剩光在動 */
+  .roomzoom #gl canvas { transition-duration: 1.1s; filter: blur(3.5px) grayscale(0) sepia(0) saturate(.95) hue-rotate(0deg) contrast(1.02) brightness(.9); }
+  .bolt { position: absolute; inset: 0; z-index: 21; pointer-events: none; background: radial-gradient(ellipse at 70% 10%, #e9f0ff, #9fb6ff 60%, #6c82d8); mix-blend-mode: screen; opacity: 0; }
+  .tvdom.zap .sc-in { animation: zap .32s steps(4) both; }
+  @keyframes zap { 0% { transform: translateX(6px); filter: brightness(1.8) contrast(.7); } 40% { transform: translateX(-4px) skewX(2deg); filter: brightness(1.3); } 70% { transform: translateX(2px); filter: brightness(1.1); } 100% { transform: none; filter: none; } }
+
+
+  /* Persona 風大字標語 */
+  .slogan { position: absolute; left: -160px; right: -160px; top: 300px; z-index: 26; pointer-events: none; transform: rotate(-9deg); display: none; }
+  .slogan.go { display: block; }
+  .slogan .band { position: relative; animation: band 1.25s cubic-bezier(.75,0,.25,1) both; }
+  @keyframes band { 0% { transform: translateX(115%) skewX(-18deg); } 20% { transform: translateX(2%) skewX(-18deg); } 30% { transform: translateX(0) skewX(-12deg); } 76% { transform: translateX(-3%) skewX(-12deg); } 100% { transform: translateX(-125%) skewX(-22deg); } }
+  .slogan .y { background: #ffd400; height: 150px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 6px #0a0a0a, 0 14px 0 6px #0a0a0a; }
+  .slogan .y b { font: italic 900 168px/1 "Barlow Condensed", sans-serif; color: #0a0a0a; letter-spacing: -3px; transform: skewX(6deg); text-shadow: 7px 7px 0 #fff, 11px 11px 0 #0a0a0a; white-space: nowrap; }
+  .slogan .y b span { display: inline-block; }
+  .slogan.go .y b span { animation: pop .38s calc(.16s + var(--i) * .035s) cubic-bezier(.3,1.9,.5,1) both; }
+  @keyframes pop { from { transform: translateY(46px) scale(.5) rotate(-10deg); } to { transform: none; } }
+  .slogan .k { margin: 22px 0 0 34%; width: 52%; background: #0a0a0a; color: #fff; font: 800 22px/40px "Barlow Condensed", "Noto Sans TC", sans-serif; letter-spacing: .3em; padding-left: 26px; white-space: nowrap; overflow: hidden; }
+  .slogan .k em { font-style: normal; color: #ffd400; }
+  .cap { position: absolute; left: 0; right: 0; top: 0; height: 34px; z-index: 80; background: #0b0a07; color: #bdb497; font: 600 12px/34px "Noto Sans TC"; padding-left: 14px; display: flex; }
+  .cap .wb { margin-left: auto; display: flex; } .cap .wb i { width: 46px; text-align: center; font-style: normal; color: #7d765f; }
+
+  /* ===== P4G 風 HUD ===== */
+  .hud-date { position: absolute; right: 26px; top: 50px; z-index: 30; display: flex; align-items: center; transition: transform .6s cubic-bezier(.6,0,.2,1); }
+  .hud-date .pill { background: var(--blk); color: #fff; border-radius: 34px 0 0 34px; padding: 4px 40px 6px 22px; display: flex; align-items: baseline; gap: 8px; box-shadow: 0 0 0 2px rgba(255,212,0,.6); }
+  .hud-date .pill b { font: 800 34px/1 "Barlow Condensed"; } .hud-date .pill i { font: 800 16px "Barlow Condensed"; font-style: normal; letter-spacing: .06em; }
+  .hud-date .pill em { font: 900 24px "Noto Sans TC"; font-style: normal; color: transparent; -webkit-text-stroke: 1.4px var(--y); }
+  .hud-date .wx { width: 66px; height: 66px; margin-left: -26px; border-radius: 50%; background: #fff7d6; border: 6px solid var(--y); box-shadow: 0 0 0 3px var(--blk); display: grid; place-items: center; font: 900 28px "Noto Sans TC"; color: #2b56a8; }
+  .zoomed .hud-date { transform: translateY(-150px); }
+  /* 模式切換：房間 ↔ 電視塔 */
+  .modesw { position: absolute; right: 34px; top: 136px; z-index: 31; display: flex; align-items: stretch; background: #0a0a0a; transform: skewX(-12deg);
+    box-shadow: 0 0 0 2px rgba(255,212,0,.65), 5px 5px 0 2px #0a0a0a; transition: top .6s cubic-bezier(.6,0,.2,1); }
+  .modesw .lb { display: flex; align-items: center; padding: 0 10px 0 14px; font: 800 13px/1 "Barlow Condensed"; letter-spacing: .22em; color: #ffd400; }
+  .modesw button { padding: 10px 18px; font: 900 17px/1 "Noto Sans TC"; color: #d9d1b6; cursor: pointer; transition: background .2s, color .2s; }
+  .modesw button > span { display: inline-block; transform: skewX(12deg); }
+  .modesw button[aria-pressed="true"] { background: #ffd400; color: #0a0a0a; }
+  .modesw button:not([aria-pressed="true"]):hover { color: #ffd400; }
+  .modesw button:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+  .zoomed .modesw { top: 50px; }
+  .bandsw { position: absolute; right: 34px; top: 104px; z-index: 31; display: none; align-items: stretch; background: #ffd400; transform: skewX(-12deg); box-shadow: 0 0 0 2px #0a0a0a, 5px 5px 0 2px #0a0a0a; }
+  .studio.multiband .bandsw { display: flex; }
+  .bandsw .lb { display: flex; align-items: baseline; gap: 4px; padding: 7px 10px; font: 800 15px/1 "Barlow Condensed"; letter-spacing: .14em; color: #0a0a0a; }
+  .bandsw .lb b { font-size: 22px; letter-spacing: 0; } .bandsw .lb i { font-style: normal; }
+  .bandsw button { padding: 0 12px; background: #0a0a0a; color: #ffd400; font: 900 14px/1 "Noto Sans TC"; cursor: pointer; display: flex; align-items: center; }
+  .bandsw button > span { display: inline-block; transform: skewX(12deg); }
+  .bandsw button:hover { color: #fff; } .bandsw button:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+
+  .guide { position: absolute; left: 22px; top: 54px; width: 300px; z-index: 30; transition: transform .6s cubic-bezier(.6,0,.2,1); }
+  .guide .cmd { display: grid; gap: 6px; margin-bottom: 14px; }
+  .guide .cmd button { display: flex; align-items: baseline; gap: 10px; width: 236px; background: var(--y); color: #111; font: 900 17px "Noto Sans TC"; padding: 6px 26px 6px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); transition: transform .15s; }
+  .guide .cmd button:nth-child(2) { margin-left: 12px; } .guide .cmd button:nth-child(3) { margin-left: 24px; }
+  .guide .cmd button span { font: 800 italic 18px "Barlow Condensed"; }
+  .guide .cmd button:hover { transform: translateX(8px); }
+  .guide .cmd button[aria-current] { background: #fff; }
+  .guide .pg { background: rgba(10,9,7,.86); border: 2px solid rgba(255,212,0,.5); }
+  .guide .pg .hd { display: flex; align-items: baseline; gap: 10px; padding: 0; }
+  .guide .pg .hd b { background: var(--y); color: #111; font: 900 18px/1 "Noto Serif TC"; padding: 7px 26px 7px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .guide .pg .hd small { font: 800 12px "Barlow Condensed"; letter-spacing: .2em; color: #b9ae86; }
+  .guide .list { max-height: 420px; overflow: auto; scrollbar-width: none; padding-bottom: 6px; }
+  .guide .day { margin: 8px 12px 2px; color: var(--y); font: 700 12px "Noto Sans TC"; border-bottom: 1px dashed rgba(255,212,0,.4); }
+  .guide .row { display: grid; grid-template-columns: 52px 1fr; gap: 0 8px; width: 100%; padding: 5px 12px; color: #f4efe0; position: relative; }
+  .guide .row time { font: 700 16px/1.15 "Barlow Condensed"; color: #d9cfa8; } .guide .row time small { display: block; font: 600 11px "Barlow Condensed"; color: #8d866e; }
+  .guide .row b { font: 700 15px/1.4 "Noto Serif TC"; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .guide .row:hover { background: rgba(255,212,0,.12); }
+  .guide .row[aria-current] { background: var(--y); color: #111; } .guide .row[aria-current] time, .guide .row[aria-current] time small { color: #3d3410; }
+  .guide .row[aria-current]::after { content: "ON AIR"; position: absolute; right: 8px; top: 7px; background: var(--red); color: #fff; font: 800 10px/1 "Barlow Condensed"; letter-spacing: .1em; padding: 3px 5px 2px; }
+  .guide .row[aria-current] b { padding-right: 46px; }
+
+  .plate { position: absolute; left: 0; bottom: 40px; z-index: 30; background: var(--y); color: #111; font: 900 24px/1 "Noto Sans TC"; padding: 10px 46px 10px 30px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%); transform: translateX(-110%); transition: transform .22s cubic-bezier(.3,1.3,.5,1); pointer-events: none; }
+  .plate.on { transform: none; }
+  .check { position: absolute; z-index: 31; pointer-events: none; transform: translate(-50%, -100%) scale(0); transform-origin: 50% 100%; transition: transform .2s cubic-bezier(.3,1.6,.5,1); font: 900 italic 30px/1 "Barlow Condensed"; color: #fff; letter-spacing: .02em; -webkit-text-stroke: 5px var(--blk); paint-order: stroke fill; }
+  .check.on { transform: translate(-50%, -100%) scale(1); }
+  .check::after { content: ""; display: block; margin: 4px auto 0; width: 70%; height: 6px; background: var(--y); box-shadow: 0 0 0 2px var(--blk); }
+  .msgbox { position: absolute; left: 50%; bottom: 40px; width: 760px; transform: translateX(-50%) translateY(30px) scaleY(0); transform-origin: 50% 100%; z-index: 32; pointer-events: none; transition: transform .2s; }
+  .msgbox.on { transform: translateX(-50%); }
+  .msgbox .np { display: inline-block; margin-left: 20px; background: var(--org); color: #fff; font: 900 16px/1 "Noto Sans TC"; padding: 7px 30px 7px 14px; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .msgbox .tx { background: rgba(58,40,22,.94); color: #fbf3df; font: 500 19px/1.7 "Noto Sans TC"; padding: 16px 24px; box-shadow: inset 0 0 0 3px #7a5a34, 0 0 0 3px var(--blk); }
+
+
+  /* ===== 電視螢幕上的實際 DOM（1000×750，用 CSS3D 貼到 3D 螢幕上） ===== */
+  .tvdom { width: 1000px; height: 750px; position: relative; overflow: hidden; border-radius: 70px / 60px; background: #050605; pointer-events: auto; cursor: zoom-in; color: #111; font-family: "Noto Sans TC", sans-serif; --y: #ffd400; --blk: #0d0b07; --red: #e2241b; --org: #f08a1c; --fog: 255, 226, 140; }
+  .zoomed .tvdom { cursor: default; }
+  .tvdom.off .sc-in, .tvdom.off .board { visibility: hidden; }
+  .sc-in { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 60% at 60% 36%, #3b3013, #19140a 60%, #0a0805); overflow: hidden; }
+  .sc-in svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sc-in .echo { position: absolute; right: -20px; top: 70px; font: 800 560px/0.8 "Barlow Condensed"; color: transparent; -webkit-text-stroke: 4px rgba(255,212,0,.14); letter-spacing: -12px; }
+  .telop { position: absolute; left: 70px; top: 40px; display: flex; height: 54px; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); z-index: 3; }
+  .telop .ch { background: var(--y); color: #111; font: 800 24px/54px "Barlow Condensed"; padding: 0 26px 0 16px; clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+  .telop h2 { margin: 0 0 0 -9px; background: var(--blk); color: #fff; font: 700 26px/54px "Noto Serif TC"; padding: 0 34px 0 30px; clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%); max-width: 600px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .telop .live { align-self: center; margin-left: 12px; color: #fff; font: 800 15px "Barlow Condensed"; letter-spacing: .14em; display: flex; align-items: center; gap: 7px; }
+  .telop .live::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .osd { position: absolute; right: 70px; top: 34px; font: 400 76px/1 "VT323"; color: #8dff7e; text-shadow: 0 0 12px rgba(120,255,110,.75), 3px 3px 0 #062006; transform: translateX(200%); transition: transform .22s steps(3); z-index: 6; }
+  .osd.on { transform: none; }
+  .board { position: absolute; left: 80px; top: 112px; width: 840px; height: 474px; background: #fbf7ea; box-shadow: 0 0 0 4px var(--blk), 0 26px 50px rgba(0,0,0,.5); overflow: hidden; z-index: 2; }
+  .composer { position: absolute; left: 80px; top: 606px; width: 840px; height: 96px; z-index: 3; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; padding: 0 22px 0 8px;
+    border: 3px dashed rgba(255,212,0,.85); background: rgba(8,7,5,.9); transition: box-shadow .3s; }
+  .composer:focus-within { border-style: solid; box-shadow: 0 0 0 4px #0a0a0a, 0 0 26px rgba(255,212,0,.4); }
+  .composer .tag { position: absolute; left: 18px; top: -17px; background: var(--y); color: #111; font: 800 15px/1 "Noto Sans TC"; padding: 7px 28px 7px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 100%, 0 100%); }
+  .composer .tag b { font: 800 16px "Barlow Condensed"; letter-spacing: .12em; margin-right: 8px; }
+  .composer textarea { all: unset; box-sizing: border-box; width: 100%; height: 100%; padding: 30px 18px 10px; color: #f4efe0; font: 20px/1.6 "Noto Sans TC"; white-space: pre-wrap; overflow: auto; cursor: text; }
+  .composer textarea::placeholder { color: #a39a7c; }
+  .composer .hint { font: 600 14px "Noto Sans TC"; color: #a39a7c; text-align: right; line-height: 1.7; }
+  .composer .hint kbd { font: 700 13px "Barlow Condensed"; border: 1px solid #6d6650; padding: 0 6px; border-radius: 3px; color: #e8dfc4; }
+  .tvdom.tunein .composer { animation: bdIn .6s .7s cubic-bezier(.2,.9,.2,1) both; }
+  .lens { position: absolute; left: 66px; top: 98px; width: 868px; height: 618px; z-index: 2; pointer-events: none; --c: linear-gradient(var(--y), var(--y));
+    background: var(--c) 0 0 / 40px 6px no-repeat, var(--c) 0 0 / 6px 40px no-repeat, var(--c) 100% 0 / 40px 6px no-repeat, var(--c) 100% 0 / 6px 40px no-repeat,
+      var(--c) 0 100% / 40px 6px no-repeat, var(--c) 0 100% / 6px 40px no-repeat, var(--c) 100% 100% / 40px 6px no-repeat, var(--c) 100% 100% / 6px 40px no-repeat; }
+  .feed { position: absolute; inset: 0; overflow: auto; padding: 36px 52px 34px; scrollbar-width: thin; scrollbar-color: #c9bd96 transparent; }
+  .msg { margin: 0 0 28px; }
+  .msg .np { display: inline-block; font: 800 15px/1 "Noto Sans TC"; padding: 7px 28px 7px 14px; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .msg .box { white-space: pre-wrap; }
+  .msg.me { margin-left: 160px; } .msg.me .np { background: var(--org); color: #fff; }
+  .msg.me .box { background: #2b2217; color: #fbf3df; padding: 16px 20px; box-shadow: inset 0 0 0 2px #4d3c25; font-size: 18px; line-height: 1.7; }
+  .msg.ai .np { background: #111; color: var(--y); }
+  .msg.ai .box { padding: 12px 2px 0; border-top: 2px solid #111; color: #1b1912; font-size: 19px; line-height: 1.85; }
+  .tuning { height: 84px; display: grid; place-items: center; background: var(--noise) 0 0 / 140px; animation: jit .14s steps(2) infinite; box-shadow: inset 0 0 0 2px #111; }
+  .tuning em { font: 400 28px "VT323"; font-style: normal; color: #fff; background: #111; padding: 0 14px; }
+  @keyframes jit { to { background-position: 41px 77px; } }
+  .board .static { position: absolute; inset: 0; z-index: 5; display: none; background: var(--noise) 0 0 / 170px; animation: jit .1s steps(2) infinite; }
+  .board.switching .static { display: block; }
+  .board .hold { position: absolute; left: 0; right: 0; top: -80px; height: 70px; z-index: 5; background: linear-gradient(transparent, rgba(0,0,0,.35), transparent); }
+  .board.rolling .hold { animation: hold .45s linear; }
+  .board.rolling .feed { animation: roll .45s cubic-bezier(.2,.7,.2,1); }
+  @keyframes hold { to { transform: translateY(760px); } }
+  @keyframes roll { from { transform: translateY(-40%); } 65% { transform: translateY(3%); } to { transform: none; } }
+  .bars { position: absolute; inset: 0; display: none; grid-template-rows: 64% 8% 1fr; }
+  .board.empty .bars { display: grid; } .board.empty .feed { display: none; }
+  .bars > div { display: flex; } .bars > div i { flex: 1; }
+  .bars > div.label { display: block; white-space: nowrap; position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); background: #0d0b07; color: #fff; padding: 14px 40px 16px; text-align: center; box-shadow: 0 0 0 4px var(--y); }
+  .bars .label b { display: block; font: 400 62px/1 "VT323"; letter-spacing: .08em; } .bars .label span { font: 500 18px "Noto Sans TC"; color: #e8dfc4; }
+  .special { position: absolute; inset: 0; display: none; place-items: center; text-align: center; z-index: 4; background: repeating-conic-gradient(from 0deg at 50% 60%, #ffd400 0 10deg, #f08a1c 10deg 20deg); }
+  .board.sp .special { display: grid; } .board.sp .feed { visibility: hidden; }
+  .special div { background: var(--blk); color: #fff; padding: 26px 50px 30px; box-shadow: 0 0 0 6px #fff, 0 0 0 12px var(--blk); transform: rotate(-4deg); }
+  .special small { display: block; font: 800 18px "Barlow Condensed"; letter-spacing: .3em; color: var(--y); }
+  .special b { display: block; font: 900 64px/1.15 "Noto Serif TC"; } .special span { font: 500 18px "Noto Sans TC"; color: #e8dfc4; }
+  .sfog { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 70% 70% at 50% 55%, transparent 55%, rgba(var(--fog),.35)); }
+  .sfog.thick { background: radial-gradient(ellipse 60% 60% at 50% 55%, rgba(var(--fog),.4) 30%, rgba(var(--fog),.95)); opacity: 0; transition: opacity 1.2s; }
+  .thinking .sfog.thick { opacity: 1; }
+  /* 午夜電視：黃綠色模糊雜訊 */
+  .mc { position: absolute; inset: 0; z-index: 8; display: none; overflow: hidden; }
+  .mc::before { content: ""; position: absolute; inset: -20px; background: var(--noise) 0 0 / 200px; animation: jit .09s steps(2) infinite; filter: blur(1.5px) contrast(1.4); }
+  .mc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(214,214,120,.75), rgba(170,182,80,.7)), repeating-linear-gradient(transparent 0 30px, rgba(255,255,255,.12) 30px 34px); mix-blend-mode: multiply; animation: wave 1.6s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform: translateX(-12px) skewX(-2deg); } to { transform: translateX(12px) skewX(2deg); } }
+  .tvdom.midnight .mc { display: block; }
+  .tvdom.poweron .sc-in { animation: pon .7s cubic-bezier(.2,.8,.2,1); }
+  @keyframes pon { 0% { transform: scale(.15, .004); filter: brightness(4); } 30% { transform: scale(1, .004); filter: brightness(3); } 100% { transform: none; filter: none; } }
+  .board.on { animation: pon .6s cubic-bezier(.2,.8,.2,1); }
+  .tvdom.poweroff .board { animation: poff .5s cubic-bezier(.6,0,.8,.4) forwards; }
+  @keyframes poff { 0% { transform: none; } 55% { transform: scale(1, .004); filter: brightness(3); } 100% { transform: scale(0, .004); filter: brightness(4); } }
+  .tvdom .dot { position: absolute; left: 50%; top: 54%; width: 22px; height: 22px; margin: -11px; border-radius: 50%; background: radial-gradient(#fff, #fff 40%, rgba(255,255,255,0)); transform: scale(0); z-index: 9; }
+  .tvdom.poweroff .dot { animation: dot .75s ease-out forwards; }
+  @keyframes dot { 0%, 60% { transform: scale(0); } 70% { transform: scale(1.4); } 100% { transform: scale(0); } }
+  /* 進電視的黑白同心「電視形」 */
+  /* 漩渦之後的調頻過渡 */
+  .tz, .scanbar { position: absolute; left: 0; right: 0; z-index: 8; display: none; pointer-events: none; }
+  .tz { top: 0; bottom: 0; background: var(--noise) 0 0 / 210px; animation: jit .1s steps(2) infinite; }
+  .tz::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(255,212,0,.55), rgba(214,214,120,.65)); mix-blend-mode: multiply; }
+  .scanbar { top: 0; height: 18px; background: linear-gradient(transparent, rgba(255,245,190,.95) 45%, #ffd400 55%, transparent); box-shadow: 0 0 30px 8px rgba(255,212,0,.55); }
+  .tvdom.tunein .tz { display: block; animation: jit .1s steps(2) infinite, tzwipe .78s .42s cubic-bezier(.65,0,.3,1) both; }
+  .tvdom.tunein .scanbar { display: block; animation: scan .78s .42s cubic-bezier(.65,0,.3,1) both; }
+  @keyframes tzwipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(100% 0 0 0); } }
+  @keyframes scan { from { transform: translateY(-20px); } to { transform: translateY(760px); } }
+  .tvdom.tunein .board { animation: bdIn .65s .5s cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes bdIn { from { transform: translateY(30px) scale(.94); filter: brightness(1.9) contrast(.6); } to { transform: none; filter: none; } }
+  .tvdom.tunein .telop { animation: tlIn .5s .78s cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes tlIn { from { transform: translateX(-140%) skewX(-14deg); } to { transform: none; } }
+  .tvdom.tunein .lens { animation: lnIn .5s .8s cubic-bezier(.3,1.6,.5,1) both; }
+  @keyframes lnIn { from { transform: scale(1.14); } to { transform: none; } }
+  .tvdom.tunein .msg { animation: msgIn .45s var(--d, .8s) cubic-bezier(.2,.9,.2,1) both; }
+  @keyframes msgIn { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .vtx { position: absolute; left: 0; top: 0; z-index: 9; display: none; width: 1000px; height: 750px; }
+  .tvdom.vortex .vtx { display: block; }
+  #fx { position: absolute; left: 0; top: 0; z-index: 19; pointer-events: none; }
+  .hint2 { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(80px); z-index: 30; pointer-events: none; transition: transform .35s cubic-bezier(.3,1.3,.5,1);
+    background: #0a0a0a; color: #fff; font: 700 15px/1 "Noto Sans TC"; padding: 10px 22px; letter-spacing: .06em; box-shadow: 0 0 0 2px #ffd400; white-space: nowrap; }
+  .hint2 em { font-style: normal; color: #ffd400; margin: 0 10px; }
+  .orbit .hint2, .focus .hint2, .roomzoom .hint2 { transform: translateX(-50%); }
+  .orbit #gl { cursor: grab; } .orbit.dragging #gl { cursor: grabbing; }
+  #sv { position: absolute; left: 0; top: 0; z-index: 24; pointer-events: none; display: none; }
+  .grade { position: absolute; inset: 34px 0 0 0; z-index: 20; pointer-events: none; transition: opacity .6s;
+    background: radial-gradient(ellipse 85% 80% at 50% 42%, transparent 38%, rgba(2,2,12,.88)), linear-gradient(rgba(20,30,90,.14), rgba(0,0,0,.2)); }
+  .grade::after { content: ""; position: absolute; inset: 0; background: var(--noise) 0 0 / 190px; opacity: .08; mix-blend-mode: overlay; animation: jit .12s steps(2) infinite; }
+  .zoomed .grade { opacity: .75; }
+  /* 玻璃 */
+  .glass { position: absolute; inset: 0; z-index: 10; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(ellipse 46% 30% at 28% 16%, rgba(255,255,255,.14), transparent 70%), linear-gradient(118deg, transparent 58%, rgba(255,255,255,.05) 60%, transparent 68%), repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.13) 2px 3px);
+    box-shadow: inset 0 0 90px 20px rgba(0,0,0,.7), inset 0 0 0 3px rgba(0,0,0,.6); }
+  .tvdom.off .glass { background: radial-gradient(ellipse 46% 30% at 28% 16%, rgba(255,255,255,.12), transparent 70%), linear-gradient(118deg, transparent 58%, rgba(255,255,255,.07) 60%, transparent 68%), radial-gradient(ellipse at center, #1c211e, #050605 78%); }
+
+  @media (prefers-reduced-motion: reduce) { #st *, #st *::before, #st *::after { animation: none !important; transition: none !important; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<header class="top">
+  <h1>P4 · 真 3D 電視房間（演示 v9）</h1>
+  <p>用 three.js 做的即時 3D 房間，照原作的感覺：PS2 時代低面數、平塗卡通光影、灰黑格子地毯、黑沙發配藍抱枕、角落的小台 CRT。電視螢幕上的對話是真的網頁元素（用 CSS3D 貼到 3D 螢幕上），所以文字清楚、可以捲動。點電視就會一路推進到螢幕前，輸入框也在電視螢幕裡。</p>
+</header>
+<div class="controls">
+  <button id="replay">▶ 重播午夜開播</button>
+  <button id="zoomBtn">鏡頭推近 / 退後</button>
+  <button id="think">AI 思考中（濃霧）</button>
+  <button id="chUp">轉台 ▲</button>
+  <button id="chDn">轉台 ▼</button>
+  <button id="newBtn">＋ 新對話（開機）</button>
+  <button id="delBtn">刪除對話（關機）</button>
+  <button id="bulkBtn">＋12 個舊對話（測試塔長高）</button>
+</div>
+
+<main class="wrap">
+  <div class="frame"><div class="stage" id="st">
+    <div class="loading" id="loading">LOADING · · ·</div>
+    <div id="gl"></div>
+    <div id="css"></div>
+    <canvas id="fx" width="1440" height="900"></canvas>
+    <canvas id="sv" width="1440" height="900"></canvas>
+    <div class="grade"></div>
+    <div class="bolt" id="bolt"></div>
+    <div class="slogan" id="slogan"><div class="band"><div class="y"><b id="sloganText"></b></div><div class="k" id="sloganSub"></div></div></div>
+    <div class="cap">DeepSeek Harness<div class="wb"><i>—</i><i>▢</i><i>✕</i></div></div>
+
+    <div class="hud-date"><div class="pill"><b id="hDate">11/18</b><i id="hWd">WED</i><em id="hPeriod">深夜</em></div><div class="wx" title="依時段產生的氣氛天氣，不是天氣預報">☂</div></div>
+    <div class="modesw" id="modesw" role="group" aria-label="場景模式"><span class="lb">MODE</span><button type="button" data-mode="room" aria-pressed="true"><span>房間</span></button><button type="button" data-mode="tower" aria-pressed="false"><span>電視塔</span></button></div>
+    <div class="bandsw" id="bandsw" role="group" aria-label="頻段"><button type="button" id="bandPrev" aria-label="上一個頻段"><span>◀</span></button><span class="lb">BAND <b id="bandN">1</b><i>/</i><i id="bandT">1</i></span><button type="button" id="bandNext" aria-label="下一個頻段"><span>▶</span></button></div>
+
+    <nav class="guide">
+      <div class="cmd">
+        <button id="cmdNew"><span>01</span>新對話</button>
+        <button data-sp="plugins"><span>02</span>外掛</button>
+        <button data-sp="auto"><span>03</span>自動化</button>
+      </div>
+      <div class="pg"><div class="hd"><b>節目表</b><small>PROGRAM GUIDE</small></div><div class="list" id="list"></div></div>
+    </nav>
+
+    <div class="plate" id="plate">電視</div>
+    <div class="hint2" id="hint2"></div>
+    <div class="check" id="check">CHECK!!</div>
+    <div class="msgbox" id="msgbox"><span class="np">你</span><div class="tx" id="msgtx"></div></div>
+
+  </div></div>
+
+  <!-- 電視螢幕 DOM：會被搬進 CSS3D -->
+  <div class="tvdom off" id="tvdom">
+    <div class="sc-in">
+      <svg viewBox="0 0 1000 750" preserveAspectRatio="none" id="floorlines"></svg>
+      <div class="echo" id="echo">06</div>
+      <div class="sfog"></div><div class="sfog thick"></div>
+      <div class="telop"><span class="ch" id="telopCh">CH 06</span><h2 id="telopTitle">檢查權杖更新機制</h2><span class="live">LIVE</span></div>
+      <div class="osd" id="osd">CH 06</div>
+      <form class="composer" id="callin">
+        <span class="tag"><b>CALL-IN</b>現場連線</span>
+        <textarea id="input" rows="2" placeholder="打電話進節目……（Enter 送出，Shift + Enter 換行）" aria-label="輸入訊息"></textarea>
+        <div class="hint"><kbd>Enter</kbd> 送出<br><kbd>Esc</kbd> 退後</div>
+      </form>
+      <div class="lens"></div>
+      <div class="board" id="board">
+        <div class="feed" id="feed"></div>
+        <div class="bars">
+          <div><i style="background:#c0c0c0"></i><i style="background:#c0c000"></i><i style="background:#00c0c0"></i><i style="background:#00c000"></i><i style="background:#c000c0"></i><i style="background:#c00000"></i><i style="background:#0000c0"></i></div>
+          <div><i style="background:#0000c0"></i><i style="background:#111"></i><i style="background:#c000c0"></i><i style="background:#111"></i><i style="background:#00c0c0"></i><i style="background:#111"></i><i style="background:#c0c0c0"></i></div>
+          <div><i style="background:#00214c"></i><i style="background:#fff"></i><i style="background:#32006a"></i><i style="background:#131313;flex:3"></i><i style="background:#090909"></i></div>
+          <div class="label"><b>NO SIGNAL</b><span>等待你的第一則訊息</span></div>
+        </div>
+        <div class="special"><div><small id="spEn">SPECIAL</small><b id="spTitle">外掛特輯</b><span>正式版會在這裡放原生的外掛頁面</span></div></div>
+        <div class="static"></div><div class="hold"></div>
+      </div>
+    </div>
+    <div class="mc"></div>
+    <div class="tz"></div><div class="scanbar"></div>
+    <canvas class="vtx" id="vtx" width="1000" height="750"></canvas>
+    <div class="dot"></div>
+    <div class="glass"></div>
+  </div>
+
+  <div class="notes">
+    <article>
+      <h3><span class="tag">參考</span>原作的電視和房間</h3>
+      <ul>
+        <li>原作房間是固定的高角度鏡頭，往下斜看：灰黑相間的格子地毯、榻榻米邊、黑色沙發配藍色抱枕、矮木桌、金屬架、角落的小台 CRT。</li>
+        <li>畫面是 PS2 時代的低面數模型，光影平、顏色偏暗偏柔；HUD 是 2D 疊在上面：右上日期加天氣圓章、左下黃色斜角名牌、靠近物件時跳「CHECK!!」。</li>
+        <li>午夜電視的畫面是黃綠色、顆粒很粗、會晃動的模糊影像；伸手進電視時，螢幕是黑白同心的「電視形」漩渦。</li>
+        <li>電視世界入口是攝影棚：堆疊的舊 CRT 發著黃光、鋼架、聚光燈、攝影機。</li>
+      </ul>
+    </article>
+    <article>
+      <h3><span class="tag">演示</span>可以玩的東西</h3>
+      <ul>
+        <li>開場：燈暗、雨聲般的窗外雨絲，錄影機時鐘走到 00:00，電視自己打開，先播黃綠色的午夜電視，再開始節目。點任何地方跳過。</li>
+        <li>滑鼠移到家具上，左下會跳出名牌；移到電視上會出現「CHECK!!」。點其他家具會有一句旁白。</li>
+        <li>點電視的瞬間，螢幕就捲出黑白黃三色的同心「電視形」漩渦，加上網點、訊號撕裂和往電視收束的速度線，鏡頭邊推近邊微微傾斜；到定位時漩渦從中心開出一個電視形的洞，露出節目。同時整個房間被染成黃黑雙色，一條斜的黃色大字「TUNING IN」從右邊衝進來再甩出去。</li>
+        <li>漩渦之後是調頻過渡：黃色雪花從上往下被一道掃描光帶刷掉，閱讀板浮上來、字幕條從左邊滑入、鏡框彈回、訊息一則一則冒出來，最後跳出頻道號碼。推近後左邊的節目表仍然保留。Esc 或點螢幕外退回。</li>
+        <li>穿過漩渦後掉進電視世界的黃霧攝影棚：中央是一座亂疊的舊 CRT 電視塔，每台電視落在它底下疊到的高度上，所以高低錯落、有的歪頭、有的轉向、偶爾有缺口，整座塔還越疊越歪；最高那台插著天線，塔腳下倒著幾台躺平或側躺的。外圈是黃色鷹架、聚光燈光錐、三腳架攝影機和同心圓舞台地板。</li>
+        <li>可以拖曳繞著塔轉 360 度（上下拖升降鏡頭，放開有慣性），滾輪拉近拉遠。沒被擋住、正面朝外的電視都可以播對話（頻道號碼＋標題，正在看的標 ON AIR），對話優先排在視線高度、分散在塔的四周，其他電視播雪花。每個對話固定在自己那台電視，新增或刪除別的對話不會換位置。</li>
+        <li>工作區太多時：先往塔頂一層一層疊新電視上去（在塔那邊會看到電視從上面掉下來），塔長到鷹架那麼高就不再長，改成分「頻段」：右上角出現 BAND 1/2 的切換鈕，每個頻段是同一座塔換一批節目；點左邊工作區裡別的頻段的對話，會先整座塔一起閃雪花換頻段，再飛過去。上方「＋12 個舊對話」可以測試。</li>
+        <li>右上角的 MODE 鈕可以在「房間」和「電視塔」兩個模式之間切換：從房間切過去會捲漩渦、落在塔外環視；切回房間會再捲一次漩渦退出電視。</li>
+        <li>房間模式（預設）：點電視或開始打字時，鏡頭只是安靜地推到電視前，不進電視世界；房間退到景深後面變模糊，但會呼應對話——螢幕的顏色像環境光打在後牆、地板和側牆上（每個頻道顏色不同，有新字出來時光會跳動）；AI 思考時窗外雨變大、牆上的雨影流得更快，還會打雷，整個房間閃一下、螢幕被干擾抖一下；對話越長，桌上的節目表就疊得越多（退後就看得到，一張一張落下來）。</li>
+        <li>點任何一台播著對話的電視，或點左邊工作區的對話，鏡頭就飛到那台電視前，對話欄直接貼在那台電視螢幕上，接著跑調頻過渡。在房間裡點左邊工作區，也會先捲漩渦再落到那台電視前。</li>
+        <li>Esc（或拖曳畫面）退回繞塔環視；在環視時再按 Esc 回到房間。電視之間換台時，鏡頭從塔外繞過去。</li>
+        <li>AI 思考時，黃霧從電視裡漫出來，整個房間被染黃；螢幕上的閱讀板永遠清楚。</li>
+      </ul>
+    </article>
+    <article>
+      <h3><span class="tag">技術</span>正式版怎麼接</h3>
+      <ul>
+        <li>3D 房間是一張 WebGL 背景；對話仍然是原生 DOM，只是用 CSS 3D 變形貼到電視螢幕的位置，所以原生按鈕、選字、捲動、無障礙都還在。</li>
+        <li>three.js 約 600 KB，正式版會打包進外觀，不從網路載入。</li>
+        <li>減少動態效果時：不做鏡頭飛行、不飄霧，直接切換畫面。顯示卡太弱時退回上一版 2D 設計。</li>
+      </ul>
+    </article>
+    <article class="ask">
+      <h3><span class="tag">想請你看看</span>回饋給我</h3>
+      <ul>
+        <li>房間的鏡頭角度、亮度和家具擺設，像不像你心中的 P4？</li>
+        <li>節目表放在左邊 2D 面板 OK 嗎？還是想讓它變成房間裡的一個物件（例如桌上的報紙，點了才打開）？</li>
+        <li>推近後螢幕大小可以嗎？</li>
+      </ul>
+    </article>
+  </div>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const $ = id => document.getElementById(id);
+const st = $('st'), tvdom = $('tvdom'), board = $('board'), feed = $('feed'), list = $('list'), input = $('input');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pad = n => String(n).padStart(2, '0');
+const WD = ['日', '一', '二', '三', '四', '五', '六'], WDE = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const W = 1440, H = 900;
+
+const fit = () => document.querySelectorAll('.frame').forEach(f => { const s = f.querySelector('.stage'); if (s) s.style.transform = `scale(${f.clientWidth / W})`; });
+new ResizeObserver(fit).observe(document.body); fit();
+
+// ---------- 小工具 ----------
+const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; t.userData.redraw = () => { draw(c.getContext('2d'), w, h); t.needsUpdate = true; }; return t; };
+const noiseCanvas = document.createElement('canvas'); noiseCanvas.width = noiseCanvas.height = 128;
+{ const cx = noiseCanvas.getContext('2d'), img = cx.createImageData(128, 128); for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255 | 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; } cx.putImageData(img, 0, 0); }
+tvdom.style.setProperty('--noise', `url(${noiseCanvas.toDataURL()})`); st.style.setProperty('--noise', `url(${noiseCanvas.toDataURL()})`);
+
+// 螢幕內地板線
+{ let d = ''; const vx = 560, vy = 230;
+  for (let x = -700; x <= 1800; x += 120) d += `M${vx} ${vy}L${x} 750`;
+  for (let k = 1; k < 10; k++) { const y = vy + 520 * (1 - 1 / (1 + k * k * .07)); d += `M0 ${y.toFixed(1)}H1000`; }
+  $('floorlines').innerHTML = `<path d="${d}" stroke="#ffd400" stroke-opacity=".16" stroke-width="1.5" fill="none"/>`; }
+
+// ---------- three.js ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+$('gl').appendChild(renderer.domElement);
+const cssR = new CSS3DRenderer(); cssR.setSize(W, H); cssR.domElement.style.pointerEvents = 'none'; $('css').appendChild(cssR.domElement);
+const effect = new OutlineEffect(renderer, { defaultThickness: 0.0048, defaultColor: [0, 0, 0], defaultAlpha: 1 });
+
+const scene = new THREE.Scene();
+const NIGHT = new THREE.Color(0x04050b), FOGY = new THREE.Color(0xc9b46a);
+scene.background = NIGHT.clone();
+scene.fog = new THREE.FogExp2(NIGHT.clone(), 0.03);
+const camera = new THREE.PerspectiveCamera(40, W / H, 0.05, 60);
+
+const gm = new THREE.DataTexture(new Uint8Array([38, 118, 255]), 3, 1, THREE.RedFormat); gm.minFilter = gm.magFilter = THREE.NearestFilter; gm.needsUpdate = true;
+const toon = (c, o = {}) => new THREE.MeshToonMaterial({ color: c, gradientMap: gm, ...o });
+const noLine = m => { m.userData.outlineParameters = { visible: false }; return m; };
+const room = new THREE.Group(); scene.add(room);
+const pickables = [];
+const pick = (obj, label, say) => { obj.traverse(o => { if (o.isMesh) { o.userData.pick = label; o.userData.say = say; pickables.push(o); } }); return obj; };
+const box = (w, h, d, mat, x, y, z, parent = room) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y + h / 2, z); parent.add(m); return m; };
+const plane = (w, h, mat, parent = room) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); parent.add(m); return m; };
+
+// 地板：灰黑格子地毯
+const floorTex = canvasTex(256, 256, (g, w, h) => {
+  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? '#3c3f46' : '#5d6169'; g.fillRect(i * 128, j * 128, 128, 128); }
+  for (let k = 0; k < 2600; k++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * .12})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+});
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(4.5, 4);
+const floor = plane(4.5, 4, noLine(toon(0xffffff, { map: floorTex }))); floor.rotation.x = -Math.PI / 2;
+// 榻榻米邊（左牆旁）
+const tatami = box(0.7, 0.012, 4, toon(0xb9b07a), -1.9, 0, 0); noLine(tatami.material);
+
+// 牆
+const wallMat = toon(0xa39a84), woodDark = toon(0x5a3e26), wood = toon(0x7a5432), woodLight = toon(0x9a6d40);
+const back = plane(4.5, 2.4, noLine(wallMat)); back.position.set(0, 1.2, -2);
+const left = plane(4, 2.4, noLine(wallMat.clone())); left.rotation.y = Math.PI / 2; left.position.set(-2.25, 1.2, 0);
+box(4.5, 0.9, 0.03, noLine(toon(0xb59c78)), 0, 0, -1.985);
+box(0.03, 0.9, 4, noLine(toon(0xb59c78)), -2.235, 0, 0);
+box(4.5, 0.08, 0.04, woodDark, 0, 0, -1.97); box(0.04, 0.08, 4, woodDark, -2.22, 0, 0);
+box(4.5, 0.04, 0.05, woodDark, 0, 0.9, -1.97);
+
+// 窗戶：夜雨
+const outsideTex = canvasTex(512, 440, (g, w, h) => {
+  const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#0d1530'); gr.addColorStop(.7, '#1d2a4a'); gr.addColorStop(1, '#2a3552'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#0a0e1a'; [[0, 300, 140, 140], [120, 260, 120, 180], [230, 320, 110, 120], [330, 240, 90, 200], [410, 290, 110, 150]].forEach(r => g.fillRect(...r));
+  g.beginPath(); g.moveTo(110, 300); g.lineTo(180, 230); g.lineTo(250, 260); g.fill();
+  [[150, 290], [175, 290], [355, 270], [375, 300], [440, 320], [40, 330], [260, 350]].forEach(([x, y]) => { g.fillStyle = Math.random() < .5 ? '#ffd98a' : '#ffe9b8'; g.fillRect(x, y, 12, 10); });
+  const lg = g.createRadialGradient(470, 250, 2, 470, 250, 80); lg.addColorStop(0, 'rgba(255,220,150,.6)'); lg.addColorStop(1, 'rgba(255,220,150,0)'); g.fillStyle = lg; g.fillRect(380, 160, 180, 180);
+});
+const rainTex = canvasTex(128, 256, (g, w, h) => { g.clearRect(0, 0, w, h); for (let i = 0; i < 70; i++) { const x = Math.random() * w, y = Math.random() * h, l = 14 + Math.random() * 26; g.strokeStyle = `rgba(190,210,255,${.25 + Math.random() * .4})`; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 3, y + l); g.stroke(); } });
+rainTex.wrapS = rainTex.wrapT = THREE.RepeatWrapping; rainTex.repeat.set(3, 2);
+const win = new THREE.Group(); win.position.set(1.15, 1.5, -1.99); room.add(win);
+const outside = plane(1.0, 0.86, noLine(new THREE.MeshBasicMaterial({ map: outsideTex, fog: false })), win); outside.position.z = 0.002;
+const rain = plane(1.0, 0.86, noLine(new THREE.MeshBasicMaterial({ map: rainTex, transparent: true, fog: false })), win); rain.position.z = 0.006;
+const frameMat = toon(0xe9e3d3);
+box(1.1, 0.06, 0.06, frameMat, 0, 0.43, 0.03, win); box(1.1, 0.06, 0.06, frameMat, 0, -0.49, 0.03, win);
+box(0.06, 0.92, 0.06, frameMat, -0.52, -0.46, 0.03, win); box(0.06, 0.92, 0.06, frameMat, 0.52, -0.46, 0.03, win); box(0.035, 0.86, 0.04, frameMat, 0, -0.43, 0.03, win);
+box(1.2, 0.04, 0.14, frameMat, 0, -0.53, 0.07, win);
+const curtainMat = toon(0x3f5584);
+box(0.32, 1.25, 0.05, curtainMat, -0.68, -0.72, 0.09, win); box(0.32, 1.25, 0.05, curtainMat, 0.68, -0.72, 0.09, win);
+box(1.6, 0.05, 0.05, woodDark, 0, 0.56, 0.11, win);
+pick(win, '窗戶', '雨一直下個不停……聽說這種晚上，午夜的電視會播出奇怪的節目。');
+
+// 大雨（思考時才出現的第二層雨）
+const rain2Tex = canvasTex(128, 256, (g, w, h) => { g.clearRect(0, 0, w, h); for (let i = 0; i < 150; i++) { const x = Math.random() * w, y = Math.random() * h, l = 30 + Math.random() * 50; g.strokeStyle = `rgba(215,228,255,${.3 + Math.random() * .5})`; g.lineWidth = 1 + Math.random() * .8; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 7, y + l); g.stroke(); } });
+rain2Tex.wrapS = rain2Tex.wrapT = THREE.RepeatWrapping; rain2Tex.repeat.set(3, 2);
+const rain2 = plane(1.0, 0.86, noLine(new THREE.MeshBasicMaterial({ map: rain2Tex, transparent: true, opacity: 0, fog: false, depthWrite: false })), win); rain2.position.z = 0.008;
+// 日曆（真實日期）
+const now = new Date();
+const calTex = canvasTex(256, 336, (g, w, h) => {
+  g.fillStyle = '#f6f1e2'; g.fillRect(0, 0, w, h); g.fillStyle = '#e2241b'; g.fillRect(0, 0, w, 54);
+  g.fillStyle = '#fff'; g.font = '800 30px "Barlow Condensed", sans-serif'; g.textAlign = 'center'; g.fillText(`${now.getFullYear()} · ${now.getMonth() + 1}月`, w / 2, 38);
+  g.fillStyle = '#1b1a17'; g.font = '800 170px "Barlow Condensed", sans-serif'; g.fillText(String(now.getDate()), w / 2, 220);
+  g.font = '900 34px "Noto Sans TC", sans-serif'; g.fillText(`（${WD[now.getDay()]}）`, w / 2, 290);
+});
+const cal = plane(0.3, 0.4, noLine(toon(0xffffff, { map: calTex }))); cal.position.set(-1.65, 1.58, -1.975);
+pick(cal, '日曆', `今天是 ${now.getMonth() + 1} 月 ${now.getDate()} 日（${WD[now.getDay()]}）。`);
+// 海報（原創）
+const posterTex = canvasTex(300, 420, (g, w, h) => {
+  g.fillStyle = '#ffd400'; g.fillRect(0, 0, w, h);
+  for (let i = 7; i >= 0; i--) { g.fillStyle = i % 2 ? '#111' : '#ffd400'; const s = 30 + i * 30; g.beginPath(); g.roundRect(w / 2 - s * .62, 170 - s / 2, s * 1.24, s, s * .3); g.fill(); }
+  g.fillStyle = '#111'; g.font = 'italic 900 64px "Barlow Condensed", sans-serif'; g.textAlign = 'center'; g.fillText('DSH-TV', w / 2, 360);
+  g.font = '800 22px "Barlow Condensed", sans-serif'; g.fillText('MIDNIGHT · 00:00', w / 2, 392);
+});
+const poster = plane(0.5, 0.7, noLine(toon(0xffffff, { map: posterTex }))); poster.rotation.y = Math.PI / 2; poster.position.set(-2.22, 1.55, -0.9);
+pick(poster, '海報', 'DSH-TV 的宣傳海報。上面寫著「午夜零點」。');
+
+// 衣櫃、書架
+const wardrobe = new THREE.Group(); room.add(wardrobe);
+box(0.55, 1.85, 0.95, wood, -1.95, 0, 1.05, wardrobe); box(0.02, 1.7, 0.012, woodDark, -1.67, 0.08, 1.05, wardrobe);
+box(0.04, 0.12, 0.03, toon(0xc9b37a), -1.66, 0.9, 0.98, wardrobe); box(0.04, 0.12, 0.03, toon(0xc9b37a), -1.66, 0.9, 1.12, wardrobe);
+pick(wardrobe, '衣櫃', '裡面掛著制服。明天也要上學。');
+const shelf = new THREE.Group(); room.add(shelf);
+box(0.38, 1.0, 0.8, woodLight, -2.04, 0, -0.1, shelf);
+[0xb03a2e, 0x2e5fb0, 0xe0b040, 0x3a8a4a, 0x7a3ab0, 0xd06a2a, 0x2a2a2a].forEach((c, i) => box(0.24, 0.24 + (i % 3) * .03, 0.07, toon(c), -1.98, 0.62, -0.42 + i * 0.09, shelf));
+[0x8a8a8a, 0xc9a24a, 0x444].forEach((c, i) => box(0.22, 0.18, 0.18, toon(c), -1.98, 0.08 + 0.0, -0.32 + i * 0.22, shelf));
+pick(shelf, '書架', '漫畫和參考書混在一起。');
+
+// 金屬架
+const rack = new THREE.Group(); rack.position.set(0.25, 0, -1.78); room.add(rack);
+const metal = toon(0xa8adb3);
+[[-0.3, -0.15], [0.3, -0.15], [-0.3, 0.15], [0.3, 0.15]].forEach(([x, z]) => box(0.025, 1.05, 0.025, metal, x, 0, z, rack));
+[0.1, 0.48, 0.86].forEach(y => box(0.64, 0.02, 0.34, metal, 0, y, 0, rack));
+box(0.22, 0.16, 0.2, toon(0xd06a2a), -0.15, 0.5, 0, rack); box(0.18, 0.1, 0.24, toon(0x2e5fb0), 0.15, 0.5, 0, rack); box(0.3, 0.22, 0.22, toon(0x6b6f74), 0, 0.12, 0, rack);
+box(0.1, 0.28, 0.1, toon(0x3a8a4a), 0.2, 0.88, 0, rack);
+pick(rack, '金屬架', '堆了一些雜物和舊遊戲盒。');
+
+// 電視櫃 + 錄影機時鐘
+const cabinet = new THREE.Group(); cabinet.position.set(-0.65, 0, -1.74); room.add(cabinet);
+box(1.04, 0.45, 0.46, wood, 0, 0, 0, cabinet);
+box(1.06, 0.03, 0.48, woodDark, 0, 0.45, 0, cabinet);
+box(0.42, 0.33, 0.012, woodDark, 0.25, 0.06, 0.232, cabinet);
+box(0.44, 0.085, 0.3, toon(0x1e1d1a), -0.24, 0.24, 0.09, cabinet);
+let vcrText = '23:59';
+const vcrTex = canvasTex(256, 64, (g, w, h) => { g.fillStyle = '#050c05'; g.fillRect(0, 0, w, h); g.fillStyle = '#7dff7a'; g.shadowColor = 'rgba(120,255,110,.8)'; g.shadowBlur = 10; g.font = '56px VT323, monospace'; g.textAlign = 'center'; g.fillText(vcrText, w / 2, 50); });
+const vcr = plane(0.12, 0.03, noLine(new THREE.MeshBasicMaterial({ map: vcrTex, fog: false })), cabinet); vcr.position.set(-0.13, 0.283, 0.241);
+box(0.16, 0.012, 0.01, toon(0x050505), -0.33, 0.276, 0.242, cabinet);
+pick(cabinet, '電視櫃', '錄影機的時鐘一直閃著綠光。');
+
+// ===== CRT 電視（精細版） =====
+const tv = new THREE.Group(); tv.position.set(-0.65, 0.465, -1.72); room.add(tv);
+const tvBody = toon(0x5c5953), tvTrim = toon(0x23211f), tvDark = toon(0x121110), tvSlat = toon(0x77736b);
+const chrome = new THREE.MeshPhongMaterial({ color: 0xb9bdc2, specular: 0xffffff, shininess: 100 });
+const rrShape = (s, w, h, r) => { s.moveTo(-w / 2 + r, -h / 2); s.lineTo(w / 2 - r, -h / 2); s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r); s.lineTo(w / 2, h / 2 - r); s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2); s.lineTo(-w / 2 + r, h / 2); s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r); s.lineTo(-w / 2, -h / 2 + r); s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2); return s; };
+// 機身：圓角外殼 + 後方漸縮的映像管殼
+const cab = new THREE.Mesh(new RoundedBoxGeometry(0.68, 0.53, 0.42, 5, 0.04), tvBody); cab.position.set(0, 0.285, 0.02); tv.add(cab);
+const hg = new THREE.CylinderGeometry(0.2, 0.31, 0.3, 4, 1); hg.rotateY(Math.PI / 4); hg.rotateX(-Math.PI / 2); hg.scale(1.22, 1, 1);
+const housing = new THREE.Mesh(hg, tvBody); housing.position.set(0, 0.3, -0.33); tv.add(housing);
+const backPlate = new THREE.Mesh(new RoundedBoxGeometry(0.3, 0.24, 0.03, 3, 0.012), tvTrim); backPlate.position.set(0, 0.3, -0.49); tv.add(backPlate);
+for (let i = 0; i < 7; i++) box(0.34, 0.004, 0.012, tvDark, -0.05, 0.548, -0.13 + i * 0.035, tv); // 頂部散熱槽
+// 前框：倒角、電視形開口
+const bz = rrShape(new THREE.Shape(), 0.53, 0.43, 0.05); bz.holes.push(rrShape(new THREE.Path(), 0.452, 0.343, 0.075));
+const bezel = new THREE.Mesh(new THREE.ExtrudeGeometry(bz, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.008, bevelSegments: 3, curveSegments: 12 }), tvTrim);
+bezel.position.set(-0.07, 0.29, 0.222); tv.add(bezel);
+// 曲面玻璃
+const gg = new THREE.PlaneGeometry(0.47, 0.36, 28, 20); { const gp = gg.attributes.position; for (let i = 0; i < gp.count; i++) { const x = gp.getX(i) / 0.235, y = gp.getY(i) / 0.18; gp.setZ(i, 0.02 * (1 - x * x * .7) * (1 - y * y * .7)); } gg.computeVertexNormals(); }
+const glassMat = noLine(new THREE.MeshPhongMaterial({ color: 0x060807, specular: 0x667766, shininess: 90 }));
+const glassMesh = new THREE.Mesh(gg, glassMat); glassMesh.position.set(-0.07, 0.29, 0.212); tv.add(glassMesh);
+// 下緣鍍鉻條與銘牌
+box(0.52, 0.006, 0.006, chrome, -0.07, 0.052, 0.232, tv);
+const badgeTex = canvasTex(256, 56, (g, w, h) => { g.fillStyle = '#121110'; g.fillRect(0, 0, w, h); g.fillStyle = '#d9d4c6'; g.font = 'italic 800 40px "Barlow Condensed", sans-serif'; g.textAlign = 'center'; g.fillText('DSH-TV', w / 2, 42); });
+const badge = plane(0.1, 0.022, noLine(toon(0xffffff, { map: badgeTex })), tv); badge.position.set(-0.07, 0.032, 0.2315);
+// 右側控制面板
+box(0.12, 0.44, 0.006, tvDark, 0.265, 0.07, 0.229, tv);
+const knobGeo = (() => {
+  const pts = [[0, 0], [0.037, 0], [0.039, 0.005], [0.036, 0.01], [0.032, 0.028], [0.028, 0.034], [0.012, 0.037], [0, 0.037]].map(([x, y]) => new THREE.Vector2(x, y));
+  const g = new THREE.LatheGeometry(pts, 48), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); if (y > 0.011 && y < 0.03) { const a = Math.atan2(z, x), k = Math.cos(a * 22) > 0 ? 1.07 : 1; p.setX(i, x * k); p.setZ(i, z * k); } }
+  g.computeVertexNormals(); g.rotateX(Math.PI / 2); return g;
+})();
+const knobMat = toon(0x26241f);
+const mkKnob = (y, sc) => { const k = new THREE.Group(); k.position.set(0.265, y, 0.232); k.scale.setScalar(sc); tv.add(k);
+  k.add(new THREE.Mesh(knobGeo, knobMat));
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.004, 24), chrome); cap.rotation.x = Math.PI / 2; cap.position.z = 0.038; k.add(cap);
+  const mark = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.026, 0.006), toon(0xffd400)); mark.position.set(0, 0.02, 0.036); k.add(mark);
+  return k; };
+const chKnob = mkKnob(0.43, 1), volKnob = mkKnob(0.325, 0.78);
+for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, t = box(0.003, 0.008, 0.003, toon(0xd9d4c6), 0, 0, 0, tv); t.position.set(0.265 + Math.cos(a) * 0.05, 0.43 + Math.sin(a) * 0.05, 0.233); t.rotation.z = a + Math.PI / 2; }
+for (let i = 0; i < 9; i++) box(0.09, 0.006, 0.007, tvSlat, 0.265, 0.13 + i * 0.0135, 0.232, tv); // 喇叭格柵
+const pwr = new THREE.Mesh(new RoundedBoxGeometry(0.04, 0.018, 0.014, 2, 0.004), chrome); pwr.position.set(0.282, 0.098, 0.234); tv.add(pwr);
+const led = new THREE.Mesh(new THREE.SphereGeometry(0.006, 12, 8), noLine(new THREE.MeshBasicMaterial({ color: 0x3b100d }))); led.position.set(0.24, 0.098, 0.233); tv.add(led);
+[[-0.28, -0.14], [0.28, -0.14], [-0.28, 0.17], [0.28, 0.17]].forEach(([x, z]) => { const f = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, 0.02, 12), tvDark); f.position.set(x, 0.01, z); tv.add(f); });
+// 伸縮天線
+const antBase = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.066, 0.02, 24), tvTrim); antBase.position.set(0.02, 0.56, -0.1); tv.add(antBase);
+const antDome = new THREE.Mesh(new THREE.SphereGeometry(0.046, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), tvBody); antDome.position.set(0.02, 0.57, -0.1); tv.add(antDome);
+const rodMat = chrome;
+[[-0.52, -0.16], [0.44, -0.2]].forEach(([a, b]) => { const rg = new THREE.Group(); rg.position.set(0.02, 0.6, -0.1); rg.rotation.z = a; rg.rotation.x = b; tv.add(rg);
+  rg.add(new THREE.Mesh(new THREE.SphereGeometry(0.013, 12, 8), tvTrim));
+  let acc = 0; [[0.0056, 0.17], [0.0044, 0.15], [0.0033, 0.13]].forEach(([r, l]) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, l, 10), rodMat); c.position.y = acc + l / 2; rg.add(c);
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.5, r * 1.5, 0.008, 10), rodMat); col.position.y = acc + l - 0.004; rg.add(col); acc += l; });
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 8), rodMat); tip.position.y = acc; rg.add(tip); });
+pick(tv, '電視', null);
+
+// 矮桌 + 報紙 + 馬克杯
+const table = new THREE.Group(); table.position.set(-0.35, 0, 0.05); room.add(table);
+box(1.0, 0.05, 0.62, woodLight, 0, 0.3, 0, table);
+[[-0.44, -0.26], [0.44, -0.26], [-0.44, 0.26], [0.44, 0.26]].forEach(([x, z]) => box(0.05, 0.3, 0.05, wood, x, 0, z, table));
+const paperTex = canvasTex(256, 340, (g, w, h) => {
+  g.fillStyle = '#efe6cf'; g.fillRect(0, 0, w, h); g.fillStyle = '#141310'; g.font = '900 34px "Noto Serif TC", serif'; g.fillText('電視節目表', 16, 46); g.fillRect(12, 60, w - 24, 4);
+  for (let i = 0; i < 9; i++) { g.fillStyle = i === 0 ? '#ffd400' : 'transparent'; g.fillRect(12, 76 + i * 28, w - 24, 26); g.fillStyle = '#141310'; g.fillRect(18, 86 + i * 28, 30, 6); g.fillRect(60, 86 + i * 28, 100 + (i * 37) % 70, 6); }
+});
+const paper = plane(0.3, 0.4, noLine(toon(0xffffff, { map: paperTex })), table); paper.rotation.x = -Math.PI / 2; paper.rotation.z = 0.25; paper.position.set(-0.15, 0.352, 0.02);
+// 對話越長，桌上的節目表疊得越多
+const SHEETS = 16, sheets = [], sheetGeo = new THREE.BoxGeometry(0.3, 0.003, 0.4), sheetMat = noLine(toon(0xffffff, { map: paperTex }));
+for (let k = 0; k < SHEETS; k++) {
+  const m = new THREE.Mesh(sheetGeo, sheetMat); const r = Math.sin(k * 12.9898) * 43758.5453, f = r - Math.floor(r);
+  m.userData.base = new THREE.Vector3(-0.15 + (f - .5) * .07, 0.354 + (k + 1) * .0034, 0.02 + (Math.sin(k * 3.7) * .5) * .06);
+  m.position.copy(m.userData.base); m.rotation.y = -.25 + (f - .5) * .7; m.visible = false; m.userData.drop = 0; table.add(m); sheets.push(m);
+}
+let sheetsShown = 0;
+const updatePapers = () => {
+  const s = sessions[cur], n = Math.min(SHEETS, s && !board.classList.contains('sp') ? s.msgs.length : 0);
+  sheets.forEach((m, k) => { const on = k < n; if (on && !m.visible) m.userData.drop = reduce ? 0 : 1 + Math.max(0, k - sheetsShown) * .35; m.visible = on; });
+  sheetsShown = n;
+  const say = n ? `桌上的節目表疊了 ${n + 1} 張……這集聊得真久。` : '桌上攤著今天的電視節目表。';
+  table.traverse(o => { if (o.isMesh) o.userData.say = say; });
+};
+const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.036, 0.09, 16), toon(0xe9e3d3)); mug.position.set(0.25, 0.395, -0.1); table.add(mug);
+pick(table, '矮桌', '桌上攤著今天的電視節目表。');
+sheets.forEach(m => { m.userData.pick = '矮桌'; });
+
+// 沙發
+const sofa = new THREE.Group(); sofa.position.set(0.95, 0, 1.15); sofa.rotation.y = -0.38; room.add(sofa);
+const leather = toon(0x1f1d1e), leather2 = toon(0x2c292a), cushion = toon(0x3d5fb5);
+box(1.5, 0.36, 0.78, leather, 0, 0.04, 0, sofa); box(1.5, 0.48, 0.2, leather2, 0, 0.3, 0.3, sofa);
+box(0.18, 0.56, 0.8, leather2, -0.78, 0.04, 0, sofa); box(0.18, 0.56, 0.8, leather2, 0.78, 0.04, 0, sofa);
+box(0.66, 0.08, 0.56, leather2, -0.34, 0.4, -0.06, sofa); box(0.66, 0.08, 0.56, leather2, 0.34, 0.4, -0.06, sofa);
+const c1 = box(0.36, 0.34, 0.1, cushion, -0.38, 0.46, 0.16, sofa); c1.rotation.x = -0.35; c1.rotation.z = 0.12;
+const c2 = box(0.36, 0.34, 0.1, cushion, 0.38, 0.46, 0.16, sofa); c2.rotation.x = -0.35; c2.rotation.z = -0.1;
+pick(sofa, '沙發', '坐起來還算舒服。從這裡剛好看得到電視。');
+
+// =====================================================
+//  電視世界攝影棚（穿過漩渦之後）
+// =====================================================
+const O = new THREE.Vector3(30, 0, 0);
+const studio = new THREE.Group(); studio.position.copy(O); scene.add(studio);
+// 地板：同心圓舞台 + 電線
+const stFloorTex = canvasTex(1024, 1024, (g, w, h) => {
+  g.fillStyle = '#160c12'; g.fillRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2, cols = ['#ffd400', '#140a0f', '#6e1c3a', '#140a0f', '#d9a400', '#140a0f'];
+  for (let r = 470, i = 0; r > 10; r -= 34, i++) { g.fillStyle = cols[i % cols.length]; g.beginPath(); g.ellipse(cx, cy, r, r, 0, 0, 7); g.fill(); }
+  g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 6; for (let a = 0; a < 24; a++) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a / 24 * 6.283) * 520, cy + Math.sin(a / 24 * 6.283) * 520); g.stroke(); }
+  g.strokeStyle = '#050304'; g.lineCap = 'round';
+  for (let k = 0; k < 14; k++) { g.lineWidth = 5 + Math.random() * 7; g.beginPath(); const x0 = Math.random() * w, y0 = Math.random() * h; g.moveTo(x0, y0); g.bezierCurveTo(Math.random() * w, Math.random() * h, Math.random() * w, Math.random() * h, Math.random() * w, Math.random() * h); g.stroke(); }
+});
+const stFloor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), noLine(toon(0xffffff, { map: stFloorTex }))); stFloor.rotation.x = -Math.PI / 2; stFloor.position.set(0, 0, 0); studio.add(stFloor);
+// 鷹架（每座合併成一個網格）
+const trussMat = toon(0xc9a32a);
+const trussGeo = len => {
+  const parts = [], M = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(1, 1, 1), e = new THREE.Euler();
+  const add = (w, h, d, x, y, z, rz = 0, rx = 0) => { const g = new THREE.BoxGeometry(w, h, d); e.set(rx, 0, rz); q.setFromEuler(e); M.compose(new THREE.Vector3(x, y, z), q, sc); g.applyMatrix4(M); parts.push(g); };
+  [[-.14, -.14], [.14, -.14], [-.14, .14], [.14, .14]].forEach(([x, z]) => add(.035, len, .035, x, len / 2, z));
+  for (let y = 0, i = 0; y < len - .1; y += .3, i++) {
+    add(.28, .025, .025, 0, y, -.14); add(.28, .025, .025, 0, y, .14); add(.025, .025, .28, -.14, y, 0); add(.025, .025, .28, .14, y, 0);
+    const a = i % 2 ? .76 : -.76; add(.022, .4, .022, 0, y + .15, -.14, a); add(.022, .4, .022, 0, y + .15, .14, -a);
+  }
+  return mergeGeometries(parts);
+};
+const T0 = new THREE.Vector3(O.x, 1.5, O.z), TR = 4.9; // 電視塔中心、鷹架半徑
+// 六座鷹架塔 + 頂上一圈橫樑
+const towers = [];
+for (let k = 0; k < 6; k++) { const a = (k + .5) / 6 * Math.PI * 2, x = Math.sin(a) * TR, z = Math.cos(a) * TR;
+  const m = new THREE.Mesh(trussGeo(3.5), trussMat); m.position.set(x, 0, z); m.rotation.y = a; studio.add(m); towers.push(new THREE.Vector3(x, 3.35, z)); }
+towers.forEach((A, k) => { const B = towers[(k + 1) % 6], len = A.distanceTo(B), g = trussGeo(len); g.rotateZ(-Math.PI / 2);
+  const m = new THREE.Mesh(g, trussMat); m.position.copy(A); m.rotation.y = -Math.atan2(B.z - A.z, B.x - A.x); studio.add(m); });
+// 聚光燈：從頂圈往中央打
+const spots = [], beams = [];
+const heroTarget = new THREE.Object3D(); heroTarget.position.set(0, 1.3, 0); studio.add(heroTarget);
+towers.forEach((A, i) => { if (i % 2) return;
+  const x = A.x * .82, y = 3.1, z = A.z * .82;
+  const can = new THREE.Group(); can.position.set(x, y, z); studio.add(can);
+  can.add(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.24, 16), toon(0x1a1816)));
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(0.085, 16), noLine(new THREE.MeshBasicMaterial({ color: 0xfff1b0, fog: false }))); lens.position.y = -0.121; lens.rotation.x = Math.PI / 2; can.add(lens);
+  can.lookAt(studio.localToWorld(heroTarget.position.clone())); can.rotateX(Math.PI / 2);
+  const sl = new THREE.SpotLight(0xfff0c0, 0, 9, 0.5, 0.7, 1.2); sl.position.set(x, y, z); sl.target = heroTarget; studio.add(sl); spots.push(sl);
+  const L = Math.hypot(x, y - 1.3, z) + .4, cg = new THREE.ConeGeometry(L * .3, L, 28, 1, true); cg.translate(0, -L / 2, 0); cg.rotateX(-Math.PI / 2);
+  const beam = new THREE.Mesh(cg, noLine(new THREE.MeshBasicMaterial({ color: 0xffe27a, transparent: true, opacity: .09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false })));
+  beam.position.set(x, y, z); studio.add(beam); beam.lookAt(studio.localToWorld(heroTarget.position.clone())); beams.push(beam); });
+// 攝影機（三腳架）
+const mkCam = (x, z, ry) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; studio.add(g);
+  const dark = toon(0x2a2826);
+  [0, 2.1, 4.2].forEach(a => { const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 1.15, 8), dark); leg.position.set(Math.cos(a) * .22, .55, Math.sin(a) * .22); leg.rotation.set(Math.sin(a) * .19, 0, -Math.cos(a) * .19); g.add(leg); });
+  box(.26, .22, .5, toon(0x3d3a36), 0, 1.08, 0, g); const ln = new THREE.Mesh(new THREE.CylinderGeometry(.07, .08, .2, 16), dark); ln.rotation.x = Math.PI / 2; ln.position.set(0, 1.19, .34); g.add(ln);
+  box(.12, .1, .14, dark, .12, 1.32, -.1, g); box(.03, .03, .5, dark, -.06, 1.12, -.42, g); };
+mkCam(Math.sin(.2) * 4.5, Math.cos(.2) * 4.5, .2 + Math.PI); mkCam(Math.sin(3.3) * 4.5, Math.cos(3.3) * 4.5, 3.3 + Math.PI);
+// 堆疊的舊電視（每台一段對話）
+const oldTVs = [];
+const tvCols = [0x6e6a62, 0x3a3835, 0xbcb39b, 0x7a5432, 0x8a8d92, 0x2b2a28, 0xa8432f, 0x5d6b4a];
+const mkOldTV = (w, x, y, z, ry = 0, rz = 0, col) => {
+  const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.set(0, ry, rz); studio.add(g);
+  const h = w * .76, d = w * .78; col = col ?? tvCols[oldTVs.length % tvCols.length];
+  const body = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, w * .05), toon(col)); body.position.y = h / 2; g.add(body);
+  const bz = new THREE.Mesh(new RoundedBoxGeometry(w * .72, h * .8, .03, 2, w * .05), toon(0x141312)); bz.position.set(-w * .1, h * .5, d / 2); g.add(bz);
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 192; const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(w * .64, h * .68), noLine(new THREE.MeshBasicMaterial({ map: tex, fog: false }))); scr.position.set(-w * .1, h * .5, d / 2 + .017); g.add(scr);
+  [.66, .44].forEach(f => { const k = new THREE.Mesh(new THREE.CylinderGeometry(w * .045, w * .05, .025, 14), toon(0x1e1d1b)); k.rotation.x = Math.PI / 2; k.position.set(w * .36, h * f, d / 2 + .01); g.add(k); });
+  if (w > .45) for (let i = 0; i < 4; i++) box(w * .12, .007, .007, toon(0x1e1d1b), w * .36, h * (.12 + i * .055), d / 2 + .004, g);
+  const o = { g, cv, tex, w, h, d, idx: -1, scr, body, slotOK: false, exposed: false, layer: -1 }; oldTVs.push(o);
+  g.traverse(m => { if (m.isMesh) { m.userData.tvo = o; pickables.push(m); } });
+  return o;
+};
+// =====================================================
+//  不規則電視塔：像有人一台一台亂疊上去
+//  每台電視落在「它底下已經疊到多高」的位置（高度圖），所以會高低錯落、歪斜、有縫
+// =====================================================
+const rng = (seed => () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(20241118);
+const HF_N = 128, HF_S = 2.6, hf = new Float32Array(HF_N * HF_N);
+const hfIdx = (x, z) => { const i = Math.floor((x / HF_S + 1) / 2 * HF_N), j = Math.floor((z / HF_S + 1) / 2 * HF_N); return (i < 0 || j < 0 || i >= HF_N || j >= HF_N) ? -1 : j * HF_N + i; };
+const restOn = (x, z, ry, w, d) => { let y = 0; const c = Math.cos(ry), sn = Math.sin(ry);
+  for (let u = -1; u <= 1; u += .5) for (let v = -1; v <= 1; v += .5) { const lx = u * w * .42, lz = v * d * .42, k = hfIdx(x + lx * c + lz * sn, z - lx * sn + lz * c); if (k >= 0) y = Math.max(y, hf[k]); }
+  return y; };
+const stamp = (x, z, ry, w, d, top) => { const c = Math.cos(ry), sn = Math.sin(ry), R = Math.hypot(w, d) / 2, step = HF_S / HF_N * 1.4;
+  for (let gx = x - R; gx <= x + R; gx += step) for (let gz = z - R; gz <= z + R; gz += step) {
+    const dx = gx - x, dz = gz - z, lx = dx * c - dz * sn, lz = dx * sn + dz * c;
+    if (Math.abs(lx) < w * .47 && Math.abs(lz) < d * .47) { const k = hfIdx(gx, gz); if (k >= 0) hf[k] = Math.max(hf[k], top); } } };
+const tower = { layers: 0, h: 0, lx: 0, lz: 0, dropUntil: 0 }, TOWER_MAX_H = 4.4, BASE_LAYERS = 7;
+const drops = [];
+const addLayer = () => {
+  const i = tower.layers++, base = i < BASE_LAYERS;
+  const R = base ? 1.14 - i * .115 + (rng() - .5) * .1 : .36 + (rng() - .5) * .08;
+  tower.lx += (rng() - .5) * .05 + (base ? 0 : .01); tower.lz += (rng() - .5) * .05; // 越疊越歪
+  const sc = base ? 1 - i * .055 : .62 + rng() * .08, made = [], stamps = []; // 同一層彼此不疊，整層放完才蓋高度
+  let a = rng() * Math.PI * 2; const end = a + Math.PI * 2 - .05;
+  while (true) {
+    const w = (.4 + rng() * .28) * sc, d = w * .78, span = w * 1.04 / R;
+    if (a + span > end) break;
+    const ang = a + span / 2, rr = R + (rng() - .5) * .14, x = tower.lx + Math.sin(ang) * rr, z = tower.lz + Math.cos(ang) * rr;
+    const yj = (rng() - .5) * .62, tilt = rng() < .2 ? (rng() - .5) * .34 : (rng() - .5) * .05, ry = ang + yj;
+    const y = restOn(x, z, ry, w, d);
+    const o = mkOldTV(w, x, y, z, ry, tilt, tvCols[(rng() * tvCols.length) | 0]);
+    o.slotOK = Math.abs(yj) < .2 && Math.abs(tilt) < .04; o.layer = i;
+    const top = y + o.h + Math.abs(Math.sin(tilt)) * w * .5; stamps.push([x, z, ry, w, d, top]); tower.h = Math.max(tower.h, top); made.push(o);
+    a += span + (rng() < .14 ? .2 + rng() * .3 : rng() * .05); // 偶爾留個缺口
+  }
+  if (!base) { const w = .3 + rng() * .06, x = tower.lx, z = tower.lz, ry = rng() * 6.28, y = restOn(x, z, ry, w, w * .78); // 中間塞一台，補掉中空
+    const o = mkOldTV(w, x, y, z, ry, 0, tvCols[(rng() * tvCols.length) | 0]); o.layer = i; const top = y + o.h; stamps.push([x, z, ry, w, w * .78, top]); tower.h = Math.max(tower.h, top); made.push(o); }
+  stamps.forEach(a => stamp(...a));
+  return made;
+};
+// 有沒有被別台擋住：從螢幕四角和中心往前打射線
+const updateExposure = () => {
+  scene.updateMatrixWorld(true);
+  const rc = new THREE.Raycaster(), bodies = oldTVs.map(o => o.body), P = new THREE.Vector3(), Q = new THREE.Quaternion(), N = new THREE.Vector3(), RT = new THREE.Vector3(), UP = new THREE.Vector3(), Or = new THREE.Vector3();
+  rc.far = .9;
+  oldTVs.forEach(o => {
+    if (!o.slotOK) { o.exposed = false; return; }
+    o.scr.getWorldPosition(P); o.g.getWorldQuaternion(Q); N.set(0, 0, 1).applyQuaternion(Q); RT.set(1, 0, 0).applyQuaternion(Q); UP.set(0, 1, 0).applyQuaternion(Q);
+    const sw = o.w * .64, sh = o.h * .68;
+    o.exposed = [[0, 0], [-.45, -.45], [.45, -.45], [-.45, .45], [.45, .45]].every(([u, v]) => {
+      Or.copy(P).addScaledVector(RT, u * sw).addScaledVector(UP, v * sh).addScaledVector(N, .02); rc.set(Or, N);
+      return !rc.intersectObjects(bodies, false).some(h => h.object.userData.tvo !== o); });
+  });
+};
+// 塔頂天線：永遠插在最高那台上
+const antenna = new THREE.Group(); { const dk = toon(0x1e1d1b);
+  [-.5, .55].forEach(r => { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.006, .009, .62, 6), dk); rod.position.set(Math.sin(r) * .3, .3, 0); rod.rotation.z = -r; antenna.add(rod); });
+  antenna.add(new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 8), dk)); }
+const T0goal = new THREE.Vector3(O.x, 1.5, O.z);
+const growTower = (drop = false) => {
+  const made = addLayer(); updateExposure();
+  const top = oldTVs.reduce((m, o) => o.g.position.y + o.h > m.g.position.y + m.h ? o : m, oldTVs[0]); antenna.position.set(0, top.h, 0); antenna.rotation.y = .4; top.g.add(antenna);
+  T0goal.y = Math.max(1.3, Math.min(2.2, tower.h * .45));
+  if (drop && !reduce) { made.forEach((o, k) => { const y1 = o.g.position.y; o.g.position.y += 2.4 + k * .1; drops.push({ o, y1, v: 0, t: k * .06 }); }); tower.dropUntil = performance.now() + (made.length * .06 + 1) * 1000; }
+  return made.length;
+};
+for (let i = 0; i < BASE_LAYERS + 1; i++) growTower();
+T0.y = T0goal.y;
+// 塔腳下倒著幾台：躺平、側躺（只是裝飾，播雪花）
+for (let k = 0; k < 6; k++) {
+  const ang = k / 6 * Math.PI * 2 + rng() * .6, rr = 1.62 + rng() * .3, w = .42 + rng() * .2, side = k % 3 === 1;
+  const o = mkOldTV(w, Math.sin(ang) * rr, 0, Math.cos(ang) * rr, 0, 0, tvCols[(rng() * tvCols.length) | 0]);
+  o.g.rotation.order = 'YXZ'; o.g.rotation.y = ang + (rng() - .5) * 1.2;
+  if (side) { o.g.rotation.z = Math.PI / 2; o.g.position.y = w / 2; } else { o.g.rotation.x = -Math.PI / 2 + (rng() - .5) * .1; o.g.position.y = o.d / 2; }
+}
+updateExposure();
+
+// ---------- 對話 ↔ 電視：固定配對；塔滿了就往上疊，疊到頂就分頻段 ----------
+const assign = new Map(); // session 物件 → { o, band }
+let band = 0, staticAll = false;
+const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3();
+const angOf = v => Math.atan2(v.x - O.x, v.z - O.z);
+const takenIn = b => { const t = new Set(); assign.forEach(a => { if (a.band === b) t.add(a.o); }); return t; };
+const pickSlot = b => {
+  const taken = takenIn(b); let best = null, bs = 1e9;
+  oldTVs.forEach(o => { if (!o.exposed || taken.has(o)) return;
+    o.scr.getWorldPosition(_v1); let sc = Math.abs(_v1.y - 1.05) * 1.2; const a1 = angOf(_v1);
+    taken.forEach(t => { t.scr.getWorldPosition(_v2); const da = Math.abs(Math.atan2(Math.sin(angOf(_v2) - a1), Math.cos(angOf(_v2) - a1))); if (da < .6 && Math.abs(_v2.y - _v1.y) < .5) sc += .8; });
+    if (sc < bs) { bs = sc; best = o; } });
+  return best;
+};
+const ensureAssigned = () => {
+  for (const k of [...assign.keys()]) if (!sessions.includes(k)) assign.delete(k);
+  sessions.forEach(ss => {
+    if (assign.has(ss)) return;
+    for (let b = 0; b < 99; b++) {
+      let o = pickSlot(b);
+      while (!o && b === 0 && tower.h < TOWER_MAX_H) { growTower(world === 'studio'); o = pickSlot(0); } // 塔往上長
+      if (o) { assign.set(ss, { o, band: b }); break; }
+    }
+  });
+};
+const slotTV = idx => { const a = assign.get(sessions[idx]); return a && a.band === band ? a.o : null; };
+const tvYaw = o => { o.g.getWorldQuaternion(_q0); _n0.set(0, 0, 1).applyQuaternion(_q0); return Math.atan2(_n0.x, _n0.z); };
+const _q0 = new THREE.Quaternion(), _n0 = new THREE.Vector3();
+const colYaw = idx => { const o = slotTV(idx); return o ? tvYaw(o) : ORB.yaw; };
+// 舊電視螢幕繪製
+const wrapText = (g, text, x, y, maxW, lh, maxLines) => { let line = '', n = 0; for (const ch of text) { if (g.measureText(line + ch).width > maxW) { g.fillText(line, x, y + n * lh); line = ch; if (++n >= maxLines) return; } else line += ch; } if (line && n < maxLines) g.fillText(line, x, y + n * lh); };
+const drawOld = o => {
+  const g = o.cv.getContext('2d'), s = o.idx >= 0 && !staticAll ? sessions[o.idx] : null, on = !!s && o.idx === cur && !board.classList.contains('sp');
+  if (!s) { g.drawImage(noiseCanvas, Math.random() * -60, Math.random() * -40, 380, 280); g.fillStyle = 'rgba(255,212,0,.55)'; g.globalCompositeOperation = 'multiply'; g.fillRect(0, 0, 256, 192); g.globalCompositeOperation = 'source-over'; }
+  else {
+    const gr = g.createRadialGradient(128, 96, 10, 128, 96, 175); gr.addColorStop(0, on ? '#fff6b8' : '#ffd400'); gr.addColorStop(1, on ? '#e0a800' : '#7a5c00'); g.fillStyle = gr; g.fillRect(0, 0, 256, 192);
+    g.fillStyle = '#111'; g.font = '46px VT323, monospace'; g.fillText('CH ' + pad(s.ch), 16, 46);
+    if (on) { g.fillStyle = '#e2241b'; g.fillRect(166, 18, 76, 26); g.fillStyle = '#fff'; g.font = '800 18px "Barlow Condensed", sans-serif'; g.fillText('ON AIR', 176, 38); }
+    g.fillStyle = '#111'; g.font = '900 30px "Noto Sans TC", sans-serif'; wrapText(g, s.title, 16, 100, 224, 38, 2);
+    g.font = '600 18px "Noto Sans TC", sans-serif'; g.fillStyle = 'rgba(0,0,0,.6)'; g.fillText(s.time + (s.day === 0 ? ' · 今天' : ''), 16, 176);
+  }
+  g.fillStyle = 'rgba(0,0,0,.14)'; for (let y = 0; y < 192; y += 4) g.fillRect(0, y, 256, 2);
+  o.tex.needsUpdate = true;
+};
+const refreshWall = () => { ensureAssigned(); oldTVs.forEach(o => o.idx = -1); sessions.forEach((_, k) => { const o = slotTV(k); if (o) o.idx = k; }); oldTVs.forEach(drawOld); syncBand(); };
+const bandsUsed = () => { let m = 0; assign.forEach(a => m = Math.max(m, a.band)); return m + 1; };
+const syncBand = () => { const n = bandsUsed(); if (band >= n) band = n - 1; st.classList.toggle('multiband', n > 1); $('bandN').textContent = band + 1; $('bandT').textContent = n; };
+const setBand = (b, cb) => {
+  if (b === band) { cb && cb(); return; }
+  band = b; staticAll = true; flicker = .7; oldTVs.forEach(drawOld); syncBand();
+  setTimeout(() => { staticAll = false; refreshWall(); cb && cb(); }, reduce ? 0 : 420);
+};
+const bandOfSession = i => { ensureAssigned(); const a = assign.get(sessions[i]); return a ? a.band : 0; };
+let staticT = 0;
+
+// ---------- 陰影 ----------
+room.traverse(o => { if (o.isMesh && o.material.isMeshToonMaterial) { o.castShadow = true; o.receiveShadow = true; } });
+[floor, back, left, tatami, cal, poster].forEach(m => m.castShadow = false);
+// 窗外月光落在地板上
+const winLightTex = canvasTex(256, 340, (g, w, h) => { g.clearRect(0, 0, w, h); const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(150,175,255,.95)'); gr.addColorStop(1, 'rgba(150,175,255,0)'); g.fillStyle = gr; g.fillRect(14, 0, 108, h); g.fillRect(134, 0, 108, h); g.clearRect(0, 150, w, 12); });
+const winLight = plane(0.95, 1.35, noLine(new THREE.MeshBasicMaterial({ map: winLightTex, transparent: true, opacity: .55, blending: THREE.AdditiveBlending, fog: false, depthWrite: false })));
+winLight.rotation.x = -Math.PI / 2; winLight.rotation.z = 0.14; winLight.position.set(1.05, 0.004, -1.25);
+
+// ---------- 燈光：暗、冷、只靠電視照亮 ----------
+const hemi = new THREE.HemisphereLight(0x26315e, 0x080605, 0.4); scene.add(hemi);
+const moon = new THREE.DirectionalLight(0x6f8cff, 1.25); moon.position.set(2.4, 3.2, -3.4); scene.add(moon);
+const lamp = new THREE.PointLight(0xffb070, 0.5, 0, 2); lamp.position.set(-1.6, 1.9, 1.2); scene.add(lamp);
+const tvLight = new THREE.PointLight(0xcfe0ff, 0, 0, 1.5); tvLight.position.set(-0.72, 0.76, -1.15);
+tvLight.castShadow = true; tvLight.shadow.mapSize.set(1024, 1024); tvLight.shadow.camera.near = 0.05; tvLight.shadow.bias = -0.003; scene.add(tvLight);
+const TVCOL = new THREE.Color(0xbfd8ff), TVMID = new THREE.Color(0xd8e07a), TVFOG = new THREE.Color(0xffd36a);
+
+// ---------- 房間模式：螢幕的光打在牆上、地上；雨影流過牆面 ----------
+const glowTex = canvasTex(256, 256, (g, w, h) => { const r = g.createRadialGradient(128, 128, 0, 128, 128, 128); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.45, 'rgba(255,255,255,.45)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); });
+const glowMat = () => noLine(new THREE.MeshBasicMaterial({ map: glowTex, color: 0xbfd8ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+const wallGlow = plane(2.7, 1.9, glowMat()); wallGlow.position.set(-0.68, 0.98, -1.975);
+const floorGlow = plane(2.2, 1.7, glowMat()); floorGlow.rotation.x = -Math.PI / 2; floorGlow.position.set(-0.66, 0.008, -0.95);
+const sideGlow = plane(1.8, 1.6, glowMat()); sideGlow.rotation.y = Math.PI / 2; sideGlow.position.set(-2.23, 0.9, -1.35);
+const dripTex = canvasTex(256, 512, (g, w, h) => {
+  g.fillStyle = 'rgb(120,150,230)'; g.fillRect(0, 0, w, h); g.strokeStyle = 'rgb(10,14,30)'; g.lineCap = 'round';
+  for (let i = 0; i < 26; i++) { const x0 = Math.random() * w; g.lineWidth = 1.5 + Math.random() * 3; g.beginPath(); g.moveTo(x0, 0); for (let y = 0; y <= h; y += 32) g.lineTo(x0 + Math.sin(y * .03 + i) * 4, y); g.stroke();
+    for (let k = 0; k < 3; k++) { g.fillStyle = 'rgb(10,14,30)'; g.beginPath(); g.ellipse(x0 + Math.random() * 6 - 3, Math.random() * h, 3 + Math.random() * 3, 5 + Math.random() * 4, 0, 0, 7); g.fill(); } }
+});
+dripTex.wrapS = dripTex.wrapT = THREE.RepeatWrapping;
+const dripMask = canvasTex(128, 128, (g, w, h) => { const gr = g.createRadialGradient(64, 64, 10, 64, 64, 64); gr.addColorStop(0, '#fff'); gr.addColorStop(.6, '#888'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
+const rainShadow = plane(1.3, 1.25, noLine(new THREE.MeshBasicMaterial({ map: dripTex, alphaMap: dripMask, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })));
+rainShadow.position.set(-0.6, 0.78, -1.36); rainShadow.rotation.z = -0.06; rainShadow.scale.set(1.15, .9, 1); // 推近時：窗外的雨影流過電視和牆
+const AMB = ['#9fc3ff', '#ffd6a0', '#a8f0c4', '#ffb8cc', '#c9b5ff', '#9fe8ff'].map(c => new THREE.Color(c));
+const ambCol = new THREE.Color(0xbfd8ff), ambGoal = new THREE.Color(0xbfd8ff);
+let ambPulse = 0, storm = 0, stormGoal = 0, bolt = 0, boltTimer, deskW = 0;
+
+// ---------- 霧：從電視漫出來 ----------
+const fogTex = canvasTex(128, 128, (g, w, h) => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(.5, 'rgba(255,255,255,.4)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, w, h); });
+const puffs = [];
+for (let i = 0; i < 26; i++) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: fogTex, color: 0xffe08a, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+  sp.userData = { a: Math.random() * Math.PI * 2, sp: .08 + Math.random() * .12, ph: Math.random(), s: .5 + Math.random() * .9, y: .2 + Math.random() * .9 };
+  scene.add(sp); puffs.push(sp);
+}
+
+// ---------- 螢幕 DOM（CSS3D） ----------
+const screenObj = new CSS3DObject(tvdom);
+const ROOM_SC = new THREE.Vector3(-0.65 - 0.07, 0.465 + 0.29, -1.72 + 0.245);
+const SC = ROOM_SC.clone();
+screenObj.position.copy(SC); screenObj.scale.setScalar(0.44 / 1000);
+scene.add(screenObj);
+
+// ---------- 鏡頭 ----------
+const VIEW = {
+  room: { pos: new THREE.Vector3(1.45, 2.05, 2.25), tgt: new THREE.Vector3(-0.55, 0.62, -1.0) },
+  pre: { pos: new THREE.Vector3(2.7, 3.2, 4.0), tgt: new THREE.Vector3(-0.45, 0.55, -0.75) },
+  tv: { pos: new THREE.Vector3(SC.x - 0.066, SC.y + 0.006, SC.z + 0.5), tgt: new THREE.Vector3(SC.x - 0.066, SC.y + 0.006, SC.z) },
+  desk: { pos: new THREE.Vector3(SC.x - 0.1, SC.y + 0.03, SC.z + 0.8), tgt: new THREE.Vector3(SC.x - 0.1, SC.y + 0.03, SC.z) },
+};
+// 環視：繞著電視塔轉 360 度
+const ORB = { yaw: 0, pitch: .12, vy: 0, vp: 0, r: 3.7, rt: 3.7 }, PMIN = -.12, PMAX = .72, ORB_FOV = 56;
+const orbitPose = (pos, tgt, r = ORB.r) => {
+  pos.set(T0.x + Math.sin(ORB.yaw) * Math.cos(ORB.pitch) * r, T0.y + Math.sin(ORB.pitch) * r, T0.z + Math.cos(ORB.yaw) * Math.cos(ORB.pitch) * r); tgt.copy(T0); };
+const setOrbitView = (r = ORB.r) => { VIEW.orbit = { pos: new THREE.Vector3(), tgt: new THREE.Vector3(), fov: ORB_FOV }; orbitPose(VIEW.orbit.pos, VIEW.orbit.tgt, r); };
+// 電視之間飛行時，從塔外繞過去
+const viaAround = (a, b) => {
+  const a0 = Math.atan2(a.x - T0.x, a.z - T0.z), a1 = Math.atan2(b.x - T0.x, b.z - T0.z), d = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0)), m = a0 + d / 2, r = 2.1 + 1.9 * Math.abs(d) / Math.PI;
+  return new THREE.Vector3(T0.x + Math.sin(m) * r, (a.y + b.y) / 2 + .3, T0.z + Math.cos(m) * r); };
+// 把螢幕 DOM 貼到某台電視上
+const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _n = new THREE.Vector3(), _r = new THREE.Vector3();
+let screenH = .33, focusTV = null;
+const attachScreen = o => {
+  scene.updateMatrixWorld(true);
+  if (!o) { screenObj.position.copy(ROOM_SC); screenObj.quaternion.identity(); screenObj.scale.setScalar(.00044); SC.copy(ROOM_SC); screenH = .33; tvLight.position.set(SC.x, SC.y, SC.z + .3); return; }
+  o.scr.getWorldPosition(_p); o.g.getWorldQuaternion(_q); _n.set(0, 0, 1).applyQuaternion(_q);
+  const sc = (o.w * .64) / 1000; screenH = 750 * sc;
+  screenObj.position.copy(_p).addScaledVector(_n, .004); screenObj.quaternion.copy(_q); screenObj.scale.setScalar(sc);
+  SC.copy(_p); tvLight.position.copy(_p).addScaledVector(_n, .35);
+};
+const setFocusView = o => {
+  o.scr.getWorldPosition(_p); o.g.getWorldQuaternion(_q); _n.set(0, 0, 1).applyQuaternion(_q); _r.set(1, 0, 0).applyQuaternion(_q);
+  const sc = (o.w * .64) / 1000, h = 750 * sc, dist = h / (0.728 * 0.8);
+  VIEW.focus = { pos: _p.clone().addScaledVector(_n, dist).addScaledVector(_r, -dist * .1), tgt: _p.clone().addScaledVector(_r, -dist * .1), fov: 40 };
+};
+// 切換世界：房間 ↔ 攝影棚
+let world = 'room', lampBase = 0.5, baseDen = .045; const baseFog = NIGHT.clone();
+const setWorld = w => {
+  world = w; const s = w === 'studio';
+  if (!s) { attachScreen(null); screenObj.visible = true; focusTV = null; } else screenObj.visible = false; tvLight.castShadow = !s;
+  baseFog.set(s ? 0x4a3a10 : 0x04050b); baseDen = s ? .09 : .045;
+  hemi.color.set(s ? 0xffe08a : 0x26315e); hemi.groundColor.set(s ? 0x2a1d08 : 0x080605); hemi.intensity = s ? 1.1 : .4;
+  moon.intensity = s ? 0 : 1.25; lampBase = s ? 0 : .5;
+  spots.forEach(l => l.intensity = s ? 7 : 0); beams.forEach(b => b.visible = s);
+  st.classList.toggle('studio', s); if (!s) st.classList.remove('orbit', 'focus');
+};
+const cam = { pos: VIEW.room.pos.clone(), tgt: VIEW.room.tgt.clone() };
+let tween = null, view = 'room';
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+let fov = 40;
+const flyTo = (name, dur = 1100, done) => {
+  view = name; const v = VIEW[name], f1 = v.fov ?? 40;
+  st.classList.toggle('orbit', name === 'orbit'); st.classList.toggle('focus', name === 'focus');
+  if (reduce || dur === 0) { cam.pos.copy(v.pos); cam.tgt.copy(v.tgt); fov = f1; tween = null; done && done(); return; }
+  tween = { p0: cam.pos.clone(), t0: cam.tgt.clone(), p1: v.pos.clone(), t1: v.tgt.clone(), f0: fov, f1, start: performance.now(), dur, done };
+};
+const mouse = new THREE.Vector2(0, 0), par = new THREE.Vector2(0, 0);
+
+// ---------- 假資料 + 節目 ----------
+const dayLabel = off => { const t = new Date(now); t.setDate(t.getDate() - off); const s = `${t.getMonth() + 1}/${t.getDate()}（${WD[t.getDay()]}）`; return off === 0 ? '今天 ' + s : off === 1 ? '昨天 ' + s : s; };
+let seq = 6, cur = 0;
+const sessions = [
+  { ch: 6, day: 0, time: '14:32', title: '檢查權杖更新機制', msgs: [
+    ['me', '登入權杖過期之後，前端好像沒有自動更新，可以幫我找找看是哪裡出問題嗎？'],
+    ['ai', '看起來是更新請求和原本的請求同時送出，兩邊都拿到 401。\n\n建議加一個共用的更新鎖：第一個 401 負責去換新權杖，其他請求先排隊，等新權杖回來再一起重送。這樣不會重複更新，也不會把使用者踢回登入頁。'],
+    ['me', '那如果換權杖本身也失敗呢？'],
+    ['ai', '那就是真的過期了。把排隊中的請求全部拒絕，清掉本地的權杖，再導回登入頁，並且記下使用者原本所在的頁面，登入後直接帶回去。']] },
+  { ch: 5, day: 0, time: '11:05', title: 'P3 水面動畫重構', msgs: [
+    ['me', '水面的漣漪在 1024 寬的時候會蓋到標題列，怎麼修比較好？'],
+    ['ai', '問題出在漣漪用固定的 36px 位移，但 Windows 標題列的高度會跟著縮放改變。改用 --dsh-windows-titlebar-height 當起點，漣漪就會永遠貼在標題列下緣。']] },
+  { ch: 4, day: 0, time: '09:40', title: '這週的週報草稿', msgs: [
+    ['me', '幫我把這週做的事整理成三點週報。'],
+    ['ai', '1. 完成 P3 窗外月亮與唱片頁的動態。\n2. 修好原生側欄在 rc3 版的捲動範圍。\n3. 做出 P4 真 3D 電視房間的演示。']] },
+  { ch: 3, day: 1, time: '22:10', title: '午夜電視素材研究', msgs: [
+    ['me', '老電視關機時那個縮成一點的效果，原理是什麼？'],
+    ['ai', '映像管關機時，垂直偏轉先停，畫面被壓成一條水平線；接著水平偏轉也停了，剩下電子束打在中心，就成了一個慢慢暗掉的亮點。']] },
+  { ch: 2, day: 1, time: '16:48', title: '修正側欄捲動', msgs: [
+    ['me', '側欄捲到底的時候最後一行會被設定按鈕擋住。'],
+    ['ai', '捲動容器少了底部留白。給清單加上 padding-bottom，數值等於底部按鈕列的高度，或改用 scroll-padding-bottom。']] },
+  { ch: 1, day: 3, time: '20:03', title: '台南兩天一夜行程', msgs: [
+    ['me', '週末想去台南兩天一夜，幫我排一下行程。'],
+    ['ai', '第一天：上午逛赤崁樓和神農街，中午吃牛肉湯；下午去安平老街，傍晚在安平看夕陽。\n第二天：早上吃碗粿，接著去奇美博物館待半天，回程前再買點伴手禮。']] },
+];
+const renderList = () => {
+  list.innerHTML = ''; let last = -1;
+  sessions.forEach((s, i) => {
+    if (s.day !== last) { last = s.day; const h = document.createElement('div'); h.className = 'day'; h.textContent = dayLabel(s.day); list.appendChild(h); }
+    const b = document.createElement('button'); b.className = 'row';
+    if (i === cur && !board.classList.contains('sp')) b.setAttribute('aria-current', 'true');
+    b.innerHTML = `<time>${s.time}<small>CH ${pad(s.ch)}</small></time><b></b>`; b.querySelector('b').textContent = s.title;
+    b.addEventListener('click', () => goSession(i));
+    list.appendChild(b);
+  });
+  if (world === 'studio') refreshWall();
+  if (typeof updatePapers === 'function') updatePapers();
+};
+const msgEl = (who, text) => { const m = document.createElement('div'); m.className = 'msg ' + who; m.innerHTML = `<span class="np">${who === 'me' ? '你' : 'DeepSeek'}</span><div class="box"></div>`; m.querySelector('.box').textContent = text; return m; };
+let knobAngle = 0;
+const renderFeed = () => {
+  const s = sessions[cur]; feed.innerHTML = '';
+  s.msgs.forEach(([w, t]) => feed.appendChild(msgEl(w, t)));
+  board.classList.toggle('empty', !s.msgs.length);
+  $('telopCh').textContent = 'CH ' + pad(s.ch); $('telopTitle').textContent = s.title; $('echo').textContent = pad(s.ch);
+  knobAngle = s.ch * 0.5; feed.scrollTop = feed.scrollHeight;
+  ambGoal.copy(AMB[s.ch % AMB.length]); ambPulse = .6; updatePapers();
+};
+let osdT;
+const osd = text => { const o = $('osd'); o.textContent = text; o.classList.add('on'); clearTimeout(osdT); osdT = setTimeout(() => o.classList.remove('on'), 1600); };
+const restart = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms); };
+const setCmd = which => document.querySelectorAll('.guide .cmd button').forEach(b => b.toggleAttribute('aria-current', !!which && b.dataset.sp === which));
+const tune = i => {
+  cur = i; board.classList.remove('sp'); setCmd(null); renderList();
+  if (reduce) { renderFeed(); return; }
+  board.classList.add('switching'); flicker = .5;
+  setTimeout(() => { board.classList.remove('switching'); renderFeed(); restart(board, 'rolling', 460); osd('CH ' + pad(sessions[cur].ch)); }, 200);
+};
+const special = kind => {
+  board.classList.add('switching'); setCmd(kind); flicker = .5;
+  setTimeout(() => {
+    board.classList.remove('switching'); board.classList.add('sp'); renderList();
+    const p = kind === 'plugins'; ambGoal.set(p ? 0xffd44a : 0x7de0ff); ambPulse = .6; updatePapers();
+    $('spEn').textContent = p ? 'SPECIAL · PLUGINS' : 'SPECIAL · AUTOMATION'; $('spTitle').textContent = p ? '外掛特輯' : '自動化特輯';
+    $('telopCh').textContent = p ? 'CH 02' : 'CH 03'; $('telopTitle').textContent = p ? '外掛特輯' : '自動化特輯'; $('echo').textContent = p ? '02' : '03';
+    osd(p ? 'CH 02' : 'CH 03');
+  }, reduce ? 0 : 200);
+};
+document.querySelectorAll('.guide .cmd button[data-sp]').forEach(b => b.addEventListener('click', () => special(b.dataset.sp)));
+const newSession = () => {
+  seq += 1; sessions.unshift({ ch: seq, day: 0, time: `${pad(now.getHours())}:${pad(now.getMinutes())}`, title: '新節目', msgs: [] });
+  cur = 0; board.classList.remove('sp'); setCmd(null); renderList(); renderFeed();
+  if (!reduce) { restart(board, 'on', 620); osd('CH ' + pad(seq)); }
+  if (world === 'studio' && (view === 'orbit' || view === 'focus') && !warping) focusSession(0);
+};
+const delSession = () => {
+  if (sessions.length <= 1) return;
+  const finish = () => { assign.delete(sessions[cur]); sessions.splice(cur, 1); cur = Math.min(cur, sessions.length - 1); tvdom.classList.remove('poweroff'); renderList(); renderFeed(); if (!reduce) { restart(board, 'on', 620); osd('CH ' + pad(sessions[cur].ch)); } if (world === 'studio' && view === 'focus' && !warping) focusSession(cur); };
+  if (reduce) return finish();
+  tvdom.classList.add('poweroff'); setTimeout(finish, 900);
+};
+
+// ---------- 狀態 ----------
+let tvOn = false, fogTarget = 0, fogLevel = 0, tvPower = 0, flicker = 0, midnight = 0;
+const setTV = on => { tvOn = on; tvdom.classList.toggle('off', !on); led.material.color.set(on ? 0xe2241b : 0x3b100d); };
+
+// 送出 → 濃霧 → 開始回答時霧散
+let busy = false;
+const send = text => {
+  if (busy) return; busy = true;
+  if (board.classList.contains('sp')) { board.classList.remove('sp'); setCmd(null); }
+  const s = sessions[cur];
+  if (text) { s.msgs.push(['me', text]); if (s.title === '新節目') s.title = text.slice(0, 14); }
+  renderList(); renderFeed();
+  const t = document.createElement('div'); t.className = 'tuning'; t.innerHTML = '<em>訊號調整中 · · ·</em>'; feed.appendChild(t); feed.scrollTop = feed.scrollHeight;
+  tvdom.classList.add('thinking'); fogTarget = world === 'studio' ? 1 : 0; stormOn();
+  const reply = '收到你的來電！這是演示用的回覆。\n\n正式版裡，黃霧會一直從電視裡漫出來，直到模型輸出第一個字；接著霧就退回去，螢幕上的閱讀板從頭到尾都保持清楚。';
+  setTimeout(() => {
+    tvdom.classList.remove('thinking'); fogTarget = 0; stormOff(); t.remove();
+    const m = msgEl('ai', ''); feed.appendChild(m); const box = m.querySelector('.box'); let k = 0;
+    const step = () => { k += 2; box.textContent = reply.slice(0, k); if (Math.random() < .12) ambPulse = Math.max(ambPulse, .25 + Math.random() * .3); feed.scrollTop = feed.scrollHeight; if (k < reply.length) setTimeout(step, reduce ? 0 : 22); else { s.msgs.push(['ai', reply]); renderList(); busy = false; } };
+    step();
+  }, 2800);
+};
+const lightning = () => {
+  if (world !== 'room' || reduce) return;
+  bolt = 1; setTimeout(() => { bolt = Math.max(bolt, .75); }, 140); flicker = .9; restart(tvdom, 'zap', 340);
+};
+const stormOn = () => { stormGoal = 1; clearTimeout(boltTimer); const next = d => { boltTimer = setTimeout(() => { lightning(); next(1700 + Math.random() * 2300); }, d); }; next(420); };
+const stormOff = () => { stormGoal = 0; clearTimeout(boltTimer); };
+input.addEventListener('input', () => { ambPulse = Math.max(ambPulse, .18); });
+$('callin').addEventListener('submit', e => { e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ''; send(v); });
+
+// ---------- 漩渦：黑白同心電視形 + 速度線 ----------
+const vtx = $('vtx'), vg = vtx.getContext('2d');
+const dotC = document.createElement('canvas'); dotC.width = dotC.height = 10; { const d = dotC.getContext('2d'); d.fillStyle = '#000'; d.beginPath(); d.arc(5, 5, 2.3, 0, 7); d.fill(); }
+const dots = vg.createPattern(dotC, 'repeat');
+const tvPath = (g, w, h) => { const r = h * .3, bx = w * .035; g.beginPath();
+  g.moveTo(-w / 2 + r, -h / 2); g.quadraticCurveTo(0, -h / 2 - bx, w / 2 - r, -h / 2); g.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+  g.quadraticCurveTo(w / 2 + bx, 0, w / 2, h / 2 - r); g.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+  g.quadraticCurveTo(0, h / 2 + bx, -w / 2 + r, h / 2); g.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+  g.quadraticCurveTo(-w / 2 - bx, 0, -w / 2, -h / 2 + r); g.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2); g.closePath(); };
+const V = { on: false, t0: 0, r0: 0 };
+const vLines = Array.from({ length: 46 }, () => ({ a: Math.random() * Math.PI * 2, w: .006 + Math.random() * .016, r: Math.random(), y: Math.random() < .18 }));
+const paintVortex = (g, cv, VW, VH, t, sc) => {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+  g.fillStyle = '#060606'; g.fillRect(0, 0, VW, VH);
+  const grow = 1 - Math.pow(1 - Math.min(1, t / .4), 3), fall = t * 1.8;
+  g.save(); g.translate(VW / 2, VH / 2);
+  for (let i = 21; i >= 0; i--) {
+    const k = i + (fall % 1), idx = i - Math.floor(fall), s = 12 * sc * Math.pow(1.27, k) * (0.25 + 0.75 * grow), m = ((idx % 8) + 8) % 8;
+    g.save(); g.rotate(k * .19 + t * 1.1); tvPath(g, s * 1.36, s);
+    g.fillStyle = m === 0 ? '#ffd400' : (m % 2 ? '#0a0a0a' : '#f3efe4'); g.fill();
+    g.lineWidth = Math.max(1.5, s * .014); g.strokeStyle = '#000'; g.stroke(); g.restore();
+  }
+  g.rotate(-t * .7);
+  vLines.forEach(l => { if (Math.random() < .2) return; const r0 = (70 + l.r * 200) * sc, r1 = r0 + (300 + l.r * 420) * sc;
+    g.beginPath(); g.moveTo(Math.cos(l.a - l.w) * r1, Math.sin(l.a - l.w) * r1); g.lineTo(Math.cos(l.a) * r0, Math.sin(l.a) * r0); g.lineTo(Math.cos(l.a + l.w) * r1, Math.sin(l.a + l.w) * r1); g.closePath();
+    g.fillStyle = l.y ? 'rgba(255,212,0,.9)' : 'rgba(255,255,255,.5)'; g.fill(); });
+  g.restore();
+  const cr = (44 + Math.sin(t * 10) * 7) * sc, rg = g.createRadialGradient(VW / 2, VH / 2, 0, VW / 2, VH / 2, cr * 2.3);
+  rg.addColorStop(0, 'rgba(255,255,240,1)'); rg.addColorStop(.35, 'rgba(255,212,0,.85)'); rg.addColorStop(1, 'rgba(255,212,0,0)'); g.fillStyle = rg; g.fillRect(0, 0, VW, VH);
+  g.globalAlpha = .2; g.fillStyle = dots; g.fillRect(0, 0, VW, VH); g.globalAlpha = 1;
+  for (let q = 0; q < 3; q++) if (Math.random() < .3) { const y = Math.random() * VH, hh = 6 + Math.random() * 28; g.drawImage(cv, 0, y, VW, hh, (Math.random() - .5) * 70, y, VW, hh); }
+};
+const drawVortex = now => paintVortex(vg, vtx, 1000, 750, (now - V.t0) / 1000, 1);
+// 全畫面漩渦：從螢幕長大蓋滿 → 換場景 → 開電視形的洞
+const sv = $('sv'), sgx = sv.getContext('2d');
+const SV = { on: false, t0: 0, from: null, swapped: false, onSwap: null, done: null };
+const screenRect = () => { if (!screenObj.visible) return { cx: W / 2, cy: H / 2, w: 320, h: 240 }; screenObj.updateMatrixWorld(); const a = new THREE.Vector3(-500, 375, 0).applyMatrix4(screenObj.matrixWorld).project(camera), b = new THREE.Vector3(500, -375, 0).applyMatrix4(screenObj.matrixWorld).project(camera);
+  const x0 = (a.x + 1) / 2 * W, y0 = (1 - a.y) / 2 * H, x1 = (b.x + 1) / 2 * W, y1 = (1 - b.y) / 2 * H; return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, w: x1 - x0, h: y1 - y0 }; };
+const stageWarp = (from, onSwap, done) => { Object.assign(SV, { on: true, t0: performance.now(), from, swapped: false, onSwap, done }); sv.style.display = 'block'; };
+const smooth = p => p * p * (3 - 2 * p), lerp = (a, b, k) => a + (b - a) * k;
+const drawStage = now => {
+  const t = (now - SV.t0) / 1000, COVER = .4, HOLD = .1, REVEAL = .7, f = SV.from;
+  paintVortex(sgx, sv, W, H, t + .6, 1.35);
+  sgx.save();
+  if (t < COVER) {
+    const e = smooth(t / COVER);
+    sgx.globalCompositeOperation = 'destination-in'; sgx.translate(lerp(f.cx, W / 2, e), lerp(f.cy, H / 2, e)); tvPath(sgx, lerp(f.w, 2900, e), lerp(f.h, 2150, e)); sgx.fill();
+  } else {
+    if (!SV.swapped) { SV.swapped = true; SV.onSwap && SV.onSwap(); }
+    const p = Math.min(1, Math.max(0, (t - COVER - HOLD) / REVEAL));
+    if (p > 0) { const e = smooth(p), s = e * 1750;
+      sgx.translate(W / 2, H / 2); sgx.rotate((1 - e) * .6);
+      sgx.globalCompositeOperation = 'destination-out'; tvPath(sgx, s * 1.36, s); sgx.fill();
+      sgx.globalCompositeOperation = 'source-over'; tvPath(sgx, s * 1.36, s); sgx.lineWidth = 40; sgx.strokeStyle = '#0a0a0a'; sgx.stroke(); sgx.lineWidth = 16; sgx.strokeStyle = '#ffd400'; sgx.stroke(); }
+    if (p >= 1) { SV.on = false; sgx.restore(); sgx.setTransform(1, 0, 0, 1, 0, 0); sgx.clearRect(0, 0, W, H); sv.style.display = 'none'; SV.done && SV.done(); return; }
+  }
+  sgx.restore();
+};
+const fx = $('fx'), fg = fx.getContext('2d');
+const fxLines = Array.from({ length: 80 }, () => ({ a: Math.random() * Math.PI * 2, w: .008 + Math.random() * .022, l: Math.random(), y: Math.random() < .14 }));
+let fxDirty = false;
+const drawFx = (amt, now) => {
+  if (amt <= .01) { if (fxDirty) { fg.clearRect(0, 0, W, H); fxDirty = false; } return; }
+  fg.clearRect(0, 0, W, H); fxDirty = true;
+  const c = SC.clone().project(camera), cx = (c.x + 1) / 2 * W, cy = (1 - c.y) / 2 * H;
+  const e = new THREE.Vector3(SC.x + .23, SC.y + .17, SC.z).project(camera), R = Math.hypot((e.x + 1) / 2 * W - cx, (1 - e.y) / 2 * H - cy);
+  fg.save(); fg.translate(cx, cy); fg.rotate(now / 1000 * .6);
+  fxLines.forEach(l => { if (Math.random() < .18) return; const r0 = R * 1.05 + 10 + (1 - amt) * 260 * l.l, r1 = r0 + amt * (260 + l.l * 900);
+    fg.beginPath(); fg.moveTo(Math.cos(l.a - l.w) * r1, Math.sin(l.a - l.w) * r1); fg.lineTo(Math.cos(l.a) * r0, Math.sin(l.a) * r0); fg.lineTo(Math.cos(l.a + l.w) * r1, Math.sin(l.a + l.w) * r1); fg.closePath();
+    fg.fillStyle = l.y ? `rgba(255,212,0,${.85 * amt})` : `rgba(0,0,0,${.8 * amt})`; fg.fill(); });
+  fg.restore();
+};
+
+// ---------- TUNING IN 標語、調頻過渡 ----------
+$('sloganText').innerHTML = 'TUNING IN'.split('').map((c, i) => `<span style="--i:${i}">${c === ' ' ? '&nbsp;' : c}</span>`).join('');
+let sloganT;
+const playSlogan = () => {
+  const el = $('slogan'); $('sloganSub').innerHTML = `CH ${pad(sessions[cur].ch)} <em>／</em> 調頻中 <em>／</em> NOW ENTERING <em>／</em> MIDNIGHT CHANNEL`;
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go'); clearTimeout(sloganT); sloganT = setTimeout(() => el.classList.remove('go'), 1300);
+};
+let tuneT;
+const tuneIn = () => {
+  const ms = [...feed.querySelectorAll('.msg')], first = Math.max(0, ms.length - 4);
+  ms.forEach((m, i) => m.style.setProperty('--d', (0.82 + Math.max(0, i - first) * 0.09).toFixed(2) + 's'));
+  tvdom.classList.remove('tunein'); void tvdom.offsetWidth; tvdom.classList.add('tunein');
+  clearTimeout(tuneT); tuneT = setTimeout(() => tvdom.classList.remove('tunein'), 1700);
+  setTimeout(() => osd('CH ' + pad(sessions[cur].ch)), 1150);
+};
+
+// ---------- 推近 / 退後 ----------
+let entering = false;
+let warping = false;
+const hint = t => { $('hint2').innerHTML = t; };
+const focusOn = (idx, dur = 1150, fromWarp = false) => {
+  const o = slotTV(idx); if (!o) return;
+  screenObj.visible = false; focusTV = o; ORB.yaw = colYaw(idx); o.scr.getWorldPosition(_v1); ORB.pitch = Math.max(PMIN, Math.min(PMAX, Math.asin(Math.max(-1, Math.min(1, (_v1.y - T0.y) / ORB.r))))); ORB.vy = ORB.vp = 0;
+  setFocusView(o); attachScreen(o); hideHover();
+  hint('<em>Esc</em>退回環視　拖曳畫面也可以退回');
+  const wasFocus = view === 'focus';
+  flyTo('focus', wasFocus ? dur * 1.25 : dur, () => { screenObj.visible = true; tuneIn(); refreshWall(); });
+  if (wasFocus && tween) tween.via = viaAround(tween.p0, tween.p1);
+};
+const unfocus = (dur = 800) => {
+  if (view !== 'focus' || warping) return;
+  input.blur(); screenObj.visible = false; focusTV = null; setOrbitView(); hint('拖曳繞塔 360°<em>／</em>滾輪拉近拉遠<em>／</em>點播著節目的電視收看<em>／</em>Esc 回到房間');
+  flyTo('orbit', dur);
+};
+const focusSession = (i, dur, fromWarp) => {
+  const b = bandOfSession(i), wait = Math.max(0, tower.dropUntil - performance.now());
+  const go = () => setBand(b, () => focusOn(i, dur, fromWarp));
+  wait ? setTimeout(go, wait) : go();
+};
+const landOrbit = (dur = 1800) => {
+  ORB.yaw = colYaw(cur); ORB.pitch = .14; ORB.r = ORB.rt = Math.max(3.5, Math.min(4.1, 3.2 + tower.h * .18)); ORB.vy = ORB.vp = 0; setOrbitView();
+  hint('拖曳繞塔 360°<em>／</em>滾輪拉近拉遠<em>／</em>點播著節目的電視收看<em>／</em>Esc 回到房間'); flyTo('orbit', dur);
+};
+const enterStudio = (land = 'focus') => {
+  stageWarp(screenRect(), () => {
+    setWorld('studio'); tween = null; band = bandOfSession(cur); refreshWall();
+    ORB.yaw = colYaw(cur) + (land === 'orbit' ? .9 : 0); ORB.pitch = land === 'orbit' ? .6 : .3; setOrbitView(4.25);
+    cam.pos.copy(VIEW.orbit.pos); cam.tgt.copy(VIEW.orbit.tgt); fov = ORB_FOV; view = 'orbit';
+    st.classList.remove('dive'); V.on = false; tvdom.classList.remove('vortex');
+    if (land === 'orbit') landOrbit(); else focusOn(cur, 1600, true);
+  }, () => { warping = false; });
+};
+const zoomIn = (land = 'focus') => {
+  if ((view !== 'room' && view !== 'desk') || entering || warping) return;
+  st.classList.remove('roomzoom'); st.classList.add('zoomed'); hideHover(); input.blur();
+  if (reduce) { setWorld('studio'); band = bandOfSession(cur); refreshWall(); if (land === 'orbit') landOrbit(0); else focusOn(cur, 0); return; }
+  warping = true; V.on = true; V.t0 = performance.now(); V.r0 = 0; tvdom.classList.add('vortex'); st.classList.add('dive'); playSlogan();
+  flyTo('tv', 1300, () => enterStudio(land));
+};
+const zoomOut = () => {
+  if ((view !== 'orbit' && view !== 'focus') || warping) return;
+  input.blur(); hideHover(); $('slogan').classList.remove('go'); tvdom.classList.remove('tunein');
+  if (reduce) { setWorld('room'); st.classList.remove('zoomed'); flyTo('room', 0); return; }
+  warping = true; V.on = true; V.t0 = performance.now(); tvdom.classList.add('vortex');
+  stageWarp(screenRect(), () => {
+    setWorld('room'); fov = 40; cam.pos.copy(VIEW.tv.pos); cam.tgt.copy(VIEW.tv.tgt); view = 'tv'; tween = null;
+    V.on = false; tvdom.classList.remove('vortex'); st.classList.remove('zoomed'); flyTo('room', 1300);
+  }, () => { warping = false; });
+};
+// 房間模式：推近但留在雨夜房間，房間退到景深後面
+let mode = 'room';
+const syncModeBtns = () => document.querySelectorAll('#modesw button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+const roomIn = () => {
+  if (view !== 'room' || entering || warping) return;
+  st.classList.add('zoomed', 'roomzoom'); hideHover();
+  hint('<em>Esc</em>退後　點螢幕外也可以退後');
+  flyTo('desk', 1200, () => { tuneIn(); });
+};
+const roomOut = () => { if (view !== 'desk' || warping) return; input.blur(); st.classList.remove('zoomed', 'roomzoom'); flyTo('room', 1000); };
+const pushIn = () => mode === 'tower' ? zoomIn() : roomIn();
+const escape = () => { if (warping) return; if (view === 'focus') unfocus(); else if (view === 'orbit') zoomOut(); else if (view === 'desk') roomOut(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && e.target !== input) escape(); });
+// 模式切換：房間 ↔ 電視塔
+document.querySelectorAll('#modesw button').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation(); if (warping) return; if (entering) finishEntry();
+  const m = b.dataset.mode; mode = m; syncModeBtns();
+  if (m === 'tower') { if (view === 'room' || view === 'desk') zoomIn('orbit'); else if (view === 'focus') unfocus(); }
+  else if (view === 'orbit' || view === 'focus') zoomOut();
+}));
+st.addEventListener('wheel', e => { if (view !== 'orbit' || warping || tween || isHud(e.target)) return; e.preventDefault(); ORB.rt = Math.max(2.3, Math.min(4.15, ORB.rt + e.deltaY * .0025)); }, { passive: false });
+// 頻段：電視塔放不下時，一個頻段一整座塔
+const stepBand = dir => { if (warping || tween) return; const n = bandsUsed(); if (n < 2) return; if (view === 'focus') unfocus(); setBand((band + dir + n) % n, () => osd('BAND ' + (band + 1))); };
+$('bandPrev').addEventListener('click', e => { e.stopPropagation(); stepBand(-1); });
+$('bandNext').addEventListener('click', e => { e.stopPropagation(); stepBand(1); });
+// 左邊工作區、轉台鍵、點舊電視：都走這裡
+const goSession = i => {
+  if (warping || entering) return;
+  if (i !== cur || board.classList.contains('sp')) tune(i);
+  if (view === 'room') pushIn();
+  else if (view === 'orbit' || view === 'focus') focusSession(i);
+};
+input.addEventListener('focus', () => { if (view === 'room') pushIn(); });
+input.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { input.blur(); escape(); }
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('callin').requestSubmit(); }
+});
+tvdom.addEventListener('click', e => { if (view === 'room' && !entering) { e.stopPropagation(); input.focus({ preventScroll: true }); } });
+$('zoomBtn').addEventListener('click', () => (view === 'orbit' || view === 'focus') ? zoomOut() : view === 'desk' ? roomOut() : (view === 'room' && input.focus({ preventScroll: true })));
+
+// ---------- 滑鼠：視差、CHECK!!、旁白 ----------
+const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+const plate = $('plate'), check = $('check'), msgbox = $('msgbox');
+let hovered = null, msgT;
+const hideHover = () => { plate.classList.remove('on'); check.classList.remove('on'); hovered = null; renderer.domElement.style.cursor = ''; };
+const isHud = t => t.closest && t.closest('.guide, .callin, .hud-date, .modesw, .bandsw, .cap, .tvdom');
+const pointer = e => { const r = st.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); };
+const hitLabel = () => { ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(pickables, false)[0]; if (!h) return null; const o = h.object.userData.tvo;
+  if (o) { const s = o.idx >= 0 ? sessions[o.idx] : null; return { pick: s ? `CH ${pad(s.ch)}・${s.title}` : '沒有訊號', session: s ? o.idx : null }; }
+  return h.object.userData; };
+st.addEventListener('mousemove', e => {
+  pointer(e); mouse.copy(ndc);
+  if ((view !== 'room' && view !== 'orbit' && view !== 'focus') || entering || tween || warping || drag.on) return;
+  if (isHud(e.target) && !e.target.closest('.tvdom')) { hideHover(); return; }
+  if (view !== 'room' && e.target.closest('.tvdom')) { hideHover(); return; }
+  const hit = e.target.closest('.tvdom') ? { pick: '電視' } : hitLabel();
+  if (!hit) { hideHover(); return; }
+  if (hovered !== hit.pick) { hovered = hit.pick; plate.textContent = hit.pick; plate.classList.remove('on'); void plate.offsetWidth; plate.classList.add('on'); }
+  check.classList.toggle('on', hit.pick === '電視' && view === 'room'); renderer.domElement.style.cursor = hit.session === null ? '' : 'pointer';
+});
+st.addEventListener('mouseleave', hideHover);
+const drag = { on: false, moved: false, x: 0, y: 0, lx: 0, ly: 0 };
+st.addEventListener('pointerdown', e => {
+  if ((view !== 'orbit' && view !== 'focus') || warping || isHud(e.target)) return;
+  e.preventDefault(); // 拖曳時不要選到字
+  Object.assign(drag, { on: true, moved: false, x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY });
+});
+window.addEventListener('pointermove', e => {
+  if (!drag.on) return;
+  const sc = W / st.getBoundingClientRect().width, dx = (e.clientX - drag.lx) * sc, dy = (e.clientY - drag.ly) * sc; drag.lx = e.clientX; drag.ly = e.clientY;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6) { drag.moved = true; hideHover(); st.classList.add('dragging'); if (view === 'focus') unfocus(500); }
+  if (drag.moved && view === 'orbit' && !tween) { ORB.vy = -dx * .0042; ORB.vp = dy * .003; ORB.yaw += ORB.vy; ORB.pitch = Math.max(PMIN, Math.min(PMAX, ORB.pitch + ORB.vp)); }
+});
+window.addEventListener('pointerup', () => { if (!drag.on) return; drag.on = false; st.classList.remove('dragging'); setTimeout(() => drag.moved = false, 0); });
+
+st.addEventListener('click', e => {
+  if (entering) { finishEntry(); return; }
+  if (!e.target.isConnected || isHud(e.target) || warping) return; // 節目表按鈕會在點擊當下重畫，脫離 DOM 的也算 HUD
+  pointer(e);
+  if (drag.moved) { drag.moved = false; return; }
+  if (view === 'orbit' || view === 'focus') { const h = hitLabel(); if (h && h.session != null) goSession(h.session); return; }
+  if (view === 'desk') { roomOut(); return; }
+  if (view !== 'room') return;
+  const hit = hitLabel(); if (!hit) return;
+  if (hit.pick === '電視') { input.focus({ preventScroll: true }); return; }
+  if (hit.say) { $('msgtx').textContent = hit.say; msgbox.classList.add('on'); clearTimeout(msgT); msgT = setTimeout(() => msgbox.classList.remove('on'), 2600); }
+});
+
+// ---------- HUD 日期 ----------
+const period = h => h < 4 ? '深夜' : h < 7 ? '清晨' : h < 11 ? '早上' : h < 14 ? '中午' : h < 18 ? '午後' : h < 22 ? '晚上' : '深夜';
+const setHud = (d = new Date()) => { $('hDate').textContent = `${d.getMonth() + 1}/${d.getDate()}`; $('hWd').textContent = WDE[d.getDay()]; $('hPeriod').textContent = period(d.getHours()); };
+
+// ---------- 午夜開播 ----------
+let timers = [], clockLive = false;
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+const setVcr = t => { vcrText = t; vcrTex.userData.redraw(); };
+const finishEntry = () => {
+  timers.forEach(clearTimeout); timers = []; entering = false;
+  setTV(true); tvdom.classList.remove('midnight'); midnight = 0; fogTarget = 0;
+  clockLive = true; tickClock(); setHud();
+  if (view !== 'tv') flyTo('room', 0);
+};
+const startEntry = () => {
+  timers.forEach(clearTimeout); timers = []; input.blur(); st.classList.remove('zoomed', 'roomzoom'); hideHover(); stormOff(); bolt = 0;
+  setWorld('room'); warping = false; SV.on = false; sv.style.display = 'none'; V.on = false; tvdom.classList.remove('vortex', 'tunein'); st.classList.remove('dive');
+  if (reduce) { flyTo('room', 0); finishEntry(); return; }
+  entering = true; clockLive = false; setTV(false); setVcr('23:59:57');
+  const mid = new Date(now); mid.setHours(23, 59); setHud(mid); $('hPeriod').textContent = '深夜';
+  cam.pos.copy(VIEW.pre.pos); cam.tgt.copy(VIEW.pre.tgt); flyTo('room', 4200);
+  later(() => setVcr('23:59:58'), 1000);
+  later(() => setVcr('23:59:59'), 2000);
+  later(() => { setVcr('00:00:00'); setTV(true); restart(tvdom, 'poweron', 800); tvdom.classList.add('midnight'); midnight = 1; fogTarget = .45; const d = new Date(now); d.setDate(d.getDate() + (now.getHours() >= 12 ? 1 : 0)); setHud(d); $('hPeriod').textContent = '深夜'; }, 3000);
+  later(() => { tvdom.classList.remove('midnight'); midnight = 0; restart(board, 'on', 620); }, 4600);
+  later(() => { osd('CH ' + pad(sessions[cur].ch)); fogTarget = 0; }, 5000);
+  later(() => { entering = false; }, 5200);
+  later(() => { clockLive = true; tickClock(); setHud(); }, 7000);
+};
+const tickClock = () => { if (!clockLive) return; const n = new Date(); setVcr(`${pad(n.getHours())}:${pad(n.getMinutes())}`); };
+setInterval(tickClock, 10000);
+
+// ---------- 渲染迴圈 ----------
+const clock = new THREE.Clock();
+const fogCol = new THREE.Color();
+let flyP = 0;
+const loop = () => {
+  const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+  if (tween) {
+    const p = Math.min(1, (performance.now() - tween.start) / tween.dur), e = ease(p); flyP = p;
+    cam.pos.lerpVectors(tween.p0, tween.p1, e); cam.tgt.lerpVectors(tween.t0, tween.t1, e);
+    if (tween.via) { const u = 1 - e; cam.pos.set(u * u * tween.p0.x + 2 * u * e * tween.via.x + e * e * tween.p1.x, u * u * tween.p0.y + 2 * u * e * tween.via.y + e * e * tween.p1.y, u * u * tween.p0.z + 2 * u * e * tween.via.z + e * e * tween.p1.z); } if (tween.f1 != null) fov = tween.f0 + (tween.f1 - tween.f0) * e;
+    if (view === 'tv') cam.pos.y += Math.sin(p * Math.PI) * 0.12; // 一點點弧線
+    if (p >= 1) { const d = tween.done; tween = null; d && d(); }
+  }
+  if (view === 'orbit' && !tween) { if (!drag.on) { ORB.yaw += ORB.vy; ORB.pitch = Math.max(PMIN, Math.min(PMAX, ORB.pitch + ORB.vp)); ORB.vy *= .93; ORB.vp *= .85; } ORB.r += (ORB.rt - ORB.r) * .15; orbitPose(cam.pos, cam.tgt); }
+  if (Math.abs(camera.fov - fov) > .01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+  const wantPar = (view === 'room' || view === 'focus' || view === 'desk') && !tween && !reduce ? mouse : new THREE.Vector2();
+  par.lerp(wantPar, .05); const pa = view === 'focus' || view === 'desk' ? .08 : 1;
+  camera.position.set(cam.pos.x + par.x * .22 * pa, cam.pos.y + par.y * .1 * pa, cam.pos.z - par.x * .08 * pa);
+  camera.lookAt(cam.tgt);
+  const diving = tween && view === 'tv';
+  if (diving && !reduce) camera.rotateZ(Math.sin(Math.PI * flyP) * 0.07);
+
+  fogLevel += (fogTarget - fogLevel) * Math.min(1, dt * 1.6);
+  fogCol.copy(baseFog).lerp(FOGY, fogLevel * .85);
+  scene.fog.color.copy(fogCol); scene.background.copy(fogCol); scene.fog.density = baseDen + fogLevel * .33;
+  tvPower += ((tvOn ? 1 : 0) - tvPower) * Math.min(1, dt * 3);
+  flicker *= .9;
+  ambCol.lerp(ambGoal, Math.min(1, dt * 2.5)); ambPulse *= Math.pow(.2, dt);
+  storm += (stormGoal - storm) * Math.min(1, dt * 1.4); bolt = Math.max(0, bolt - dt * 3.2);
+  const roomW = world === 'room';
+  const tvc = midnight ? TVMID : roomW ? ambCol.clone().lerp(TVCOL, .25) : TVCOL.clone().lerp(TVFOG, fogLevel);
+  const gl = roomW ? tvPower * (1 + ambPulse * .7 + Math.sin(t * 7.3) * .03 + flicker * (Math.random() - .3) * .5) : 0;
+  [[wallGlow, .55], [floorGlow, .4], [sideGlow, .14]].forEach(([m, k]) => { m.material.color.copy(midnight ? TVMID : ambCol); m.material.opacity = gl * k; });
+  deskW += ((view === 'desk' ? 1 : 0) - deskW) * Math.min(1, dt * 2.5);
+  rainShadow.material.opacity = roomW ? deskW * (.07 + storm * .16 + bolt * .5) : 0; dripTex.offset.y += dt * (.04 + storm * .22);
+  rain2.material.opacity = storm * .9; rain2Tex.offset.y += dt * 3.6; rain2Tex.offset.x += dt * .4;
+  outside.material.color.setScalar(1 + bolt * 2.6);
+  hemi.intensity = (roomW ? .4 : 1.1) + (roomW ? bolt * 2.2 : 0);
+  $('bolt').style.opacity = (bolt * bolt * .32).toFixed(3);
+  sheets.forEach(m => { if (m.userData.drop > 0) { m.userData.drop = Math.max(0, m.userData.drop - dt * 2.6); const d = Math.min(1, m.userData.drop); m.position.y = m.userData.base.y + d * d * .3; m.rotation.z = d * .3; } });
+  tvLight.color.copy(tvc); tvLight.intensity = tvPower * (2.8 + (roomW ? ambPulse * 1.2 : 0) + fogLevel * 2.6 + Math.sin(t * 9) * .05 + flicker * (Math.random() - .3) + (midnight ? Math.random() * .6 : 0));
+  lamp.intensity = lampBase * (1 - fogLevel * .5);
+  if (world === 'studio') { staticT += dt; if (staticT > .1) { staticT = 0; for (let k = 0; k < 16; k++) { const o = oldTVs[(Math.random() * oldTVs.length) | 0]; if (o.idx < 0 || staticAll) drawOld(o); } }
+    for (let k = drops.length - 1; k >= 0; k--) { const d = drops[k]; if ((d.t -= dt) > 0) continue; d.v += 9.8 * dt; d.o.g.position.y -= d.v * dt; if (d.o.g.position.y <= d.y1) { d.o.g.position.y = d.y1; drops.splice(k, 1); flicker = .45; } }
+    T0.y += (T0goal.y - T0.y) * .05; beams.forEach((b, i) => b.material.opacity = .07 + Math.sin(t * 1.3 + i) * .02 + fogLevel * .06); }
+  rainTex.offset.y += dt * (1.8 + storm * 2.6); rainTex.offset.x += dt * (.15 + storm * .3);
+  chKnob.rotation.z += (-knobAngle - chKnob.rotation.z) * .15;
+  puffs.forEach(sp => {
+    const u = sp.userData; u.ph = (u.ph + dt * u.sp) % 1;
+    const r = .15 + u.ph * 1.6;
+    sp.position.set(SC.x + Math.cos(u.a) * r * 1.1, .25 + u.y * .9 + u.ph * .25, SC.z + .1 + Math.abs(Math.sin(u.a)) * r * 1.2);
+    sp.scale.setScalar(u.s * (.5 + u.ph * 1.6));
+    sp.material.opacity = fogLevel * .5 * Math.sin(u.ph * Math.PI);
+  });
+  if (check.classList.contains('on')) { const v = new THREE.Vector3(-0.65, 1.02, -1.72).project(camera); check.style.left = ((v.x + 1) / 2 * W) + 'px'; check.style.top = ((1 - v.y) / 2 * H) + 'px'; }
+  if (V.on) drawVortex(performance.now());
+  if (SV.on) drawStage(performance.now());
+  drawFx(diving && !reduce ? Math.sin(Math.PI * Math.min(1, flyP * 1.05)) : 0, performance.now());
+  effect.render(scene, camera);
+  cssR.render(scene, camera);
+  requestAnimationFrame(loop);
+};
+
+// ---------- 開始 ----------
+$('replay').addEventListener('click', e => { e.stopPropagation(); startEntry(); });
+$('think').addEventListener('click', () => send(''));
+$('newBtn').addEventListener('click', newSession);
+$('cmdNew').addEventListener('click', newSession);
+$('delBtn').addEventListener('click', delSession);
+const OLD_TITLES = ['資料庫遷移腳本', '登入頁改版', '寫給房東的信', '日文單字複習', '相機參數研究', '面試題目整理', '咖啡豆比較', '家計簿公式', '貓咪飲食問題', '旅遊預算表', '部落格文章草稿', '鍵盤配列研究'];
+$('bulkBtn').addEventListener('click', () => {
+  let day = sessions[sessions.length - 1].day;
+  for (let k = 0; k < 12; k++) { if (k % 3 === 0) day++; sessions.push({ ch: ++seq, day, time: `${pad(8 + (k * 5) % 14)}:${pad((k * 17) % 60)}`, title: OLD_TITLES[(seq + k) % OLD_TITLES.length], msgs: [['me', '（測試用的舊對話）'], ['ai', '這是為了測試電視塔長高和分頻段塞進來的假對話。']] }); }
+  renderList(); osd(`${sessions.length} 個節目`);
+});
+$('chUp').addEventListener('click', () => goSession((cur - 1 + sessions.length) % sessions.length));
+$('chDn').addEventListener('click', () => goSession((cur + 1) % sessions.length));
+
+renderList(); renderFeed(); setHud();
+document.fonts.ready.then(() => { [calTex, posterTex, paperTex, vcrTex, badgeTex].forEach(t => t.userData.redraw()); refreshWall(); });
+$('loading').classList.add('done');
+startEntry();
+loop();
+</script>
+</body>
+</html>

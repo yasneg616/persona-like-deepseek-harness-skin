@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P3 · P4 菜单语言重设计</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800;1,900&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&display=swap">
+<style>
+  :root { --page: #f3f1ec; --ink: #141414; --mute: #6b6760; --line: #d9d5cc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.6 "Noto Sans SC", system-ui, sans-serif; }
+  header.top { max-width: 1240px; margin: 0 auto; padding: 32px 16px 8px; }
+  header.top h1 { margin: 0 0 6px; font: 900 28px/1.2 "Noto Sans SC"; }
+  header.top p { margin: 0; color: var(--mute); max-width: 800px; }
+  nav.tabs { position: sticky; top: 0; z-index: 50; background: var(--page); border-bottom: 1px solid var(--line); }
+  nav.tabs div { max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  nav.tabs button { font: 800 14px "Noto Sans SC"; border: 2px solid var(--ink); background: #fff; padding: 6px 14px; cursor: pointer; color: var(--ink); }
+  nav.tabs button[aria-selected="true"] { background: var(--ink); color: #fff; }
+  nav.tabs label { margin-left: auto; font: 700 13px "Noto Sans SC"; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  section.concept { max-width: 1240px; margin: 0 auto; padding: 20px 16px 48px; }
+  section.concept[hidden] { display: none; }
+  .frame { width: 100%; aspect-ratio: 1440 / 900; position: relative; overflow: hidden; border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,.18); background: #000; }
+  .stage { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; transform-origin: 0 0; overflow: hidden; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 22px; }
+  .notes article { background: #fff; border: 1px solid var(--line); padding: 16px 18px; border-radius: 4px; }
+  .notes h3 { margin: 0 0 8px; font: 900 16px "Noto Sans SC"; }
+  .notes ul { margin: 0; padding-left: 18px; } .notes li { margin: 4px 0; }
+  .notes .tag { display: inline-block; font: 800 11px "Noto Sans SC"; padding: 1px 6px; margin-right: 6px; color: #fff; background: var(--ink); }
+  .keep { background: #fff; border: 2px solid var(--ink); padding: 22px 24px; display: grid; gap: 10px; }
+  .keep h2 { margin: 0; font: 900 22px "Noto Sans SC"; }
+  .stage p { margin: 0 0 8px; } .stage ul { margin: 4px 0 8px; padding-left: 20px; }
+  .stage button { all: unset; cursor: pointer; display: block; }
+  .stage button:focus-visible { outline: 2px dashed currentColor; outline-offset: 4px; }
+
+  /* =========================================================
+     P3 — RELOAD PAUSE-MENU LANGUAGE
+     underwater royal blue · giant cropped hero · condensed italic stacked menu
+     · white shard + red outlined selection · white info chip · party-style panels
+     ========================================================= */
+  .p3 { --deep: #0716a8; --mid: #0b46ee; --hi: #35b6ff; --pale: #c6f4ff; --cy: #5fe3ff; --hp: #ffe14a; --sel: #e8141f; --ink: #050716; --glow: rgba(150,230,255,.55);
+    color: #fff; font-family: "Noto Sans SC", sans-serif;
+    background: radial-gradient(ellipse 70% 80% at 88% 0%, var(--hi) 0%, transparent 60%), linear-gradient(160deg, var(--mid) 0%, var(--deep) 62%, #050c5c 100%); }
+  .p3.dark { --deep: #04381c; --mid: #0a6a37; --hi: #b9ff6b; --pale: #dcffc4; --cy: #9dff6a; --hp: #ffe14a; --glow: rgba(200,255,140,.55);
+    background: radial-gradient(ellipse 70% 80% at 88% 0%, #a8ff6a 0%, transparent 55%), linear-gradient(160deg, #0b5a30 0%, #04301a 62%, #01160b 100%); }
+  /* caustics + god rays + passing-car light */
+  .p3 .caus { position: absolute; inset: 0; opacity: .38; mix-blend-mode: screen; animation: drift 18s ease-in-out infinite alternate;
+    background:
+      radial-gradient(ellipse 90px 14px at 12% 10%, var(--pale), transparent 70%), radial-gradient(ellipse 140px 18px at 34% 6%, var(--pale), transparent 70%),
+      radial-gradient(ellipse 110px 16px at 58% 14%, var(--pale), transparent 70%), radial-gradient(ellipse 160px 20px at 80% 8%, var(--pale), transparent 70%),
+      radial-gradient(ellipse 120px 14px at 70% 26%, var(--pale), transparent 70%), radial-gradient(ellipse 80px 12px at 46% 24%, var(--pale), transparent 70%);
+    -webkit-mask: linear-gradient(#000, transparent 45%); mask: linear-gradient(#000, transparent 45%); }
+  @keyframes drift { from { transform: translateX(-20px); } to { transform: translateX(30px); } }
+  .p3 .rays { position: absolute; right: -200px; top: -100px; width: 1200px; height: 1100px; transform: rotate(24deg); opacity: .5;
+    background: repeating-linear-gradient(90deg, transparent 0 70px, rgba(255,255,255,.07) 70px 110px, transparent 110px 190px, rgba(255,255,255,.04) 190px 200px, transparent 200px 300px);
+    -webkit-mask: linear-gradient(#000, transparent 70%); mask: linear-gradient(#000, transparent 70%); }
+  .p3 .pass { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .p3 .pass::before { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 60%; transform: skewX(-18deg);
+    background: repeating-linear-gradient(90deg, transparent 0 60px, rgba(220,250,255,.09) 60px 190px, transparent 190px 230px); animation: pass 9s cubic-bezier(.6,0,.4,1) infinite; }
+  @keyframes pass { 0%, 55% { transform: translateX(0) skewX(-18deg); } 100% { transform: translateX(330%) skewX(-18deg); } }
+  .p3 .moon { position: absolute; right: 120px; top: -60px; width: 220px; height: 220px; border-radius: 50%; opacity: 0; background: radial-gradient(circle at 40% 40%, #fbffe0, #d6ff8e 60%, #8ed64a); box-shadow: 0 0 120px 40px rgba(200,255,120,.5); transition: opacity .6s; }
+  .p3.dark .moon { opacity: 1; }
+  /* hero: giant vertical word + dot whale */
+  .p3 .vword { position: absolute; left: -26px; top: -40px; font: 250px/0.8 Anton; color: var(--ink); writing-mode: vertical-rl; letter-spacing: -6px; }
+  .p3 .whale { position: absolute; left: -250px; top: 330px; width: 720px; height: 450px; transform: rotate(-66deg); animation: float 7s ease-in-out infinite alternate; filter: drop-shadow(0 0 30px var(--glow)); }
+  .p3 .whale svg { width: 100%; height: 100%; overflow: visible; transform: scaleX(-1); }
+  @keyframes float { from { transform: rotate(-66deg) translateX(0); } to { transform: rotate(-62deg) translateX(22px); } }
+  .p3 .shard { position: absolute; width: 14px; height: 22px; clip-path: polygon(50% 0, 100% 100%, 0 70%); animation: fall linear infinite; opacity: .85; }
+  @keyframes fall { from { transform: translate(0, -40px) rotate(0); } to { transform: translate(-120px, 960px) rotate(540deg); } }
+  /* info chip (wallet-style) */
+  .p3 .chip { position: absolute; left: 120px; top: 22px; width: 230px; background: #fff; color: #000; border: 2px solid #000; box-shadow: 0 0 0 2px #fff; padding: 4px 12px 5px; }
+  .p3 .chip b { display: block; font: 700 26px/1.1 "Barlow Condensed"; letter-spacing: .5px; }
+  .p3 .chip b span { font-size: 16px; margin-left: 8px; color: #333; }
+  .p3 .chip small { font: 600 11px "Barlow Condensed"; letter-spacing: 1px; color: #333; }
+  /* the stacked menu */
+  .p3 .menu { position: absolute; left: 196px; top: 222px; transform: rotate(-8deg); transform-origin: 0 0; }
+  .p3 .menu button { font: italic 900 62px/0.8 "Barlow Condensed"; letter-spacing: -2px; text-transform: uppercase; color: var(--pale); -webkit-text-stroke: 6px var(--deep); paint-order: stroke fill; text-shadow: 0 3px 0 rgba(4,10,90,.4); position: relative; white-space: nowrap; transition: transform .18s cubic-bezier(.3,1.5,.5,1); }
+  .p3 .menu button small { -webkit-text-stroke: 0; font: 700 13px "Noto Sans SC"; letter-spacing: 1px; margin-left: 8px; vertical-align: middle; font-style: normal; opacity: .75; text-transform: none; }
+  .p3 .menu button:nth-child(1) { margin-left: 62px; } .p3 .menu button:nth-child(2) { margin-left: 38px; } .p3 .menu button:nth-child(3) { margin-left: 8px; }
+  .p3 .menu button:nth-child(4) { margin-left: 24px; } .p3 .menu button:nth-child(5) { margin-left: 52px; }
+  .p3 .menu button:hover:not([aria-current]) { transform: translateX(14px); color: #fff; }
+  .p3 .menu button[aria-current] { font-size: 76px; color: var(--sel); -webkit-text-stroke: 4px #000; paint-order: stroke fill; text-shadow: none; z-index: 1; margin-top: 4px; margin-bottom: 6px; }
+  .p3 .menu button[aria-current] small { -webkit-text-stroke: 0; color: #000; opacity: 1; }
+  .p3 .menu button[aria-current]::before { content: ""; position: absolute; z-index: -1; left: -46px; right: -70px; top: -8px; bottom: -6px; background: #fff;
+    clip-path: polygon(0 62%, 6% 40%, 30% 30%, 86% 6%, 100% 0, 93% 30%, 97% 58%, 88% 100%, 24% 92%, 4% 86%); }
+  .p3 .menu button[aria-current]::after { content: ""; position: absolute; z-index: -2; left: -58px; right: -40px; top: 6px; bottom: -14px; background: var(--sel);
+    clip-path: polygon(0 70%, 60% 74%, 100% 62%, 98% 80%, 40% 100%, 4% 96%); }
+  .p3.dark .menu button:not([aria-current]) { color: var(--pale); transform: skewX(-6deg); }
+  /* party-style session panels */
+  .p3 .party { position: absolute; right: 26px; top: 26px; width: 262px; display: flex; flex-direction: column; gap: 8px; }
+  .p3 .party h4 { margin: 0 0 2px; text-align: right; font: italic 900 22px "Barlow Condensed"; letter-spacing: 2px; color: #fff; }
+  .p3 .party h4 em { font: 700 12px "Noto Sans SC"; font-style: normal; color: var(--pale); margin-left: 6px; }
+  .p3 .party .grp { margin: 6px 4px -2px 0; text-align: right; font: italic 800 13px "Barlow Condensed"; letter-spacing: 3px; color: var(--pale); text-transform: uppercase; }
+  .p3 .card { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; padding: 6px 12px 6px 8px; transform: skewX(-10deg);
+    background: linear-gradient(100deg, rgba(160,235,255,.42), rgba(60,150,255,.25)); border: 2px solid rgba(255,255,255,.85); box-shadow: 4px 4px 0 rgba(4,10,90,.4); }
+  .p3 .card > * { transform: skewX(10deg); }
+  .p3 .card i { width: 40px; height: 40px; display: grid; place-items: center; background: #fff; color: var(--deep); font: italic 900 24px "Barlow Condensed"; font-style: normal; }
+  .p3 .card b { display: block; font: 700 13px/1.3 "Noto Sans SC"; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p3 .card .bars { display: grid; gap: 3px; margin-top: 4px; }
+  .p3 .card .bars span { height: 4px; background: rgba(0,0,0,.35); position: relative; }
+  .p3 .card .bars span::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--w); background: var(--hp); }
+  .p3 .card .bars span + span::after { background: var(--cy); }
+  .p3 .card .bars em { font: italic 800 11px "Barlow Condensed"; letter-spacing: 1px; font-style: normal; color: var(--pale); justify-self: end; }
+  .p3 .card[aria-current] { background: #fff; border-color: #fff; box-shadow: 4px 4px 0 var(--sel); }
+  .p3 .card[aria-current] i { background: var(--sel); color: #fff; }
+  .p3 .card[aria-current] b { color: var(--ink); } .p3 .card[aria-current] .bars em { color: var(--sel); }
+  /* conversation plane */
+  .p3 .talk { position: absolute; left: 620px; right: 308px; top: 26px; bottom: 116px; padding: 26px 34px 0 44px; isolation: isolate; }
+  .p3 .talk::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(3,10,70,.62), rgba(3,10,70,.78)); clip-path: polygon(5% 0, 100% 0, 100% 100%, 0 100%); border-top: 2px solid var(--pale); }
+  .p3.dark .talk::before { background: linear-gradient(180deg, rgba(1,24,10,.66), rgba(1,22,10,.82)); }
+  .p3 .talk h2 { margin: 0 0 18px; display: flex; align-items: baseline; gap: 12px; font: 900 24px "Noto Sans SC"; }
+  .p3 .talk h2 i { font: italic 900 14px "Barlow Condensed"; letter-spacing: 3px; background: var(--pale); color: var(--ink); padding: 0 10px; transform: skewX(-14deg); font-style: normal; }
+  .p3 .msgs { display: flex; flex-direction: column; gap: 18px; height: calc(100% - 150px); overflow: hidden; -webkit-mask: linear-gradient(#000 86%, transparent); mask: linear-gradient(#000 86%, transparent); }
+  .p3 .say { align-self: flex-end; max-width: 86%; position: relative; padding: 8px 20px 9px; font: 700 15px/1.65 "Noto Sans SC"; color: var(--ink); isolation: isolate; }
+  .p3 .say::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #fff; clip-path: polygon(3% 0, 100% 4%, 98% 100%, 0 94%); }
+  .p3 .say::after { content: ""; position: absolute; z-index: -2; inset: 5px -6px -5px 6px; background: var(--sel); clip-path: polygon(3% 0, 100% 4%, 98% 100%, 0 94%); }
+  .p3 .ans { font: 400 15px/1.85 "Noto Sans SC"; color: #f0f6ff; }
+  .p3 .ans h5 { margin: 0 0 4px; font: 900 19px "Noto Sans SC"; color: #fff; }
+  .p3 .ans h5::after { content: ""; display: block; width: 64px; height: 3px; margin-top: 2px; background: var(--cy); transform: skewX(-30deg); }
+  .p3 .ans a { color: var(--pale); text-decoration: none; border-bottom: 1px solid var(--cy); }
+  .p3 .ans li::marker { color: var(--cy); }
+  .p3 .ans code { display: block; margin-top: 6px; padding: 7px 12px; background: rgba(0,0,0,.35); border-left: 3px solid var(--cy); font: 13px ui-monospace, Consolas, monospace; }
+  .p3 .comp { position: absolute; left: 34px; right: 26px; bottom: 22px; height: 62px; display: flex; align-items: center; gap: 12px; padding: 0 12px 0 22px; background: rgba(255,255,255,.95); color: var(--ink); clip-path: polygon(2% 0, 100% 0, 99% 100%, 0 100%); }
+  .p3 .comp .ph { flex: 1; font: 500 14px "Noto Sans SC"; color: #5b6488; }
+  .p3 .comp .opt { font: italic 800 13px "Barlow Condensed"; letter-spacing: 2px; color: var(--deep); }
+  .p3 .comp .go { width: 38px; height: 38px; display: grid; place-items: center; background: var(--sel); color: #fff; font: 900 18px "Barlow Condensed"; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  /* help line, bottom right */
+  .p3 .help { position: absolute; right: 26px; bottom: 26px; width: 360px; text-align: right; }
+  .p3 .help b { display: block; font: 600 20px "Barlow Condensed"; letter-spacing: .5px; color: #fff; }
+  .p3 .help .rule { height: 2px; background: linear-gradient(90deg, transparent, #fff 30%); margin: 2px 0; }
+  .p3 .help small { display: block; text-align: left; font: 700 11px "Barlow Condensed"; letter-spacing: 1px; color: var(--pale); }
+  .p3 .help .keys { margin-top: 6px; font: italic 700 15px "Barlow Condensed"; color: #fff; display: flex; justify-content: flex-end; gap: 14px; }
+  .p3 .help kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 3px; border: 1.5px solid #fff; border-radius: 3px; font: 700 10px "Barlow Condensed"; margin-right: 4px; }
+  .p3 .dhbanner { position: absolute; left: 200px; top: 160px; transform: rotate(-8deg); font: italic 900 20px "Barlow Condensed"; letter-spacing: 6px; color: var(--ink); background: var(--cy); padding: 0 14px; opacity: 0; transition: opacity .4s; }
+  .p3.dark .dhbanner { opacity: 1; }
+
+  /* =========================================================
+     P4 — GOLDEN PAUSE-MENU LANGUAGE
+     yellow/orange diagonal planes · sky window · dark sweeping band · flowers
+     · stair-stepped heavy serif menu · chromatic white selection · dark help pill
+     ========================================================= */
+  .p4 { --y: #ffd21a; --o: #ff9c0a; --band: #1c1a30; --cream: #fff1a6; color: #111; font-family: "Noto Sans SC", sans-serif; background: var(--y); }
+  .p4 .plane { position: absolute; inset: 0; }
+  .p4 .orange { background: var(--o); clip-path: polygon(0 58%, 22% 46%, 30% 100%, 0 100%); }
+  .p4 .orange2 { background: linear-gradient(120deg, #ffb21a, var(--o)); clip-path: polygon(55% 100%, 100% 38%, 100% 100%); }
+  .p4 .sky { clip-path: polygon(36% 0, 100% 0, 100% 8%, 53.5% 8%, 53.5% 58%, 47% 44%); background:
+      radial-gradient(ellipse 90px 46px at 72% 18%, #fff 60%, transparent 62%), radial-gradient(ellipse 70px 40px at 77% 13%, #fff 60%, transparent 62%), radial-gradient(ellipse 60px 34px at 67% 22%, #f2f8ff 60%, transparent 62%),
+      radial-gradient(ellipse 110px 50px at 93% 26%, #fff 60%, transparent 62%), radial-gradient(ellipse 70px 36px at 88% 20%, #f2f8ff 60%, transparent 62%),
+      linear-gradient(170deg, #2f7ee0, #7fc0ff 70%); }
+  .p4 .sky::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,.35) 0 4px, transparent 4px); }
+  .p4 .band { background: var(--band); clip-path: polygon(13% 0, 37% 0, 62% 100%, 33% 100%); }
+  .p4 .band::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 40% 46%, transparent 46%); }
+  .p4.midnight .sky { background: linear-gradient(170deg, #4b4a56, #8c8577 70%); }
+  .p4.midnight .sky::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(105deg, transparent 0 14px, rgba(255,255,255,.35) 14px 15px); animation: rain .5s linear infinite; }
+  @keyframes rain { from { background-position: 0 0; } to { background-position: -30px 60px; } }
+  .p4 .flower { position: absolute; }
+  .p4 .flower svg { width: 100%; height: 100%; display: block; }
+  .p4 .petal { position: absolute; width: 18px; height: 9px; border-radius: 50%; background: var(--y); filter: blur(.6px); animation: petal linear infinite; box-shadow: 6px 0 4px rgba(255,210,26,.5); }
+  @keyframes petal { from { transform: translate(0, -30px) rotate(10deg); } to { transform: translate(-260px, 940px) rotate(400deg); } }
+  .p4 .brand { position: absolute; left: 30px; top: 24px; font: 34px/0.95 "Abril Fatface"; color: #fff; -webkit-text-stroke: 6px var(--band); paint-order: stroke fill; transform: rotate(-6deg); }
+  .p4 .brand small { display: block; font: 800 12px "Barlow Condensed"; letter-spacing: 4px; color: var(--band); -webkit-text-stroke: 0; margin-top: 6px; }
+  /* stair-stepped serif menu */
+  .p4 .menu { position: absolute; left: 262px; top: 92px; transform: rotate(-9deg); transform-origin: 0 0; }
+  .p4 .menu button { font: 50px/0.96 "Abril Fatface"; color: var(--cream); white-space: nowrap; position: relative; transition: transform .18s cubic-bezier(.3,1.5,.5,1); }
+  .p4 .menu button small { font: 900 13px "Noto Serif SC"; margin-left: 10px; vertical-align: middle; color: #f5c84a; }
+  .p4 .menu button:nth-child(2) { margin-left: 22px; } .p4 .menu button:nth-child(3) { margin-left: 46px; } .p4 .menu button:nth-child(4) { margin-left: 74px; } .p4 .menu button:nth-child(5) { margin-left: 100px; }
+  .p4 .menu button:hover:not([aria-current]) { transform: translateX(10px); color: #fff; }
+  .p4 .menu button[aria-current] { font-size: 66px; color: #fff; text-shadow: -3px 0 0 #2fd3ff, 3px 0 0 #ff3fb4, 0 3px 0 #1c1a30; margin-left: -18px; z-index: 1; }
+  .p4 .menu button[aria-current]::before { content: ""; position: absolute; z-index: -1; left: -38px; top: 8px; width: 96px; bottom: 6px;
+    background: linear-gradient(180deg, #ff4fa0, #ffd21a 35%, #5ff08a 65%, #3fb4ff); clip-path: polygon(30% 0, 100% 10%, 70% 100%, 0 90%); }
+  .p4 .menu button[aria-current]::after { content: ""; position: absolute; z-index: -1; left: -22px; top: 12px; width: 70px; bottom: 10px; background: #fff; clip-path: polygon(30% 0, 100% 10%, 70% 100%, 0 90%); }
+  /* program guide on the band */
+  .p4 .guide { position: absolute; left: 330px; top: 470px; width: 380px; transform: rotate(-9deg); transform-origin: 0 0; color: var(--cream); }
+  .p4 .guide h4 { margin: 0 0 6px; font: 30px "Abril Fatface"; color: #fff; }
+  .p4 .guide h4 small { font: 900 12px "Noto Serif SC"; color: #f5c84a; margin-left: 8px; }
+  .p4 .guide .grp { margin: 8px 0 2px; font: 700 12px "Barlow Condensed"; letter-spacing: 3px; color: #f5c84a; text-transform: uppercase; }
+  .p4 .guide button { display: flex; align-items: center; gap: 10px; width: 330px; padding: 4px 10px; font: 500 14px "Noto Sans SC"; color: var(--cream); border-radius: 999px; }
+  .p4 .guide button:nth-of-type(n) { margin-left: calc(var(--i, 0) * 12px); }
+  .p4 .guide button time { margin-left: auto; font: 15px "Abril Fatface"; color: #f5c84a; }
+  .p4 .guide button[aria-current] { background: var(--y); color: var(--band); font-weight: 700; box-shadow: 4px 4px 0 #000; }
+  .p4 .guide button[aria-current] time { color: var(--band); }
+  .p4 .yen { position: absolute; left: 540px; top: 836px; font: 32px "Abril Fatface"; color: var(--y); -webkit-text-stroke: 5px var(--band); paint-order: stroke fill; }
+  .p4 .yen small { font: 800 13px "Barlow Condensed"; letter-spacing: 2px; -webkit-text-stroke: 0; color: var(--band); margin-left: 6px; }
+  /* the TV screen */
+  .p4 .tv { position: absolute; left: 770px; right: 34px; top: 92px; bottom: 104px; border-radius: 44px / 56px; padding: 14px; background: #fff7dc; box-shadow: 0 0 0 4px var(--band), 12px 12px 0 rgba(28,26,48,.35); }
+  .p4 .tv .tag { position: absolute; left: 34px; top: -14px; z-index: 3; background: var(--band); color: var(--y); font: 700 13px "Barlow Condensed"; letter-spacing: 3px; padding: 2px 12px; border-radius: 999px; }
+  .p4 .tv .tag::before { content: "● "; color: #ff3b3b; }
+  .p4 .tv .led { position: absolute; right: 30px; bottom: -3px; width: 34px; height: 6px; border-radius: 3px; background: #ff3b3b; box-shadow: 0 0 10px #ff3b3b; }
+  .p4 .scr { position: relative; height: 100%; border-radius: 34px / 46px; overflow: hidden; color: #f6f0dc; background: radial-gradient(ellipse at 50% 35%, #2c2a3c, #17151f 72%, #0d0c12); }
+  .p4 .scr::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
+  .p4 .scr::after { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; box-shadow: inset 0 0 90px rgba(0,0,0,.75); background: linear-gradient(118deg, transparent 0 14%, rgba(255,255,255,.06) 14% 20%, transparent 20%); }
+  .p4 .osd { position: absolute; left: 30px; top: 16px; z-index: 2; font: 700 15px "Barlow Condensed"; letter-spacing: 3px; color: #9fffb0; text-shadow: 0 0 6px #3f6; }
+  .p4 .telop { position: absolute; left: 28px; top: 50px; z-index: 2; font: 38px/1.1 "Abril Fatface", "Noto Serif SC"; color: #fff; -webkit-text-stroke: 7px #111; paint-order: stroke fill; text-shadow: 5px 5px 0 var(--y); transform: rotate(-2deg); }
+  .p4 .telop.zh { font-family: "Noto Serif SC"; font-weight: 900; }
+  .p4 .msgs { position: absolute; left: 30px; right: 30px; top: 116px; bottom: 96px; z-index: 2; display: flex; flex-direction: column; gap: 14px; overflow: hidden; -webkit-mask: linear-gradient(#000 85%, transparent); mask: linear-gradient(#000 85%, transparent); }
+  .p4 .me { align-self: flex-end; max-width: 80%; background: var(--y); color: #111; font: 700 15px/1.6 "Noto Sans SC"; padding: 8px 18px; border-radius: 18px 18px 4px 18px; box-shadow: 4px 4px 0 #000; }
+  .p4 .ans { font: 400 15px/1.8 "Noto Sans SC"; }
+  .p4 .ans h5 { margin: 0 0 4px; font: 24px "Abril Fatface", "Noto Serif SC"; color: var(--y); }
+  .p4 .ans h5.zh { font-family: "Noto Serif SC"; font-weight: 900; font-size: 20px; }
+  .p4 .ans a { color: var(--y); } .p4 .ans li::marker { color: var(--y); }
+  .p4 .ans code { display: block; margin-top: 6px; padding: 7px 12px; border: 1.5px dashed var(--y); border-radius: 10px; font: 13px ui-monospace, Consolas, monospace; color: #ffe98a; }
+  .p4 .comp { position: absolute; left: 22px; right: 22px; bottom: 20px; height: 60px; z-index: 2; background: #fff7dc; border-radius: 999px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 24px; color: #111; box-shadow: 0 0 0 3px #111; }
+  .p4 .comp .ph { flex: 1; font: 500 14px "Noto Sans SC"; color: #8a7f60; }
+  .p4 .comp .opt { font: 700 13px "Barlow Condensed"; letter-spacing: 1px; }
+  .p4 .comp .go { background: #111; color: var(--y); border-radius: 999px; padding: 8px 18px; font: 18px "Abril Fatface"; }
+  .p4 .static { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 0; mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -.3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: snow .25s steps(4) infinite; }
+  @keyframes snow { 0% { background-position: 0 0; } 25% { background-position: -60px 40px; } 50% { background-position: 50px -70px; } 75% { background-position: -30px -20px; } }
+  .p4 .scr.flip .static { animation: snow .25s steps(4) infinite, blip .7s ease-out 1; }
+  @keyframes blip { 0% { opacity: 1; } 100% { opacity: 0; } }
+  .p4 .scr.flip .msgs, .p4 .scr.flip .telop { animation: squash .6s ease-out 1; }
+  @keyframes squash { 0% { transform: scaleY(.02); filter: brightness(3); } 45% { transform: scaleY(1.03); } 100% { transform: none; } }
+  .p4 .fog { position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; transition: opacity .6s;
+    background: radial-gradient(ellipse 60% 40% at 30% 80%, rgba(255,228,120,.38), transparent 70%), radial-gradient(ellipse 50% 35% at 75% 66%, rgba(255,228,120,.32), transparent 70%), linear-gradient(to top, rgba(255,220,90,.3), transparent 60%); }
+  .p4 .mid { position: absolute; left: 50%; top: 46%; z-index: 7; transform: translate(-50%, -50%) rotate(-4deg); opacity: 0; transition: opacity .6s; font: 64px/1 "Abril Fatface"; color: var(--y); -webkit-text-stroke: 9px #111; paint-order: stroke fill; white-space: nowrap; text-align: center; }
+  .p4 .mid small { display: block; font: 900 18px "Noto Serif SC"; letter-spacing: 8px; -webkit-text-stroke: 0; color: #fff; margin-top: 10px; }
+  .p4.midnight .static { opacity: .5; } .p4.midnight .fog, .p4.midnight .mid { opacity: 1; }
+  .p4.midnight .msgs { opacity: .3; filter: blur(.6px); } .p4.midnight .osd { color: var(--y); text-shadow: 0 0 8px #ff0; }
+  /* help pill bottom right */
+  .p4 .help { position: absolute; right: 34px; bottom: 30px; text-align: right; }
+  .p4 .help .pill { display: inline-flex; align-items: center; gap: 10px; background: rgba(28,26,48,.92); color: #fff; font: 500 14px "Noto Sans SC"; padding: 6px 18px 6px 8px; border-radius: 999px; }
+  .p4 .help .pill i { width: 20px; height: 20px; border-radius: 50%; background: var(--y); color: var(--band); display: grid; place-items: center; font: 900 12px "Barlow Condensed"; font-style: normal; }
+  .p4 .help .keys { margin-top: 6px; display: flex; gap: 14px; justify-content: flex-end; font: 700 14px "Barlow Condensed"; color: var(--band); }
+  .p4 .help kbd { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--band); font: 700 10px "Barlow Condensed"; margin-right: 4px; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>P3 · P4 按菜单视觉语言重做</h1>
+  <p>照你给的两张暂停菜单拆出视觉语法，再套到 Harness 的真实界面上（导航、工作区、对话、输入框）。角色立绘位一律换成原创图形：P3 是点阵鲸鱼，P4 是花和天空窗。电车只留下"窗外掠过的光"这一层，不再画吊环和报站屏。没有使用游戏素材、人物或标志。导航和工作区都可以点。</p>
+</header>
+<nav class="tabs"><div role="tablist">
+  <button role="tab" aria-selected="true" data-t="p3">P3 · 暂停菜单 × 夜车</button>
+  <button role="tab" aria-selected="false" data-t="p4">P4 · 暂停菜单 × 电视机</button>
+  <button role="tab" aria-selected="false" data-t="p5">P5 · 预告信（保留）</button>
+  <label id="midToggle"><input type="checkbox" id="mid"> <span id="midLabel">预览 0:00 影时间</span></label>
+</div></nav>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="wdot" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="2.9" fill="#ffffff"/></pattern>
+    <pattern id="cdot" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="2.9" fill="#7fe7ff"/></pattern>
+    <symbol id="flower" viewBox="-50 -50 100 100"><g>
+      <ellipse rx="15" ry="26" cy="-24"/><ellipse rx="15" ry="26" cy="-24" transform="rotate(72)"/><ellipse rx="15" ry="26" cy="-24" transform="rotate(144)"/>
+      <ellipse rx="15" ry="26" cy="-24" transform="rotate(216)"/><ellipse rx="15" ry="26" cy="-24" transform="rotate(288)"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ======================= P3 ======================= -->
+<section class="concept" id="p3">
+  <div class="frame"><div class="stage p3" id="p3stage">
+    <div class="caus"></div><div class="rays"></div><div class="moon"></div><div class="pass"></div>
+    <div class="vword">SESSION</div>
+    <div class="whale"><svg viewBox="0 0 720 450" aria-hidden="true">
+      <path fill="url(#wdot)" stroke="#050716" stroke-width="7" stroke-linejoin="round"
+        d="M28 250 C90 132 310 86 480 150 C532 170 566 196 596 204 C616 200 640 180 694 140 C682 176 670 204 676 226 C688 248 698 268 712 300 C670 282 640 262 606 254 C560 284 500 306 420 314 C270 334 110 336 28 250 Z"/>
+      <path fill="url(#cdot)" d="M70 280 C190 320 360 318 500 290 C400 340 200 352 70 280 Z"/>
+      <path fill="url(#wdot)" stroke="#050716" stroke-width="6" stroke-linejoin="round" d="M210 300 C230 360 284 412 380 432 C340 386 316 344 306 306 Z"/>
+      <path fill="none" stroke="#050716" stroke-width="4" stroke-linecap="round" d="M90 286 C170 300 260 302 340 296 M110 300 C190 314 270 316 330 312"/>
+      <circle cx="118" cy="228" r="13" fill="#050716"/><circle cx="114" cy="223" r="4.5" fill="#fff"/>
+      <path fill="#e8141f" d="M640 160 L700 128 L676 170 Z"/>
+    </svg></div>
+    <i class="shard" style="left:300px;top:0;background:#7fe7ff;animation-duration:13s"></i>
+    <i class="shard" style="left:520px;top:0;background:#ff7ab0;animation-duration:17s;animation-delay:-6s"></i>
+    <i class="shard" style="left:160px;top:0;background:#fff;animation-duration:15s;animation-delay:-3s;width:9px;height:14px"></i>
+    <i class="shard" style="left:420px;top:0;background:#7fe7ff;animation-duration:19s;animation-delay:-11s;width:10px;height:16px"></i>
+    <i class="shard" style="left:660px;top:0;background:#ff7ab0;animation-duration:21s;animation-delay:-14s;width:8px;height:12px"></i>
+    <div class="chip"><b id="p3time">11/17 TUE<span>14:33</span></b><small id="p3period">AFTERNOON · 上弦月</small></div>
+    <div class="dhbanner">DARK HOUR · 影时间</div>
+    <div class="menu" id="p3menu">
+      <button>New Session<small>新会话</small></button>
+      <button>Plugins<small>插件</small></button>
+      <button aria-current="page">Automation<small>自动化</small></button>
+      <button>Settings<small>设置</small></button>
+      <button>More<small>更多</small></button>
+    </div>
+    <div class="party" id="p3party">
+      <h4>NETWORK<em>工作区</em></h4>
+      <div class="grp">dsh</div>
+      <button class="card" aria-current="true"><i>D</i><span><b>检查令牌刷新</b><span class="bars"><span style="--w:92%"></span><span style="--w:70%"></span><em>2 MIN</em></span></span></button>
+      <button class="card"><i>D</i><span><b>整理交付说明</b><span class="bars"><span style="--w:64%"></span><span style="--w:40%"></span><em>3 H</em></span></span></button>
+      <button class="card"><i>D</i><span><b>阅读边界用例</b><span class="bars"><span style="--w:30%"></span><span style="--w:52%"></span><em>24 D</em></span></span></button>
+      <div class="grp">stst</div>
+      <button class="card"><i>S</i><span><b>另一工作区示例</b><span class="bars"><span style="--w:58%"></span><span style="--w:22%"></span><em>3 H</em></span></span></button>
+    </div>
+    <div class="talk">
+      <h2>整理中庭方案<i>TALK</i></h2>
+      <div class="msgs">
+        <div class="say">按这张图改一下中庭，再写个说明。</div>
+        <div class="ans"><h5>改造方案</h5>
+          <p>中庭改成双层挑空，北侧加一道光井，说明写在 <a>notes/atrium.md</a>。示例正文，没有模型调用。</p>
+          <ul><li>保留原有柱网</li><li>楼梯移到东侧</li></ul>
+          <code>npm run render -- atrium --out after-atrium.png</code></div>
+        <div class="say">光井会不会让二层太晒？</div>
+        <div class="ans">不会。光井朝北，只进漫射光；二层走廊再加一道 60cm 挑檐。</div>
+      </div>
+      <div class="comp"><span class="ph">继续检查布局，让正文更清楚。</span><span class="opt">+ 默认权限 · 计划</span><span class="go">↑</span></div>
+    </div>
+    <div class="help"><b id="p3help">管理自动化任务 / 定时运行</b><div class="rule"></div><small>COMMAND</small>
+      <div class="keys"><span><kbd>⏎</kbd>Confirm</span><span><kbd>Esc</kbd>Close</span></div></div>
+  </div></div>
+  <div class="notes">
+    <article><h3><span class="tag">照搬的语法</span>从 P3R 菜单拆出来的</h3><ul>
+      <li>整屏饱和的水下皇家蓝，右上角是光源，焦散和光束从那里落下来。</li>
+      <li>左侧一个裁出画面的巨大主体，加一行黑色竖排巨字压在最左边。</li>
+      <li>菜单是压缩粗斜体，行距压到重叠，整体倾斜约 8°，每行左右错开成一条弧线。</li>
+      <li>选中项是白色尖角碎片 + 红色底，文字是红字加黑粗描边，字号放大。</li>
+      <li>左上角白底黑框的信息签，右侧是带血条的队伍面板，右下角是说明 + 细线 + 按键提示。</li>
+    </ul></article>
+    <article><h3><span class="tag">落到 Harness</span>每样东西对应什么</h3><ul>
+      <li>立绘位 → 点阵鲸鱼，白点 + 黑色描线 + 青色腹纹，慢慢漂浮。</li>
+      <li>菜单 → 真实的五个页面入口；信息签 → 实时日期、时间和月相。</li>
+      <li>队伍面板 → 工作区会话卡，两根条分别表示最近活跃度和会话长度，选中的卡变白、配红色错位。</li>
+      <li>右下说明 → 当前页面的一句说明，按键提示是真实快捷键。</li>
+      <li>"电车"只留下抽象的一层：每隔几秒，一排窗光从水里扫过去。</li>
+    </ul></article>
+    <article><h3><span class="tag">影时间</span>0:00–0:59</h3><ul>
+      <li>整片海变绿，右上角升起一轮大月亮，菜单未选中项往后倾，左上出现 DARK HOUR 签条。</li>
+      <li>需要新增字体：Barlow Condensed（OFL，离线打包），比现在的 Semi Condensed 更窄，更贴近原菜单。</li>
+    </ul></article>
+  </div>
+</section>
+
+<!-- ======================= P4 ======================= -->
+<section class="concept" id="p4" hidden>
+  <div class="frame"><div class="stage p4" id="p4stage">
+    <div class="plane orange"></div><div class="plane orange2"></div><div class="plane sky"></div><div class="plane band"></div>
+    <div class="flower" style="left:-40px;top:700px;width:240px;height:240px;transform:rotate(12deg)"><svg viewBox="-50 -50 100 100"><use href="#flower" x="-50" y="-50" width="100" height="100" fill="#fff"/><circle r="9" fill="#ffd21a"/></svg></div>
+    <div class="flower" style="left:520px;top:660px;width:280px;height:280px;transform:rotate(-8deg);filter:drop-shadow(-14px 0 0 rgba(255,210,26,.45))"><svg viewBox="-50 -50 100 100"><use href="#flower" x="-50" y="-50" width="100" height="100" fill="#ffd21a"/><circle r="9" fill="#1c1a30"/></svg></div>
+    <div class="flower" style="left:180px;top:620px;width:70px;height:70px;transform:rotate(20deg)"><svg viewBox="-50 -50 100 100"><g stroke="#1c1a30" stroke-width="14" stroke-linecap="round"><path d="M0 -40V40M-38 -12L38 12M-24 32L24 -32M-38 12L38 -12M-24 -32L24 32"/></g></svg></div>
+    <div class="flower" style="left:690px;top:20px;width:60px;height:60px;transform:rotate(30deg);opacity:.9"><svg viewBox="-50 -50 100 100"><use href="#flower" x="-50" y="-50" width="100" height="100" fill="#fff1a6"/></svg></div>
+    <i class="petal" style="left:520px;top:0;animation-duration:9s"></i><i class="petal" style="left:900px;top:0;animation-duration:12s;animation-delay:-5s"></i>
+    <i class="petal" style="left:300px;top:0;animation-duration:11s;animation-delay:-8s"></i><i class="petal" style="left:1200px;top:0;animation-duration:14s;animation-delay:-2s"></i>
+    <div class="brand">DeepSeek<br>Harness<small>SEEK YOUR TRUTH</small></div>
+    <div class="menu" id="p4menu">
+      <button aria-current="page" data-ch="01" data-title="Talk">New Session<small>新会话</small></button>
+      <button data-ch="02" data-title="Plugins">Plugins<small>插件</small></button>
+      <button data-ch="03" data-title="Automation">Automation<small>自动化</small></button>
+      <button data-ch="04" data-title="Settings">Settings<small>设置</small></button>
+      <button data-ch="05" data-title="More">More<small>更多</small></button>
+    </div>
+    <div class="guide" id="p4guide">
+      <h4>Program Guide<small>工作区</small></h4>
+      <div class="grp">dsh</div>
+      <button aria-current="true" style="--i:0" data-title="检查令牌刷新">检查令牌刷新<time>2 min</time></button>
+      <button style="--i:1" data-title="整理交付说明">整理交付说明<time>3 h</time></button>
+      <button style="--i:2" data-title="阅读边界用例">阅读边界用例<time>24 d</time></button>
+      <div class="grp" style="margin-left:40px">stst</div>
+      <button style="--i:4" data-title="另一工作区示例">另一工作区示例<time>3 h</time></button>
+    </div>
+    <div class="yen">✦ 8,918<small>TOKENS TODAY</small></div>
+    <div class="tv">
+      <span class="tag">CH 01 · ON AIR</span><span class="led"></span>
+      <div class="scr" id="scr">
+        <div class="osd" id="osd">CH-01 · 11/17 (火) · 晴</div>
+        <div class="telop" id="telop">Talk</div>
+        <div class="msgs">
+          <div class="me">按这张图改一下中庭，再写个说明。</div>
+          <div class="ans"><h5>Atrium Plan</h5>
+            <p>中庭改成双层挑空，北侧加一道光井，说明写在 <a>notes/atrium.md</a>。示例正文，没有模型调用。</p>
+            <ul><li>保留原有柱网</li><li>楼梯移到东侧</li></ul>
+            <code>npm run render -- atrium --out after-atrium.png</code></div>
+          <div class="me">光井会不会让二层太晒？</div>
+          <div class="ans">不会。光井朝北，只进漫射光；二层走廊再加一道 60cm 挑檐。</div>
+        </div>
+        <div class="comp"><span class="ph">继续检查布局，让正文更清楚。</span><span class="opt">＋ 默认权限 · 计划</span><span class="go">Next ▸</span></div>
+        <div class="fog"></div><div class="static"></div>
+        <div class="mid">Midnight<small>零点 · 雨夜频道</small></div>
+      </div>
+    </div>
+    <div class="help"><span class="pill"><i>✦</i><span id="p4help">开始新的会话。</span></span>
+      <div class="keys"><span><kbd>⏎</kbd>Confirm</span><span><kbd>⎋</kbd>Close</span></div></div>
+  </div></div>
+  <div class="notes">
+    <article><h3><span class="tag">照搬的语法</span>从 P4G 菜单拆出来的</h3><ul>
+      <li>黄 / 橙大斜面拼接，右上角斜切出一块蓝天白云的窗。</li>
+      <li>一条深色斜带从上往下扫过画面，菜单就压在这条带上。</li>
+      <li>菜单用粗衬线（Abril Fatface，已打包），奶黄色，整体倾斜，每行往右下错开成台阶。</li>
+      <li>选中项更大、纯白，带青 / 品红色差，左边垫一块彩虹楔形和白楔。</li>
+      <li>散落的五瓣花（带残影）、黑色星形小花和飘落的花瓣；右下是深色胶囊说明加圆形按键提示，底部是黄色衬线数字（原来是金钱，这里换成今日 token 数）。</li>
+    </ul></article>
+    <article><h3><span class="tag">落到 Harness</span>电视机</h3><ul>
+      <li>对话是一块独立的显像管屏：奶白边框、圆角弧面、扫描线、暗角、斜向反光，右下角一颗红色电源灯。去掉了卡通天线和旋钮。</li>
+      <li>菜单每一项都是一个频道。点一下菜单试试：屏幕雪花一闪，画面从一条线弹开，频道号和衬线标题跟着换。</li>
+      <li>工作区是斜带上的"Program Guide"，会话行也跟着往右下错开，选中的那行变成黄色胶囊。</li>
+    </ul></article>
+    <article><h3><span class="tag">零点频道</span>0:00–0:59</h3><ul>
+      <li>天空窗变成灰色雨夜；电视被雪花和黄雾占据，中间出现 Midnight 大字，对话淡到后面但不消失。</li>
+      <li>不改 P5：两款都只动 <code>[data-dsh-persona="p3"|"p4"]</code> 下的样式。</li>
+    </ul></article>
+  </div>
+</section>
+
+<!-- ======================= P5 ======================= -->
+<section class="concept" id="p5" hidden>
+  <div class="keep">
+    <h2>P5 · 预告信：主视觉保持不动</h2>
+    <p>拼贴品牌字、斜排票签导航、红黑白斜切主纸、星纹、巨型结构字、LETTERS 平文/拼贴开关、切页转场——全部保留原样。</p>
+    <p>P3、P4 只改各自 <code>[data-dsh-persona="p3"|"p4"]</code> 下的选择器，并在测试里加一条"P5 样式不变"的检查。</p>
+  </div>
+</section>
+
+<script>
+  const fit = () => document.querySelectorAll('.frame').forEach(f => { const s = f.querySelector('.stage'); if (s) s.style.transform = `scale(${f.clientWidth / 1440})`; });
+  new ResizeObserver(fit).observe(document.body); fit();
+  const tabs = document.querySelectorAll('[role=tab]');
+  const mid = document.getElementById('mid'), midToggle = document.getElementById('midToggle'), midLabel = document.getElementById('midLabel');
+  let current = 'p3';
+  const applyMid = () => {
+    const on = mid.checked;
+    document.getElementById('p3stage').classList.toggle('dark', current === 'p3' && on);
+    document.getElementById('p4stage').classList.toggle('midnight', current === 'p4' && on);
+    document.getElementById('p3time').innerHTML = on ? '11/18 WED<span>0:00</span>' : '11/17 TUE<span>14:33</span>';
+    document.getElementById('p3period').textContent = on ? 'DARK HOUR · 满月' : 'AFTERNOON · 上弦月';
+  };
+  const show = t => {
+    current = t;
+    tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === t)));
+    document.querySelectorAll('section.concept').forEach(s => s.hidden = s.id !== t);
+    midToggle.style.visibility = t === 'p5' ? 'hidden' : 'visible';
+    midLabel.textContent = t === 'p4' ? '预览 0:00 零点频道' : '预览 0:00 影时间';
+    try { localStorage.setItem('concept-tab', t); } catch {}
+    applyMid(); fit();
+  };
+  tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.t)));
+  mid.addEventListener('change', applyMid);
+  const pick = (group, btn, attr = 'aria-current', val = 'page') => {
+    group.querySelectorAll('button').forEach(b => b === btn ? b.setAttribute(attr, val) : b.removeAttribute(attr));
+  };
+  const p3help = { 'New Session': '开始新的会话 / 选择模型', 'Plugins': '查看与启用插件', 'Automation': '管理自动化任务 / 定时运行', 'Settings': '外观、皮肤与快捷键', 'More': '账号与更多选项' };
+  document.querySelectorAll('#p3menu button').forEach(b => b.addEventListener('click', () => {
+    pick(document.getElementById('p3menu'), b); document.getElementById('p3help').textContent = p3help[b.firstChild.textContent] || '';
+  }));
+  document.querySelectorAll('#p3party .card').forEach(b => b.addEventListener('click', () => pick(document.getElementById('p3party'), b, 'aria-current', 'true')));
+  const scr = document.getElementById('scr');
+  const flip = () => { scr.classList.remove('flip'); void scr.offsetWidth; scr.classList.add('flip'); };
+  const p4help = { '01': '开始新的会话。', '02': '查看与启用插件。', '03': '管理自动化任务。', '04': '调整外观与皮肤。', '05': '账号与更多选项。' };
+  document.querySelectorAll('#p4menu button').forEach(b => b.addEventListener('click', () => {
+    pick(document.getElementById('p4menu'), b);
+    document.getElementById('osd').textContent = `CH-${b.dataset.ch} · 11/17 (火) · 晴`;
+    document.querySelector('.p4 .tv .tag').textContent = `CH ${b.dataset.ch} · ON AIR`;
+    const tl = document.getElementById('telop'); tl.textContent = b.dataset.title; tl.classList.remove('zh');
+    document.getElementById('p4help').textContent = p4help[b.dataset.ch]; flip();
+  }));
+  document.querySelectorAll('#p4guide button').forEach(b => b.addEventListener('click', () => {
+    pick(document.getElementById('p4guide'), b, 'aria-current', 'true');
+    const tl = document.getElementById('telop'); tl.textContent = b.dataset.title; tl.classList.add('zh'); flip();
+  }));
+  let saved = null; try { saved = localStorage.getItem('concept-tab'); } catch {}
+  const q = new URLSearchParams(location.search).get('t');
+  show(['p3', 'p4', 'p5'].includes(q || saved) ? (q || saved) : 'p3');
+</script>
+</body>
+</html>

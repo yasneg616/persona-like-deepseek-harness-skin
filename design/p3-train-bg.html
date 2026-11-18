@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P3 夜车背景</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;1,800;1,900&family=DotGothic16&family=Noto+Sans+SC:wght@500;700;900&display=swap">
+<style>
+  :root {
+    --sky-top: #040d5c; --sky-mid: #0a2bc4; --sky-glow: #3d8cff; --sea-far: #12379e; --sea-near: #030b3a;
+    --moon: #eef8ff; --moon-glow: rgba(160,215,255,.55); --pole: #030a3a;
+    --wall: #0b2390; --wall-hi: #1034b4; --wall-lo: #06145a; --frame: #b8c9ff; --frame-in: #040b33; --edge: #5fe3ff;
+    --ceil: #0a1f80; --lamp: #eaf8ff; --lamp-glow: rgba(190,235,255,.85); --floor: #050f45; --seat: #122f9a; --seat-hi: #1d46c8;
+    --strap: #e9f0ff; --led-on: #ffa726; --led-green: #59ff8a; --grade: rgba(40,120,255,.10);
+  }
+  .dark {
+    --sky-top: #011a0a; --sky-mid: #064a22; --sky-glow: #8cff5a; --sea-far: #0b4a20; --sea-near: #010d05;
+    --moon: #f7ffcc; --moon-glow: rgba(200,255,120,.65); --pole: #000f05;
+    --wall: #062a14; --wall-hi: #0a3a1d; --wall-lo: #021508; --frame: #9fb98f; --frame-in: #010a04; --edge: #9dff6a;
+    --ceil: #04200e; --lamp: #1b3a20; --lamp-glow: rgba(0,0,0,0); --floor: #010c05; --seat: #0a3a1a; --seat-hi: #12542a;
+    --strap: #c8d6b4; --led-on: #9dff6a; --led-green: #ff4a4a; --grade: rgba(120,255,80,.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: "Noto Sans SC", sans-serif; }
+  #fit { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1200px; transform-origin: 50% 50%; }
+  /* eye level / horizon sits at 41% = 492px */
+  .stage { position: absolute; inset: 0; overflow: hidden; perspective: 1500px; perspective-origin: 50% 41%; background: var(--sky-top); }
+  .room { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d;
+    transform: translateX(var(--tx, 120px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 17deg)); }
+  .room > *, .rock > *, .lay > * { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .lay { transform-style: preserve-3d; }
+  .rock { transform-style: preserve-3d; animation: rock 2.8s ease-in-out infinite alternate; }
+  @keyframes rock { from { transform: translateY(0) rotateZ(-.15deg); } to { transform: translateY(2.5px) rotateZ(.15deg); } }
+
+  /* ---------- outside: 2D far plane ---------- */
+  .back { position: absolute; inset: 0; overflow: hidden;
+    background: linear-gradient(var(--sky-top) 0, var(--sky-mid) 260px, var(--sky-glow) 488px, var(--sea-far) 492px, var(--sea-near) 760px); }
+  .back .stars { position: absolute; left: 0; right: 0; top: 0; height: 380px; opacity: .55;
+    background-image: radial-gradient(1.4px 1.4px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 140px 90px, #cfe8ff, transparent), radial-gradient(1.8px 1.8px at 260px 160px, #fff, transparent); background-size: 330px 210px; }
+  .back .moon { position: absolute; left: 1250px; top: 300px; width: 120px; height: 120px; border-radius: 50%; transform: translate(var(--mx, 0), var(--my, 0));
+    background: radial-gradient(circle at 38% 36%, #fff 0, var(--moon) 55%, color-mix(in srgb, var(--moon) 70%, #6a8fd8) 100%);
+    box-shadow: 0 0 60px 22px var(--moon-glow), 0 0 180px 70px color-mix(in srgb, var(--moon-glow) 40%, transparent); }
+  .back .moon::after { content: ""; position: absolute; inset: 0; border-radius: 50%; opacity: .22;
+    background: radial-gradient(circle at 30% 60%, #6e8fc8 0 9%, transparent 10%), radial-gradient(circle at 62% 30%, #6e8fc8 0 7%, transparent 8%), radial-gradient(circle at 58% 70%, #6e8fc8 0 12%, transparent 13%); }
+  .dark .back .moon { width: 210px; height: 210px; left: 1200px; top: 230px; }
+  .back .hills { position: absolute; left: 0; top: 416px; width: 3120px; height: 76px; background-size: 1200px 76px; background-repeat: repeat-x; animation: hills 90s linear infinite; will-change: transform; }
+  @keyframes hills { to { transform: translateX(-1200px); } }
+  .back canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1200px; }
+  .back .tower { position: absolute; left: 396px; bottom: 708px; filter: drop-shadow(0 0 30px rgba(160,255,90,.45)); width: 300px; height: 620px; opacity: 0; transition: opacity .8s; transform-origin: 50% 100%; }
+  .dark .back .tower { opacity: 1; }
+  .back .tower.far { transform: scale(.42); }
+  .back .tower svg { width: 100%; height: 100%; display: block; }
+  .dark .back .hills, .dark .city { filter: hue-rotate(-100deg) saturate(.8) brightness(.62); }
+
+  /* ---------- outside: near 3D layers ---------- */
+  .city { width: 9000px; height: 640px; transform: translate3d(-4000px, -700px, -1550px); overflow: hidden; }
+  .city i { position: absolute; left: 0; top: 0; width: 12600px; height: 640px; background-repeat: repeat-x; background-size: 3600px 640px; animation: city 46s linear infinite; will-change: transform; }
+  @keyframes city { to { transform: translateX(-3600px); } }
+  .wires { width: 9000px; height: 40px; transform: translate3d(-4000px, -470px, -980px); background: linear-gradient(transparent 6px, var(--pole) 6px 9px, transparent 9px 30px, var(--pole) 30px 32px, transparent 32px); opacity: .9; }
+  .pole { width: 300px; height: 1200px; transform: translate3d(-600px, -760px, -900px); }
+  .pole i { position: absolute; inset: 0; animation: pole 2.4s linear infinite; will-change: transform; }
+  .pole i::before { content: ""; position: absolute; left: 36px; top: 0; width: 42px; height: 1200px; background: linear-gradient(90deg, transparent, var(--pole) 20% 80%, transparent); }
+  .pole i::after { content: ""; position: absolute; left: 0; top: 250px; width: 260px; height: 16px; background: var(--pole); }
+  @keyframes pole { from { transform: translateX(3600px); } to { transform: translateX(-3600px); } }
+  #whaleCv { position: absolute; left: 0; top: 0; width: 1920px; height: 1200px; pointer-events: none; }
+  /* tunnel between stations */
+  .back, .outside, #whaleCv { transition: filter .22s; }
+  .tunnel .back, .tunnel .outside, .tunnel #whaleCv { filter: brightness(.05) !important; }
+  .tlights { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s;
+    background: repeating-linear-gradient(90deg, transparent 0 420px, rgba(255,170,60,.9) 420px 470px, transparent 470px 980px); }
+  .tunnel .tlights { opacity: 1; animation: tl .32s linear infinite; }
+  @keyframes tl { to { background-position: -980px 0; } }
+
+  /* ---------- carriage ---------- */
+  .wall { width: 5200px; height: 1000px; transform: translate3d(-1700px, -520px, -520px); }
+  .wall svg { display: block; }
+  .glass { position: absolute; transform-origin: 0 0; pointer-events: none; border-radius: 30px;
+    background: linear-gradient(118deg, transparent 0 22%, rgba(255,255,255,.10) 22% 30%, transparent 30% 36%, rgba(255,255,255,.06) 36% 39%, transparent 39%),
+                linear-gradient(transparent 0 6%, rgba(220,245,255,.08) 6% 8%, transparent 8%); }
+  .led { width: 1040px; height: 96px; transform: translate3d(-540px, -517px, -516px); background: #050505; border-radius: 8px; box-shadow: inset 0 0 0 5px #1d2230, 0 0 0 4px #9fb0d8, 0 0 40px rgba(255,167,38,.18); overflow: hidden; display: flex; }
+  .led .tag { flex: none; width: 150px; display: grid; place-items: center; font: 38px/1 "DotGothic16"; color: var(--led-green); text-shadow: 0 0 8px var(--led-green); border-right: 3px solid #222; }
+  .led .run { position: relative; flex: 1; overflow: hidden; }
+  .led .run span { position: absolute; top: 25px; white-space: nowrap; font: 44px/1 "DotGothic16"; color: var(--led-on); text-shadow: 0 0 8px var(--led-on); animation: ledrun 20s linear infinite; }
+  @keyframes ledrun { from { transform: translateX(880px); } to { transform: translateX(-100%); } }
+  .led::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, transparent 0 1.1px, rgba(0,0,0,.6) 1.5px); background-size: 3.4px 3.4px; }
+  .ceil { width: 5200px; height: 1400px; transform: translate3d(-1700px, -520px, -520px) rotateX(90deg);
+    background: linear-gradient(var(--ceil), color-mix(in srgb, var(--ceil) 70%, #000) 100%); }
+  .ceil .lamp { position: absolute; left: 0; right: 0; height: 56px; background: var(--lamp); box-shadow: 0 0 60px 18px var(--lamp-glow); }
+  .ceil .duct { position: absolute; left: 0; right: 0; height: 120px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 6px, transparent 6px 22px); opacity: .7; }
+  .floor { width: 5200px; height: 1400px; transform: translate3d(-1700px, 480px, -520px) rotateX(90deg);
+    background: linear-gradient(color-mix(in srgb, var(--floor) 60%, #000), var(--floor) 30%, color-mix(in srgb, var(--floor) 80%, #1a3aa8) 100%); overflow: hidden; }
+  .floor .moonlight { position: absolute; top: 170px; height: 620px; background: linear-gradient(rgba(170,220,255,.30), rgba(170,220,255,0)); transform: skewX(-24deg); }
+  .dark .floor .moonlight { background: linear-gradient(rgba(170,255,120,.22), transparent); }
+  .floor .sweep, .seatf .sweep { position: absolute; top: 0; bottom: 0; width: 520px; background: linear-gradient(90deg, transparent, rgba(255,236,190,.32), transparent); animation: sweep 5.5s linear infinite; }
+  @keyframes sweep { from { transform: translateX(3600px) skewX(-20deg); } to { transform: translateX(-800px) skewX(-20deg); } }
+  .seatt { height: 160px; background: linear-gradient(var(--seat-hi), var(--seat)); box-shadow: inset 0 3px 0 rgba(255,255,255,.25); }
+  .seatf { height: 170px; background: linear-gradient(var(--seat), color-mix(in srgb, var(--seat) 60%, #000)); overflow: hidden; border-top: 3px solid var(--edge); }
+  .seatf::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 70px; background: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 14px); opacity: .45; }
+  .bar { width: 5200px; height: 12px; transform: translate3d(-1700px, -300px, -330px); background: linear-gradient(#f4f7ff, #8d9cc4); border-radius: 6px; box-shadow: 0 6px 10px rgba(0,0,0,.3); }
+  .strap { width: 60px; height: 190px; transform-style: preserve-3d; }
+  .strap i { position: absolute; left: 0; top: 0; width: 60px; height: 190px; transform-origin: 30px 0; animation: sway 2.8s ease-in-out infinite alternate; }
+  .strap i::before { content: ""; position: absolute; left: 23px; top: 0; width: 14px; height: 118px; background: linear-gradient(90deg, var(--strap), color-mix(in srgb, var(--strap) 55%, #2a3a80)); border-radius: 0 0 4px 4px; opacity: .9; }
+  .strap i::after { content: ""; position: absolute; left: 4px; top: 110px; width: 52px; height: 52px; border-radius: 50%; border: 9px solid var(--strap); box-shadow: 0 4px 0 rgba(0,0,0,.3), inset 0 0 0 1px rgba(0,0,0,.2); }
+  .strap.hot i::after { border-color: var(--edge); box-shadow: 0 0 22px var(--edge); }
+  @keyframes sway { from { transform: rotateZ(-5deg); } to { transform: rotateZ(5deg); } }
+  .near { filter: blur(6px) brightness(.35); opacity: .9; }
+  .near i { animation-duration: 3.3s; }
+
+  /* ---------- 2D finishing ---------- */
+  .grade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 70% at 55% 45%, transparent 55%, rgba(0,4,30,.55)), var(--grade); }
+  .grain { position: absolute; inset: 0; pointer-events: none; opacity: .07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ---------- UI ghost overlay (judge readability) ---------- */
+  .ghost { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; }
+  .ui .ghost { opacity: 1; }
+  .ghost > div { position: absolute; }
+  .g-margin { left: 0; top: 0; bottom: 0; width: 170px; background: #f4f8ff; }
+  .g-margin b { position: absolute; left: 6px; bottom: 30px; writing-mode: vertical-rl; transform: rotate(180deg); font: 900 150px/1 "Noto Sans SC"; color: #050716; }
+  .g-menu { left: 240px; top: 150px; transform: rotate(-8deg); font: italic 900 50px/1.05 "Noto Sans SC"; color: #fff; text-shadow: 3px 3px 0 #061657; }
+  .g-menu span:first-child { background: #fff; color: #e8141f; padding: 0 30px 0 10px; display: inline-block; clip-path: polygon(0 20%, 100% 0, 92% 100%, 0 90%); }
+  .g-net { left: 200px; top: 420px; width: 370px; height: 690px; background: rgba(8,26,110,.88); border: 2px solid #8fe9ff; clip-path: polygon(3% 0, 100% 0, 98% 100%, 0 100%); }
+  .g-net::before { content: "NETWORK 工作区"; position: absolute; left: 24px; top: 14px; font: italic 900 28px "Barlow Condensed", "Noto Sans SC"; color: #fff; }
+  .g-net i { position: absolute; left: 20px; right: 20px; height: 40px; background: rgba(120,180,255,.18); }
+  .g-hero { left: 690px; top: 430px; font: italic 900 82px/0.9 "Barlow Condensed"; color: #5fe3ff; text-shadow: 4px 4px 0 #061657; transform: rotate(-6deg); }
+  .g-hero small { display: block; font: italic 900 56px "Noto Sans SC"; color: #fff; margin-top: 18px; }
+  .g-comp { left: 690px; top: 850px; width: 1050px; height: 190px; background: rgba(5,14,70,.92); clip-path: polygon(0 0, 97% 0, 100% 100%, 3% 100%); border-top: 3px solid #8fe9ff; }
+  .g-clock { right: 40px; top: 80px; width: 260px; height: 110px; background: #fff; transform: rotate(-4deg); clip-path: polygon(0 8%, 100% 0, 97% 100%, 3% 92%); }
+
+  /* ---------- controls ---------- */
+  .ctl { position: fixed; right: 12px; bottom: 12px; z-index: 10; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 24px); }
+  .ctl label { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.72); color: #fff; font: 700 13px "Noto Sans SC"; padding: 6px 10px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,.2); }
+  .ctl select { font: 700 13px "Noto Sans SC"; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 1px 4px; }
+  .paused * { animation-play-state: paused !important; }
+  @media (prefers-reduced-motion: reduce) { .stage *, .stage *::before, .stage *::after { animation: none !important; } }
+</style>
+</head>
+<body>
+<div id="fit"><div class="stage" id="stage">
+  <div class="back">
+    <div class="stars"></div><div class="moon"></div>
+    <div class="tower" id="tower"></div>
+    <div class="hills" id="hillsEl"></div>
+    <canvas id="seaCv" width="1920" height="1200"></canvas>
+  </div>
+  <div class="grade" id="gradeEl"></div><div class="grain"></div>
+  <div class="ghost">
+    <div class="g-margin"><b>新会话</b></div>
+    <div class="g-menu"><span>新会话</span><br>&nbsp;插件<br>&nbsp;&nbsp;自动化任务<br>&nbsp;&nbsp;&nbsp;更多</div>
+    <div class="g-net"><i style="top:80px"></i><i style="top:132px"></i><i style="top:184px"></i><i style="top:236px"></i><i style="top:288px"></i><i style="top:340px"></i><i style="top:392px"></i></div>
+    <div class="g-hero">BELOW<br>THE SURFACE<small>探索未至之境</small></div>
+    <div class="g-comp"></div>
+    <div class="g-clock"></div>
+  </div>
+</div></div>
+<div class="ctl">
+  <label>工作区 <select id="ws"></select></label>
+  <label><input type="checkbox" id="dh"> 影时间 0:00</label>
+  <label><input type="checkbox" id="ui"> 叠加界面</label>
+  <label><input type="checkbox" id="pause"> 暂停</label>
+  <label><button id="whaleBtn" type="button" style="all:unset;cursor:pointer">召唤鲸鱼 (W)</button></label>
+</div>
+<script>
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), gradeEl = $('#gradeEl');
+  let rock;
+  const layer = (rocking = false, cls = '') => { const r = document.createElement('div'); r.className = 'room ' + cls; rock = document.createElement('div'); rock.className = rocking ? 'rock' : 'lay'; r.appendChild(rock); stage.insertBefore(r, gradeEl); return r; };
+  const el = (cls, css = '', html = '') => { const d = document.createElement('div'); d.className = cls; if (css) d.style.cssText = css; d.innerHTML = html; rock.appendChild(d); return d; };
+  const svgURI = s => `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
+  const f = n => Math.round(n);
+
+  /* =====================================================================
+     SCENES — original silhouettes, one per kind of place on the line.
+     Inspired by the official site's setting (an artificial island city in
+     a bay, a school, dorm life, the Dark Hour tower); no game art is used.
+     ===================================================================== */
+  const NAVY = '#061565', LIT = '#ffd98a', W = 3600, H = 640;
+  const rng = seed => { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; };
+  const rect = (x, y, w, h, extra = '') => `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"${extra}/>`;
+  const blocks = (r, a, z, o) => { let b = '', l = '', red = ''; let x = a;
+    while (x < z) { const w = o.minW + r() * (o.maxW - o.minW), h = o.minH + r() * (o.maxH - o.minH);
+      b += rect(x, H - h, w, h);
+      for (let yy = H - h + 14; yy < H - 12; yy += o.rowH || 22) for (let xx = x + 8; xx < x + w - 10; xx += 15) if (r() < o.lit) l += rect(xx, yy, 6, 8);
+      if (o.antenna && r() < o.antenna) { b += rect(x + w / 2 - 2, H - h - 54, 4, 54); red += `<circle cx="${f(x + w / 2)}" cy="${f(H - h - 56)}" r="5"/>`; }
+      x += w + (o.gap || 0) * r(); }
+    return { b, l, red }; };
+  const svg = (body, lit, extra = '') => svgURI(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><g fill="${NAVY}">${body}</g><g fill="${LIT}" opacity=".85">${lit}</g>${extra}</svg>`);
+  const quad = (x0, x1, top, low) => { const c = 2 * low - top; return { d: `M${x0} ${top} Q${(x0 + x1) / 2} ${c} ${x1} ${top}`, y: x => { const t = (x - x0) / (x1 - x0); return (1 - t) ** 2 * top + 2 * (1 - t) * t * c + t * t * top; } }; };
+
+  const backTile = (kind) => { const w = 1200, h = 76, r = rng(kind.length * 17 + 3); let p = '', l = '';
+    if (kind === 'skyline' || kind === 'towers') { let x = 0; while (x < w) { const ww = 8 + r() * 26, hh = (kind === 'towers' ? 18 : 6) + r() * (kind === 'towers' ? 56 : 30); p += rect(x, h - hh, ww, hh); if (r() < .5) l += rect(x + ww / 2, h - hh + 4, 2, 2); x += ww + (r() < .3 ? 30 + r() * 120 : 2); } }
+    else { const peaks = kind === 'mountains' ? [[0, 420, 64], [380, 360, 50], [700, 520, 70]] : [[0, 260, 40], [230, 190, 24], [450, 350, 56], [790, 150, 20], [940, 260, 44]];
+      for (const [x, ww, hh] of peaks) p += `<path d="M${x} ${h} Q${x + ww * .3} ${h - hh} ${x + ww * .55} ${h - hh * .9} T${x + ww} ${h}Z"/>`;
+      l += rect(550, 40, 3, 3) + rect(610, 52, 3, 3) + rect(1010, 56, 3, 3); }
+    return svgURI(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><g fill="#071a78">${p}</g><g fill="#ffd98a" opacity=".75">${l}</g></svg>`); };
+
+  const SCENES = {
+    bay: { name: '海湾大桥', en: 'BAY BRIDGE', back: 'skyline', build() {
+      const deck = H - 170; let b = '', l = '', ex = '';
+      for (const tx of [500, 2300]) { b += rect(tx - 18, H - 600, 36, 600) + rect(tx - 34, H - 560, 68, 12) + rect(tx - 34, H - 420, 68, 10) + rect(tx - 28, deck + 18, 56, H - deck); ex += `<circle cx="${tx}" cy="${H - 606}" r="6" fill="#ff4a4a"/>`; }
+      b += rect(0, deck, W, 18) + rect(0, deck - 10, W, 3);
+      let cables = '';
+      for (const [x0, x1] of [[-1300, 500], [500, 2300], [2300, 4100]]) { const q = quad(x0, x1, H - 596, deck - 16); cables += `<path d="${q.d}"/>`;
+        for (let x = Math.max(0, x0 + 40); x < Math.min(W, x1 - 30); x += 44) cables += `<line x1="${x}" y1="${f(q.y(x))}" x2="${x}" y2="${deck}"/>`; }
+      for (let x = 20; x < W; x += 70) l += `<circle cx="${x}" cy="${deck + 9}" r="3.2"/>`;
+      return svg(b, l, `<g fill="none" stroke="${NAVY}" stroke-width="2.5">${cables}</g>${ex}`); } },
+    island: { name: '人工岛中央', en: 'ISLAND CENTRAL', back: 'hills', build() {
+      const r = rng(11); const a = blocks(r, 0, W, { minW: 60, maxW: 150, minH: 190, maxH: 570, gap: 26, lit: .32, antenna: .25 });
+      let b = a.b + rect(0, H - 132, W, 16); for (let x = 40; x < W; x += 300) b += rect(x, H - 116, 20, 116);
+      let l = a.l; for (let x = 0; x < W; x += 24) l += rect(x, H - 128, 10, 4);
+      return svg(b, l, `<g fill="#ff4a4a">${a.red}</g>`); } },
+    school: { name: '学园前', en: 'SCHOOL HILL', back: 'mountains', tower: 'near', build() {
+      const r = rng(23); const a = blocks(r, 0, W, { minW: 60, maxW: 120, minH: 50, maxH: 120, gap: 22, lit: .18 });
+      // hill crest at H-150 (= 75px of rise); school stands ON the crest, so its base is buried in the hill
+      let b = a.b + `<path d="M1050 ${H} Q1850 ${H - 300} 2650 ${H}Z"/>`, l = a.l, ex = '';
+      const base = H - 140;
+      b += rect(1480, base - 120, 800, 140) + `<path d="M1470 ${base - 120} L1880 ${base - 152} L2290 ${base - 120}Z"/>` + rect(1846, base - 270, 70, 170) + `<path d="M1838 ${base - 270} L1881 ${base - 322} L1924 ${base - 270}Z"/>`;
+      for (let row = 0; row < 3; row++) for (let x = 1500; x < 2260; x += 32) if (r() < .55 && (x < 1830 || x > 1930)) l += rect(x, base - 106 + row * 34, 18, 18);
+      ex += `<circle cx="1881" cy="${base - 228}" r="21" fill="#e8f2ff"/><path d="M1881 ${base - 228} V${base - 243} M1881 ${base - 228} H1893" stroke="${NAVY}" stroke-width="4"/>`;
+      for (let x = 1120; x < 2600; x += 58) { if (x > 1460 && x < 2300) continue; const t = (x - 1050) / 1600; const y = (1 - t) ** 2 * H + 2 * (1 - t) * t * (H - 300) + t * t * H; b += `<circle cx="${x}" cy="${f(y - 18)}" r="${f(20 + r() * 14)}"/>`; }
+      return svg(b, l, ex); } },
+    arcade: { name: '商店街', en: 'MALL ARCADE', back: 'towers', build() {
+      const r = rng(37); const a = blocks(r, 0, W, { minW: 100, maxW: 210, minH: 130, maxH: 290, gap: 6, lit: .35, rowH: 26 });
+      const neon = ['#ff4fa0', '#5fe3ff', '#ffe14a', '#b47bff']; let ex = '', x = 0, i = 0;
+      while (x < W) { x += 120 + r() * 220; const c = neon[i++ % 4]; if (r() < .5) ex += rect(x, H - 250 + r() * 80, 20, 90 + r() * 50, ` fill="${c}" opacity=".95"`); else ex += rect(x, H - 200 + r() * 60, 90 + r() * 70, 22, ` fill="${c}" opacity=".95"`); }
+      // ferris wheel
+      const cx = 2700, cy = H - 330, R = 210; let wheel = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NAVY}" stroke-width="8"/>`; let rim = '';
+      for (let k = 0; k < 16; k++) { const t = k / 16 * Math.PI * 2, px = cx + Math.cos(t) * R, py = cy + Math.sin(t) * R; wheel += `<line x1="${cx}" y1="${cy}" x2="${f(px)}" y2="${f(py)}" stroke="${NAVY}" stroke-width="3"/>`; rim += `<circle cx="${f(px)}" cy="${f(py)}" r="9" fill="${neon[k % 4]}"/>`; }
+      wheel += `<path d="M${cx} ${cy} L${cx - 120} ${H} M${cx} ${cy} L${cx + 120} ${H}" stroke="${NAVY}" stroke-width="12"/>`;
+      let garland = ''; for (let gx = 0; gx < W; gx += 300) { const q = quad(gx, gx + 300, H - 150, H - 110); garland += `<path d="${q.d}" fill="none" stroke="${NAVY}" stroke-width="2"/>`; for (let k = 1; k < 10; k++) { const xx = gx + k * 30; garland += `<circle cx="${xx}" cy="${f(q.y(xx))}" r="3" fill="${neon[k % 4]}"/>`; } }
+      return svg(a.b, a.l, wheel + rim + ex + garland); } },
+    dorm: { name: '住宅街', en: 'DORM STREET', back: 'hills', build() {
+      const r = rng(51); let b = '', l = '', x = 0;
+      while (x < W) {
+        if (x > 1300 && x < 1340) { b += rect(1340, H - 250, 440, 250) + rect(1320, H - 262, 480, 14); for (let row = 0; row < 3; row++) for (let wx = 1360; wx < 1760; wx += 46) if (r() < .7) l += rect(wx, H - 230 + row * 70, 26, 34); x = 1820; continue; }
+        const w = 90 + r() * 80, h = 70 + r() * 80; b += rect(x, H - h, w, h) + `<path d="M${f(x - 8)} ${f(H - h)} L${f(x + w / 2)} ${f(H - h - 46)} L${f(x + w + 8)} ${f(H - h)}Z"/>`;
+        const n = 1 + Math.floor(r() * 3); for (let k = 0; k < n; k++) if (r() < .75) l += rect(x + 14 + k * 30, H - h + 18, 18, 22);
+        if (r() < .45) b += `<circle cx="${f(x + w + 18)}" cy="${f(H - 60)}" r="${f(26 + r() * 16)}"/>`; x += w + 26 + r() * 30; }
+      let wires = ''; for (let px = 160; px < W; px += 420) { b += rect(px, H - 300, 8, 300) + rect(px - 30, H - 290, 68, 6); const q = quad(px + 4, px + 424, H - 288, H - 250); wires += `<path d="${q.d}"/>`; }
+      return svg(b, l, `<g fill="none" stroke="${NAVY}" stroke-width="2">${wires}</g>`); } },
+  };
+  const TOWER = (() => { let p = '', l = ''; let y = 620, w = 280, k = 0; const r = rng(99);
+    while (y > 20) { const h = 40 + r() * 50; const x = (300 - w) / 2 + (r() - .5) * 18; p += `<path d="M${f(x)} ${f(y)} L${f(x + 6)} ${f(y - h)} L${f(x + w - 6)} ${f(y - h + 6)} L${f(x + w)} ${f(y)}Z"/>`;
+      for (let wx = x + 14; wx < x + w - 14; wx += 18) if (r() < .35) l += rect(wx, y - h + 12 + r() * (h - 26), 5, 9);
+      y -= h; w *= .86; k++; }
+    p += `<path d="M138 30 L150 -20 L162 30Z"/>`;
+    return `<svg viewBox="0 -30 300 650" preserveAspectRatio="xMidYMax meet"><g fill="#010d05" stroke="#9dff6a" stroke-width="2.5" stroke-opacity=".9">${p}</g><g fill="#b6ff6b">${l}</g></svg>`; })();
+  $('#tower').innerHTML = TOWER;
+
+  /* --- outside layers (2D far plane + small 3D near layers, back to front) --- */
+  const cityRoom = layer(false, 'outside'); const cityEl = el('city', '', '<i></i>').firstChild;
+  const whaleCv = document.createElement('canvas'); whaleCv.id = 'whaleCv'; whaleCv.width = 1920; whaleCv.height = 1200; stage.insertBefore(whaleCv, gradeEl);
+  layer(false, 'outside'); el('wires');
+  layer(false, 'outside'); for (let i = 0; i < 3; i++) el('pole', '', `<i style="animation-delay:${-i * .8}s"></i>`);
+  const tl = document.createElement('div'); tl.className = 'tlights'; stage.insertBefore(tl, gradeEl);
+
+  /* --- carriage (one rocking layer) --- */
+  layer(true);
+  const rr = (x, y, w, h, r) => `M${x + r} ${y}H${x + w - r}Q${x + w} ${y} ${x + w} ${y + r}V${y + h - r}Q${x + w} ${y + h} ${x + w - r} ${y + h}H${x + r}Q${x} ${y + h} ${x} ${y + h - r}V${y + r}Q${x} ${y} ${x + r} ${y}Z`;
+  const wins = [[320, 520], [940, 520], [1900, 520], [2520, 520], [3480, 520], [4100, 520]];
+  const doors = [[0, 260], [1540, 280], [3120, 280], [4700, 280]];
+  const doorWins = doors.flatMap(([x, w]) => [[x + 28, 80], [x + w / 2 + 12, 80]]);
+  let holes = '', frames = '', deco = '';
+  for (const [x, w] of wins) { holes += rr(x, 140, w, 440, 34); frames += `<path d="${rr(x - 14, 126, w + 28, 468, 44)}" fill="none" stroke="var(--frame)" stroke-width="10"/><path d="${rr(x - 2, 138, w + 4, 444, 36)}" fill="none" stroke="var(--frame-in)" stroke-width="6"/><path d="M${x + 30} 128 H${x + w - 30}" stroke="var(--edge)" stroke-width="3" opacity=".8"/>`; }
+  for (const [x, w] of doorWins) { holes += rr(x, 170, w, 420, 18); frames += `<path d="${rr(x - 8, 162, w + 16, 436, 24)}" fill="none" stroke="var(--frame)" stroke-width="7"/>`; }
+  for (const [x, w] of doors) deco += `<rect x="${x}" y="110" width="${w}" height="890" fill="var(--wall-hi)"/><rect x="${x}" y="110" width="${w}" height="890" fill="none" stroke="var(--frame)" stroke-width="6"/><line x1="${x + w / 2}" y1="110" x2="${x + w / 2}" y2="1000" stroke="#000" stroke-width="4" opacity=".5"/><rect x="${x + 18}" y="920" width="${w - 36}" height="10" fill="var(--edge)" opacity=".7"/>`;
+  for (const [a, b] of [[300, 1130], [2240, 3060], [3460, 4640]]) { deco += `<line x1="${a}" y1="80" x2="${b}" y2="80" stroke="var(--edge)" stroke-width="5" opacity=".85"/>`;
+    for (let x = a + 40; x < b; x += 160) deco += `<circle cx="${x}" cy="80" r="11" fill="var(--wall)" stroke="var(--edge)" stroke-width="5"/>`; }
+  deco += `<circle cx="2280" cy="80" r="15" fill="#fff" stroke="#e8141f" stroke-width="6"/>`;
+  deco += `<rect x="0" y="600" width="5200" height="400" fill="var(--wall-lo)"/><line x1="0" y1="600" x2="5200" y2="600" stroke="var(--edge)" stroke-width="4" opacity=".7"/>`;
+  for (const [a, b] of [[280, 1500], [1860, 3080], [3440, 4660]]) deco += `<rect x="${a}" y="592" width="${b - a}" height="80" rx="16" fill="var(--seat-hi)"/><rect x="${a}" y="592" width="${b - a}" height="80" rx="16" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/>`;
+  el('wall', '', `<svg width="5200" height="1000" viewBox="0 0 5200 1000">
+    <defs><linearGradient id="topglow" x2="0" y2="1"><stop offset="0" stop-color="#dff6ff" stop-opacity=".35"/><stop offset="1" stop-color="#dff6ff" stop-opacity="0"/></linearGradient><linearGradient id="wg" x2="0" y2="1"><stop offset="0" stop-color="var(--wall-hi)"/><stop offset=".55" stop-color="var(--wall)"/><stop offset="1" stop-color="var(--wall-lo)"/></linearGradient></defs>
+    <path fill="url(#wg)" fill-rule="evenodd" d="M0 0H5200V1000H0Z ${holes}"/>${deco}${frames}<rect width="5200" height="130" fill="url(#topglow)"/></svg>`);
+  for (const [x, w] of wins) el('glass', `width:${w}px;height:440px;transform:translate3d(${x - 1700}px,${140 - 520}px,-522px)`);
+  for (const [x, w] of doorWins) el('glass', `width:${w}px;height:420px;border-radius:18px;transform:translate3d(${x - 1700}px,${170 - 520}px,-522px)`);
+  el('led', '', '<div class="tag" id="ledtag">快速</div><div class="run"><span id="ledtxt"></span></div>');
+  el('ceil', '', '<div class="duct" style="top:60px"></div><div class="lamp" style="top:300px"></div><div class="duct" style="top:520px"></div><div class="lamp" style="top:760px"></div>');
+  el('floor', '', wins.map(([x, w]) => `<div class="moonlight" style="left:${x + 120}px;width:${w}px"></div>`).join('') + '<div class="sweep"></div>');
+  for (const [a, b] of [[280, 1500], [1860, 3080], [3440, 4660]]) {
+    el('seatt', `width:${b - a}px;transform:translate3d(${a - 1700}px,150px,-520px) rotateX(90deg)`);
+    el('seatf', `width:${b - a}px;transform:translate3d(${a - 1700}px,150px,-360px)`, '<div class="sweep"></div>');
+  }
+
+  /* =====================================================================
+     DOT-MATRIX SEA: dots never move; only their size breathes.
+     The whale is the same kind of dot, lit up on a fixed screen grid.
+     ===================================================================== */
+  const HZ = 492, MX = 1310, CYCLE = 14;
+  const sctx = $('#seaCv').getContext('2d'), wctx = whaleCv.getContext('2d');
+  const rows = []; { let y = HZ + 3, g = 2.2, i = 0; while (y < 660) { const sx = 3.2 + g * 1.9; rows.push({ y, g, sx, base: Math.min(.45 + g * .3, 5.6), off: (i % 2) * sx / 2, k: Math.PI * 2 / (sx * 9) }); y += g; g *= 1.13; i++; } }
+  const WX = 1560, WY = HZ + 34;
+  const body = new Path2D('M28 250 C90 132 310 86 480 150 C532 170 566 196 596 204 C616 200 640 180 694 140 C682 176 670 204 676 226 C688 248 698 268 712 300 C670 282 640 262 606 254 C560 284 500 306 420 314 C270 334 110 336 28 250 Z M210 300 C230 360 284 412 380 432 C340 386 316 344 306 306 Z');
+  const belly = new Path2D('M70 280 C190 320 360 318 500 290 C400 340 200 352 70 280 Z');
+  const KEYS = [[.50, -80, 170, -60], [.60, -36, 8, -50], [.69, 18, -78, -16], [.80, 92, 6, 30], [.90, 142, 180, 56]];
+  const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const whaleAt = p => { if (p < KEYS[0][0] || p > KEYS[KEYS.length - 1][0]) return null;
+    for (let i = 0; i < KEYS.length - 1; i++) { const [p0, ...a] = KEYS[i], [p1, ...b] = KEYS[i + 1]; if (p <= p1) { const t = ss(p0, p1, p); return a.map((v, j) => v + (b[j] - v) * t); } } };
+  const pulses = p => { const out = [];
+    const sw = ss(.38, .58, p) * (1 - ss(.6, .64, p)); if (sw > 0) out.push([WX - 40, WY + 6, 0, 120 * (.4 + sw), sw * 1.1, 'swell']);
+    for (const [p0, x] of [[.60, WX - 30], [.83, WX + 120]]) { const age = (p - p0) * CYCLE; if (age >= 0 && age < 2.4) out.push([x, WY + 4, 18 + age * 150, 26, (1 - age / 2.4) * 1.4, 'ring']); }
+    return out; };
+  const PAL = { day: { dot: [110, 190, 255], hi: [235, 248, 255], whale: '#eaf7ff', belly: '#5fe3ff' }, dark: { dot: [120, 230, 110], hi: [235, 255, 200], whale: '#eaffd6', belly: '#b6ff6b' } };
+  const S = .42, LX = 360, LY = 240;
+  const MASK = (() => { const c = document.createElement('canvas'); c.width = 360; c.height = 225; const x = c.getContext('2d'); x.scale(.5, .5);
+    x.fillStyle = '#fff'; x.fill(body); x.fillStyle = '#00f'; x.fill(belly); x.fillStyle = '#000'; x.beginPath(); x.arc(118, 228, 13, 0, 6.2832); x.fill();
+    const d = x.getImageData(0, 0, 360, 225).data, m = new Uint8Array(360 * 225);
+    for (let i = 0; i < m.length; i++) { const r = d[i * 4], b = d[i * 4 + 2], a = d[i * 4 + 3]; m[i] = a < 128 ? 0 : r > 128 ? 1 : b > 128 ? 2 : 0; }
+    return m; })();
+  const maskAt = (lx, ly) => { const ix = lx * .5 | 0, iy = ly * .5 | 0; return ix < 0 || iy < 0 || ix >= 360 || iy >= 225 ? 0 : MASK[iy * 360 + ix]; };
+  let eggStart = null;
+  const summonWhale = () => { if (eggStart == null) eggStart = performance.now() / 1000 - .35 * CYCLE; };
+  const scheduleEgg = () => setTimeout(() => { summonWhale(); scheduleEgg(); }, (240 + Math.random() * 360) * 1000); // once every 4-10 min
+  function draw(now, force) {
+    const t = now / 1000;
+    let p = force ?? (eggStart == null ? -1 : (t - eggStart) / CYCLE);
+    if (force == null && p > 1) { eggStart = null; p = -1; }
+    const  pal = stage.classList.contains('dark') ? PAL.dark : PAL.day, ps = pulses(p);
+    sctx.clearRect(0, HZ, 1920, 1200 - HZ);
+    const buckets = [new Path2D(), new Path2D(), new Path2D(), new Path2D()], hi = new Path2D();
+    rows.forEach((row, i) => {
+      const mw = 26 + row.g * 12;
+      for (let x = row.off; x < 1920; x += row.sx) {
+        const v = .5 + .5 * Math.sin(x * row.k - t * 1.7 + i * .62), v2 = .5 + .5 * Math.sin(x * row.k * .37 + t * .6 - i * .21);
+        let a = .16 + .84 * Math.pow(v * .7 + v2 * .3, 1.6);
+        for (const [px, py, R, band, str, kind] of ps) { const dx = x - px, dy = (row.y - py) * 4, d = Math.hypot(dx, dy);
+          a += kind === 'swell' ? str * Math.max(0, 1 - d / band) : str * Math.max(0, 1 - Math.abs(d - R) / band); }
+        const r = row.base * Math.min(a, 1.9); if (r < .25) continue;
+        const dm = Math.abs(x - MX); const path = dm < mw && a > .55 ? hi : buckets[Math.min(3, Math.floor(Math.min(a, .99) * 4))];
+        path.moveTo(x + r, row.y); path.arc(x, row.y, r, 0, 6.2832);
+      }
+    });
+    const [dr, dg, db] = pal.dot;
+    buckets.forEach((b, i) => { sctx.fillStyle = `rgba(${dr},${dg},${db},${.28 + i * .2})`; sctx.fill(b); });
+    sctx.fillStyle = `rgb(${pal.hi.join(',')})`; sctx.fill(hi);
+    // whale + spray on the fixed 6.5px grid
+    wctx.clearRect(WX - 420, HZ - 360, 840, 420);
+    const w = whaleAt(p);
+    if (w) { const [dx, dy, rot] = w, ang = rot * Math.PI / 180, ca = Math.cos(ang), sa = Math.sin(ang), cx = WX + dx, cy = WY + dy, G = 6.5;
+      const bodyDots = new Path2D(), bellyDots = new Path2D();
+      for (let gy = Math.floor((cy - 200) / G) * G; gy < Math.min(cy + 200, WY + 2); gy += G)
+        for (let gx = Math.floor((cx - 200) / G) * G; gx < cx + 200; gx += G) {
+          const ux = gx - cx, uy = gy - cy, lx = (ca * ux + sa * uy) / -S + LX, ly = (-sa * ux + ca * uy) / S + LY;
+          const m = maskAt(lx, ly); if (!m) continue;
+          const tgt = m === 2 ? bellyDots : bodyDots; tgt.moveTo(gx + 2.6, gy); tgt.arc(gx, gy, 2.6, 0, 6.2832); }
+      wctx.fillStyle = pal.whale; wctx.fill(bodyDots); wctx.fillStyle = pal.belly; wctx.fill(bellyDots); }
+    for (const [p0, x0] of [[.60, WX - 30], [.83, WX + 120]]) { const age = (p - p0) * CYCLE; if (age < 0 || age > 1.1) continue;
+      const spray = new Path2D(); for (let k = 0; k < 16; k++) { const vx = (k - 7.5) * 14, vy = -150 - (k % 3) * 40; const gx = Math.round((x0 + vx * age) / 6.5) * 6.5, gy = Math.round((WY + vy * age + 260 * age * age) / 6.5) * 6.5; if (gy > WY) continue; spray.moveTo(gx + 2.4, gy); spray.arc(gx, gy, 2.4, 0, 6.2832); }
+      wctx.fillStyle = pal.whale; wctx.globalAlpha = 1 - age / 1.1; wctx.fill(spray); wctx.globalAlpha = 1; }
+  }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let last = 0, frozen = reduce ? performance.now() + CYCLE * .69 * 1000 - (performance.now() % (CYCLE * 1000)) : 0;
+  const loop = now => { if (!stage.classList.contains('paused') && !reduce && now - last > 33) { draw(now); last = now; } requestAnimationFrame(loop); };
+  draw(performance.now()); if (!reduce) { requestAnimationFrame(loop); scheduleEgg(); }
+
+  /* --- workspace → scene --- */
+  const WORKSPACES = { 'SimplePlanes 2': 'bay', 'SillyTavern-release': 'arcade', 'pony': 'dorm', 'dsh': 'island', 'stst': 'school' };
+  const ORDER = ['bay', 'island', 'school', 'arcade', 'dorm'];
+  const sceneFor = ws => WORKSPACES[ws] || ORDER[[...ws].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % ORDER.length];
+  const cache = {};
+  let curWs = 'dsh';
+  // the board only ever names the workspace — the scenery says where you are
+  const setLed = () => { const dark = stage.classList.contains('dark');
+    $('#ledtag').textContent = dark ? '影时' : '快速';
+    const span = $('#ledtxt'); span.textContent = dark ? `影时间 DARK HOUR 0:00　·　${curWs}　·　本列车不停靠任何站` : `次は ▶ ${curWs}　·　NEXT STOP: ${curWs.toUpperCase()}　·　${curWs}`;
+    const dur = (span.scrollWidth + 880) / 110; span.style.animationDuration = `${dur}s`; span.style.animationDelay = `${-dur * .3}s`; };
+  const applyScene = () => { const key = sceneFor(curWs), sc = SCENES[key];
+    cityEl.style.backgroundImage = cache[key] ||= sc.build();
+    $('#hillsEl').style.backgroundImage = backTile(sc.back);
+    $('#tower').classList.toggle('far', sc.tower !== 'near'); setLed(); };
+  const go = ws => { curWs = ws; if (reduce) { applyScene(); return; } stage.classList.add('tunnel'); setTimeout(applyScene, 380); setTimeout(() => stage.classList.remove('tunnel'), 900); };
+  const sel = $('#ws');
+  [...Object.keys(WORKSPACES), '未命名工作区'].forEach(ws => sel.add(new Option(`${ws} → ${SCENES[sceneFor(ws)].name}`, ws)));
+  sel.value = curWs; sel.addEventListener('change', () => go(sel.value));
+  applyScene();
+
+  /* --- camera / fit / parallax / toggles --- */
+  const fit = () => { const s = Math.max(innerWidth / 1920, innerHeight / 1200); $('#fit').style.transform = `translate(-50%,-50%) scale(${s})`; };
+  addEventListener('resize', fit); fit();
+  let ptr = null;
+  const setPtr = (nx, ny) => { if (reduce) return; const pending = ptr; ptr = [nx, ny]; if (pending) return;
+    requestAnimationFrame(() => { const [nx, ny] = ptr; ptr = null;
+      const st = stage.style; st.setProperty('--ry', `${17 + nx * 5}deg`); st.setProperty('--rx', `${-ny * 2.5}deg`); st.setProperty('--tx', `${120 - nx * 40}px`); st.setProperty('--mx', `${-nx * 14}px`); st.setProperty('--my', `${-ny * 8}px`); }); };
+  addEventListener('pointermove', e => setPtr(e.clientX / innerWidth - .5, e.clientY / innerHeight - .5));
+  addEventListener('keydown', e => { if (e.key === 'w' || e.key === 'W') summonWhale(); });
+  $('#dh').addEventListener('change', e => { stage.classList.toggle('dark', e.target.checked); setLed(); draw(performance.now()); });
+  $('#ui').addEventListener('change', e => stage.classList.toggle('ui', e.target.checked));
+  $('#pause').addEventListener('change', e => stage.classList.toggle('paused', e.target.checked));
+  const q = new URLSearchParams(location.search);
+  if (q.get('ws')) { curWs = q.get('ws'); sel.value = curWs; applyScene(); }
+  if (q.get('dark') === '1') $('#dh').click(); if (q.get('ui') === '1') $('#ui').click(); if (q.get('pause') === '1') $('#pause').click();
+  window.__drawAt = p => { stage.classList.add('paused'); draw(performance.now(), p); };
+  $('#whaleBtn').addEventListener('click', summonWhale);
+  /* embed mode: the UI page drives this background through postMessage */
+  if (q.get('embed') === '1') {
+    document.querySelector('.ctl').style.display = 'none';
+    addEventListener('message', ({ data: m }) => { if (!m || typeof m !== 'object') return;
+      if (m.type === 'ptr') setPtr(m.nx, m.ny);
+      else if (m.type === 'ws') { sel.value = m.ws; go(m.ws); }
+      else if (m.type === 'dark') { if ($('#dh').checked !== !!m.on) $('#dh').click(); }
+      else if (m.type === 'whale') summonWhale(); });
+  }
+</script>
+</body>
+</html>

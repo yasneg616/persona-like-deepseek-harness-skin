@@ -70,9 +70,8 @@ test('built client registers tokens and removes them on dispose', async () => {
   const clientPath = new URL('../lib/client.js', import.meta.url)
   assert.equal(existsSync(clientPath), true)
   const source = readFileSync(clientPath, 'utf8')
-  // 0.5.1: the only stored value is the message-letters choice (plain / collage).
-  assert.equal(source.split('localStorage').length - 1, 1)
   assert.equal(source.includes('dsh-cc-message-style'), true)
+  assert.equal(source.includes('dsh-calling-card-skin:persona'), true)
   assert.equal(source.includes('setTheme'), false)
   assert.equal(source.includes('dsh-industrial'), false)
   assert.equal(source.includes('CcBrush'), false)
@@ -101,10 +100,11 @@ test('built client registers tokens and removes them on dispose', async () => {
   assert.equal(captured.length, 1)
   assert.equal(captured[0].id, 'dsh-calling-card-skin')
 
-  const hooks: unknown[] = []
+  let hooks: unknown[] = []
   let hookCursor = 0
   const effects: Array<() => void> = []
   const react = {
+    useId: () => 'persona-setting-test',
     useState(init: unknown) {
       const index = hookCursor++
       if (hooks.length <= index) hooks[index] = typeof init === 'function' ? (init as () => unknown)() : init
@@ -169,8 +169,10 @@ test('built client registers tokens and removes them on dispose', async () => {
   assert.equal(window.document.documentElement.style.colorScheme, 'dark')
 
   const overlay = registered.find((entry) => entry.options.name === 'shell.overlay')
+  const settings = registered.find((entry) => entry.options.id === 'dsh-calling-card-skin.persona')
   const mark = registered.find((entry) => entry.options.name === 'sidebar.brand.mark')
   assert.ok(overlay)
+  assert.equal(settings?.options.name, 'settings.general.item')
   assert.equal(mark?.options.priority, -1)
   assert.equal(registered.some((entry) => entry.options.name === 'root'), false)
   assert.equal(registered.some((entry) => entry.options.name === 'sidebar'), false)
@@ -189,8 +191,14 @@ test('built client registers tokens and removes them on dispose', async () => {
     }
     const element = node as { type: unknown, props?: Record<string, unknown> }
     if (typeof element.type === 'function') {
+      const priorHooks = hooks
+      const priorCursor = hookCursor
+      hooks = []
       hookCursor = 0
-      render((element.type as (props: unknown) => unknown)(element.props ?? {}), parent)
+      const children = (element.type as (props: unknown) => unknown)(element.props ?? {})
+      hooks = priorHooks
+      hookCursor = priorCursor
+      render(children, parent)
       return
     }
     if (typeof element.type !== 'string') return

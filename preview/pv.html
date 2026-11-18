@@ -1,0 +1,1919 @@
+<!doctype html>
+<html lang="zh-Hans" data-dsh-calling-card-skin data-input-modality="keyboard" data-windows-titlebar style="--dsh-windows-titlebar-height: 40px">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepSeek Harness · Calling-Card Skin PV (TAKE YOUR HEART)</title>
+<link rel="stylesheet" href="../lib/skin.css">
+<style>
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #080808;
+    overflow: hidden;
+    user-select: none;
+    font-family: "Barlow Semi Condensed", "Noto Sans SC", system-ui, sans-serif;
+  }
+
+  /* Cinematic Stage & Camera Rig */
+  #pv-stage {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 78% 18%, rgba(230, 0, 18, 0.22), transparent 46%),
+      repeating-linear-gradient(-14deg, #090909 0 18px, #0f0f0f 18px 36px);
+  }
+
+  #pv-camera {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  /* Host-like Desktop Frame (from preview/desktop.html + widgets.html + menus.html) */
+  #frame {
+    height: 100vh;
+    display: grid;
+    position: relative;
+    box-sizing: border-box;
+    grid-template-columns: 280px minmax(400px, 1fr) minmax(0px, 0px);
+  }
+  html[data-windows-titlebar] #frame {
+    padding-top: var(--dsh-windows-titlebar-height);
+    background: #1b1b1c;
+  }
+  html[data-windows-titlebar] #frame::before {
+    content: "";
+    height: var(--dsh-windows-titlebar-height);
+    background: #1b1b1c;
+    -webkit-app-region: drag;
+    position: absolute;
+    inset: 0 0 auto;
+  }
+  #frame[data-animating] { transition: grid-template-columns 250ms ease; }
+  .xx_sidebarCol, #center { min-width: 0; min-height: 0; }
+  .xx_sidebarCol { position: relative; overflow: hidden; }
+  #center { display: flex; flex-direction: column; }
+  #center > [data-phase] { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  #frame > [data-shell-overlay] { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+  [data-conversation-header-leading] { padding: 16px 20px 8px; color: #f7f4ee; }
+  [data-conversation-scroll] { flex: 1; overflow: auto; padding: 12px 28px 28px; scroll-behavior: auto; }
+  [data-composer-seat] { padding: 8px 20px 16px; }
+  [data-composer-card] { position: relative; padding: 12px 14px; }
+  [data-composer-input] { width: 100%; min-height: 48px; border: 0; background: transparent; resize: none; }
+  button.send { background: #e60012; color: #fff; border: 0; font-weight: 800; padding: 8px 12px; cursor: pointer; }
+
+  /* Host-like Sidebar */
+  .wtg9ga_root { display: flex; flex-direction: column; height: 100%; padding: 8px; box-sizing: border-box; color: #ddd; }
+  .wtg9ga_logoRow { display: flex; align-items: center; justify-content: space-between; height: 40px; }
+  .wtg9ga_iconButton { width: 28px; height: 28px; display: grid; place-items: center; background: transparent; border: 0; color: #ddd; padding: 0; cursor: pointer; }
+  .wtg9ga_iconButton svg, .wtg9ga_panelGlyph svg, .wtg9ga_newSession svg { width: 16px; height: 16px; }
+  .wtg9ga_newSession, .wtg9ga_panelRow { display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: #ddd; padding: 6px 8px; text-align: left; cursor: pointer; }
+  .wtg9ga_panelList { display: flex; flex-direction: column; }
+  .wtg9ga_regionArea { flex: 1; min-height: 0; overflow: auto; }
+  .GAkraW_sectionHeader { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 36px; padding-left: 8px; color: #999; }
+  .GAkraW_sectionLabel { flex: 1; font-size: 13px; }
+  .GAkraW_searchButton { width: 24px; height: 24px; display: grid; place-items: center; background: transparent; border: 0; color: #aaa; padding: 0; cursor: pointer; }
+  .GAkraW_listArea { position: relative; }
+  .GAkraW_listArea [role="treeitem"] { padding: 4px 8px; }
+  .wnFoaW_projectRow { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px !important; box-sizing: border-box; color: #ccc; cursor: pointer; }
+  .wnFoaW_slot { display: inline-flex; width: 16px; height: 16px; flex: none; }
+  .wnFoaW_slot svg { width: 16px; height: 16px; }
+  .wnFoaW_projectRow .wnFoaW_chevron { display: none; }
+  .wnFoaW_projectRow:hover .wnFoaW_chevron { display: inline-flex; }
+  .wnFoaW_projectText { flex: 1; min-width: 0; overflow: hidden; }
+  .wnFoaW_title { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 13px; }
+  .wnFoaW_rowActions { display: inline-flex; gap: 2px; height: 20px; }
+  .wnFoaW_sessionRow { display: flex; align-items: center; gap: 0; height: 32px; padding: 0 8px; box-sizing: border-box; color: #ddd; cursor: pointer; border-radius: 8px; }
+  .wnFoaW_sessionRow .wnFoaW_title { flex: 1; margin: 0 6px 0 8px; font-size: 14px; }
+  .wnFoaW_rowResting { display: inline-flex; flex: none; }
+  .wnFoaW_time { color: #888; font-size: 10px; line-height: 16px; flex: none; }
+  .wnFoaW_sessionRow .wnFoaW_rowActions { margin-left: auto; gap: 13px; }
+  .wnFoaW_rowQuickActions, .wnFoaW_rowQuickActions > [data-slot] { display: inline-flex; gap: 13px; }
+  .wnFoaW_sessionRow:is(:hover, [data-pv-hover]) .wnFoaW_rowResting { display: none; }
+  .wnFoaW_sessionRow.wnFoaW_selected, .wnFoaW_sessionRow:is(:hover, [data-pv-hover]) { background-color: #333; }
+  .wnFoaW_dot { width: 6px; height: 6px; border-radius: 50%; background: #4c8; margin: 5px; }
+  .wnFoaW_iconButton { width: 20px; height: 20px; display: grid; place-items: center; border: 0; background: transparent; color: #999; padding: 0; cursor: pointer; }
+  .wnFoaW_iconButton svg { width: 14px; height: 14px; }
+  .GAkraW_fade { left: 0; right: 0; background: linear-gradient(to bottom, transparent, #1b1b1c); pointer-events: none; height: 24px; position: absolute; bottom: 0; }
+  .wtg9ga_footArea { margin-top: auto; display: flex; flex-direction: column; }
+  .wtg9ga_footerActions { display: flex; }
+  .wtg9ga_settingsArea { display: flex; }
+  ._5Qcc8a_root { flex: 1; min-width: 0; }
+  ._5Qcc8a_anchor { width: 100%; }
+  ._5Qcc8a_trigger { width: 100%; height: 32px; padding: 6px 8px; border: 0; border-radius: 8px; color: #ddd; background: transparent; display: flex; align-items: center; gap: 8px; font: inherit; font-size: 14px; cursor: pointer; }
+  ._5Qcc8a_trigger svg { width: 14px; height: 14px; }
+  .wtg9ga_brand { display: inline-flex; align-items: center; flex: 1; background: none; border: 0; padding: 0 0 0 8px; color: inherit; }
+  .wtg9ga_brandIdentity { display: inline-flex; align-items: center; gap: 5px; height: 24px; }
+  html[data-windows-titlebar] .wtg9ga_toggle { position: fixed; top: 6px; left: 12px; z-index: 30; }
+  html[data-windows-titlebar] .wtg9ga_collapsed { padding: 0; }
+  html[data-windows-titlebar] .wtg9ga_collapsed .wtg9ga_logoRow { height: 0; }
+  html[data-windows-titlebar] .wtg9ga_collapsed .wtg9ga_newSession { position: fixed; top: 6px; left: 48px; z-index: 30; width: 28px; height: 28px; padding: 0; justify-content: center; }
+  html[data-windows-titlebar] .wtg9ga_collapsed :is(.wtg9ga_panelList, .wtg9ga_regionArea, .wtg9ga_footArea) { display: none; }
+  .wtg9ga_collapsed .xx_wide, .wtg9ga_collapsed .GAkraW_listArea, .wtg9ga_root:not(.wtg9ga_collapsed) .GAkraW_rail { display: none; }
+  .GAkraW_rail { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  /* Host-like Conversation Widgets (from preview/widgets.html) */
+  body {
+    --dsw-radius-sm: 6px;
+    --dsw-radius-md: 8px;
+    --dsw-radius-lg: 12px;
+    --dsw-radius-xl: 16px;
+    --dsw-menu-surface-fill: #2b2b2dcc;
+    --dsw-alias-label-primary: #eee;
+    --dsw-alias-label-tertiary: #999;
+    --dsw-alias-menu-icon: #bbb;
+    --dsw-alias-border-l2: #444;
+  }
+  .xMeOpW_body { display: flex; flex-direction: column; gap: 14px; }
+  .xMeOpW_stopped { border-radius: 6px; background: #2a2a2a; color: #999; align-self: flex-start; padding: 0 6px; font-size: 11px; line-height: 18px; }
+  .hSzSIW_root { border: .5px solid #333; border-radius: 16px; background: #1c1c1c; margin: 10px 0; }
+  .hSzSIW_header { width: 100%; color: #999; font: inherit; text-align: left; cursor: pointer; background: none; border: 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+  .hSzSIW_title { font-size: 14px; }
+  .hSzSIW_time { margin-left: auto; font-size: 12px; }
+  .hSzSIW_openChevron { transform: rotate(180deg); }
+  .hSzSIW_body { padding: 0 16px 12px 40px; color: #bbb; font-size: 12px; }
+  .hSzSIW_explanation { margin: 8px 0; }
+  .hSzSIW_content { white-space: pre-wrap; max-height: 240px; overflow: auto; }
+  .LOmM4q_turnErrorRow { font-size: 13px; line-height: 20px; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; padding: 2px 0; margin: 10px 0; }
+  .LOmM4q_turnErrorDot { margin-top: 5px; }
+  .LOmM4q_turnErrorTitle { color: #e5484d; margin-right: 6px; font-weight: 600; }
+  .LOmM4q_turnErrorMessage { color: #aaa; }
+  ._dot_1i3xo_2 { position: relative; display: inline-block; flex: none; width: 10px; height: 10px; }
+  ._dot_1i3xo_2::after { content: ""; position: absolute; inset: 20%; border-radius: 50%; background: currentColor; }
+  ._dot_1i3xo_2[data-state=error] { color: #e5484d; }
+  ._dot_1i3xo_2[data-state=warning] { color: #f5a524; }
+  ._dot_1i3xo_2[data-state=done] { color: #3fb950; }
+  .LOmM4q_attachmentRow { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin: 6px 0; }
+  .LOmM4q_fileCard { border: .5px solid #444; border-radius: 12px; background: #222; box-sizing: border-box; flex: 0 0 240px; display: inline-flex; align-items: center; gap: 10px; width: 240px; min-height: 64px; padding: 8px 12px; }
+  .LOmM4q_fileIcon { flex: none; width: 28px; height: 28px; }
+  .LOmM4q_fileContent { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .LOmM4q_fileName { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; color: #eee; font-size: 14px; font-weight: 500; }
+  .LOmM4q_fileMeta { color: #888; font-size: 12px; }
+  .K5rwea_root { display: flex; flex-direction: column; gap: 14px; margin: 12px 0; container-type: inline-size; }
+  .K5rwea_presented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .K5rwea_file { box-sizing: border-box; border: .5px solid #333; border-radius: 12px; background: #262626; height: 60px; color: #eee; display: flex; align-items: center; gap: 10px; padding: 8px 10px; position: relative; overflow: hidden; }
+  .K5rwea_cardPreview { z-index: 1; border-radius: inherit; cursor: pointer; background: none; border: 0; padding: 0; position: absolute; inset: 0; }
+  .K5rwea_fileIcon { z-index: 2; pointer-events: none; border: .5px solid #333; width: 40px; height: 40px; color: #6aa0ff; border-radius: 10px; display: grid; place-items: center; position: relative; overflow: hidden; flex: none; }
+  .K5rwea_fileBody { z-index: 2; pointer-events: none; flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; position: relative; }
+  .K5rwea_details { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .K5rwea_fileName { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 13px; font-weight: 500; line-height: 20px; }
+  .K5rwea_description { color: #888; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 10px; line-height: 16px; }
+  .K5rwea_previewHint { display: none; }
+  .K5rwea_actions { pointer-events: auto; display: inline-flex; flex: none; }
+  .mOxcpG_menuAnchor { display: inline-flex; align-self: center; }
+  .mOxcpG_split { box-sizing: border-box; border: .5px solid #555; border-radius: 6px; height: 24px; display: inline-flex; align-items: stretch; overflow: hidden; }
+  .mOxcpG_main, .mOxcpG_chevron { color: #eee; background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; font-size: 11px; }
+  .mOxcpG_main { gap: 4px; padding: 3px 5px; }
+  .mOxcpG_chevron { border-left: .5px solid #555; color: #aaa; padding: 3px 4px 3px 3px; }
+  ._card_1mqf1_1 { position: relative; margin: 12px 0; background: #161616; border-radius: 12px; }
+  ._header_1mqf1_10 { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px 8px 22px; color: #999; font: 11px/18px sans-serif; }
+  ._heading_1mqf1_23 { display: flex; gap: 12px; }
+  ._actions_1mqf1_43 { display: flex; gap: 4px; }
+  ._action_1mqf1_43 { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; color: #aaa; background: transparent; cursor: pointer; }
+  ._body_1mqf1_81 { padding: 6px 22px 16px; overflow-x: auto; }
+  ._block_15hvo_1 { position: relative; margin: 12px 0; padding-left: 30px; color: #eee; background: #161616; border-radius: 12px; overflow: hidden; font: 13px/22px monospace; }
+  ._header_15hvo_32 { display: flex; gap: 12px; margin-left: -30px; padding: 9px 14px 9px 30px; }
+  ._block_15hvo_1[data-body] ._header_15hvo_32 { border-bottom: .5px solid #333; }
+  ._prompt_15hvo_70 { flex: 1; }
+  ._cwd_15hvo_108 { color: #888; margin-right: 8px; }
+  ._status_15hvo_124 { color: #e5484d; }
+  ._copyButton_15hvo_132 { background: #161616; border: none; padding: 0; color: #aaa; cursor: pointer; font: 13px sans-serif; }
+  ._output_15hvo_152 { padding: 10px 14px 10px 0; }
+  ._line_15hvo_179 { white-space: pre; }
+  .hKdVjq_root { display: flex; flex-direction: column; margin: 2px 0; }
+  .hKdVjq_row { display: flex; align-items: center; gap: 6px; color: #aaa; font-size: 13px; line-height: 24px; }
+  .hKdVjq_sep { background: #777; width: 2px; height: 2px; margin: 0 8px; }
+  .hKdVjq_errorSummary { color: #e5484d; }
+  .hKdVjq_stoppedSummary { color: #f5a524; }
+  .hKdVjq_diffAdded { color: #3fb950; }
+  .hKdVjq_diffRemoved { color: #e5484d; }
+  .hKdVjq_summarySuffix { margin-left: 4px; }
+  .Zf6DNq_root { margin: 12px 0; }
+  .Zf6DNq_card { border: .5px solid #444; border-radius: 12px; background: #1f1f1f; overflow: hidden; }
+  .Zf6DNq_strip { display: flex; align-items: center; gap: 8px; padding: 8px 14px; color: #f5a524; font-size: 12px; background: #2a2416; }
+  .Zf6DNq_body { padding: 10px 14px; color: #ddd; font-size: 13px; }
+  .Zf6DNq_command { font: 12px monospace; color: #eee; background: #111; padding: 6px 8px; border-radius: 6px; margin-top: 6px; }
+  .Zf6DNq_actionRow { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 14px; }
+  .Zf6DNq_actionRow button { border-radius: 8px; border: .5px solid #555; background: #333; color: #eee; padding: 5px 14px; font-size: 13px; cursor: pointer; }
+  .Zf6DNq_actionRow button.Zf6DNq_reject { background: transparent; }
+
+  /* Host-like Popups (Menu, Tooltip, HoverCard from preview/menus.html) */
+  ._list_1p5el_7 { box-sizing: border-box; padding: 4px; display: flex; flex-direction: column; gap: 0; box-shadow: 0 10px 30px #000a; border-radius: 12px; min-width: 144px; }
+  ._portal_1p5el_46 { position: fixed; z-index: 1100; }
+  ._surface_1w4el_1 { isolation: isolate; }
+  ._material_1w4el_21 { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--dsw-menu-surface-fill); backdrop-filter: blur(20px); pointer-events: none; }
+  ._itemWrap_1p5el_105 { position: relative; }
+  ._item_1p5el_105 { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px; padding: 6px 8px; border: none; border-radius: var(--dsw-radius-md); background: transparent; cursor: pointer; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); text-align: left; }
+  ._denseList_1p5el_141 ._item_1p5el_105 { min-height: 30px; padding-block: 4px; }
+  ._compactList_1p5el_150 ._item_1p5el_105 { min-height: 24px; gap: 5px; padding: 2px 6px; font-size: 11px; line-height: 17px; }
+  ._itemIcon_1p5el_165 { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--dsw-alias-menu-icon); }
+  ._itemIcon_1p5el_165 svg, ._check_1p5el_197 { width: 14px; height: 14px; flex: none; }
+  ._itemLabel_1p5el_208 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ._shortcut_1p5el_216 { flex: none; margin-inline-start: auto; }
+  ._label_1p5el_146 { padding: 6px 8px; font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }
+  ._separator_1p5el_89 { height: .5px; margin: 3px 8px; background: var(--dsw-alias-border-l2); }
+  ._danger_1p5el_250 { color: #ff5d5d; }
+  ._bubble_44yfq_1 { display: inline-flex; align-items: center; gap: 8px; position: fixed; z-index: 1100; width: max-content; padding: 3px 7px; border-radius: 6px; background: #3a3a3c; color: #eee; font-size: 12px; }
+  ._portal_bgejw_96 { display: contents; }
+  ._card_bgejw_9 { --dsw-hovercard-bg: #2C2C2E; position: fixed; z-index: 1090; box-sizing: border-box; width: 244px; padding: 12px 16px; border-radius: 12px; background: var(--dsw-hovercard-bg); }
+  ._submenu_1p5el_8 { position: absolute; bottom: -4px; left: calc(100% + 10px); z-index: 1120; min-width: 185px; }
+  ._9r0rkG_menu { display: flex; flex-direction: column; max-height: 310px; overflow: hidden; }
+  ._9r0rkG_groups { min-height: 0; overflow: hidden auto; }
+  ._9r0rkG_check { display: grid; flex: 0 0 14px; color: #fff; }
+  ._keys_38b9q_1 { display: inline-flex; gap: 3px; }
+
+  /* Lock expanded deck width to 32% so camera scale never feeds back into --dsh-cc-side */
+  html[data-dsh-calling-card-skin] div:has(> [data-shell-overlay]):not([data-sidebar-collapsed]):not([data-sidebar-drawer]) {
+    --dsh-cc-deck: 32% !important;
+  }
+
+  /* Match skin.css body > span[class*="_portal_"] > div[class*="_card_"] inside #pv-camera */
+  html[data-dsh-calling-card-skin] #pv-camera > span[class*="_portal_"] > div[class*="_card_"]:not([class*="_preview_"]):not([class*="_media_"]) {
+    --dsw-hovercard-bg: #0b0b0b;
+    --dsw-alias-label-primary: #fff;
+    --dsw-alias-label-secondary: #e6e6e6;
+    --dsw-alias-label-tertiary: #c4c4c4;
+    --dsw-alias-label-caption: #c4c4c4;
+    background: #0b0b0b !important;
+    color: #fff;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 3px #fff, 9px 9px 0 3px var(--dsh-cc-red) !important;
+    overflow: visible;
+    rotate: -1deg;
+    animation: dsh-cc-pop-slam 200ms var(--cc-punch) backwards;
+  }
+  html[data-dsh-calling-card-skin] #pv-camera > span[class*="_portal_"] > div[class*="_card_"]:not([class*="_preview_"]):not([class*="_media_"])::before {
+    content: "INFO";
+    position: absolute;
+    top: -14px;
+    left: 12px;
+    padding: 1px 10px 1px 8px;
+    background: var(--dsh-cc-red);
+    color: #fff;
+    font-family: Anton, var(--dsh-cc-display);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.12em;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+    rotate: -4deg;
+    pointer-events: none;
+  }
+
+  /* Mirror skin :hover states onto [data-pv-hover] so hands-free playback shows exact hover lunges */
+  html[data-dsh-calling-card-skin] [data-presented-file][data-pv-hover] {
+    z-index: 2;
+    translate: 4px -3px;
+    rotate: -1.2deg;
+  }
+  html[data-dsh-calling-card-skin] [data-presented-file][data-pv-hover]::after {
+    translate: -9px 8px;
+    background: #fff;
+  }
+  html[data-dsh-calling-card-skin] [data-presented-file][data-pv-hover] [class*="_fileIcon"][data-cc-ext] {
+    rotate: 4deg;
+    scale: 1.12;
+  }
+  html[data-dsh-calling-card-skin] [data-open-target] > button[data-pv-hover],
+  html[data-dsh-calling-card-skin] [data-turn-trigger] > button[data-pv-hover],
+  html[data-dsh-calling-card-skin] :is([data-code-block-banner] button, [data-terminal] [class*="_copyButton"])[data-pv-hover],
+  html[data-dsh-calling-card-skin] [data-approval-key] [class*="_actionRow"] button[data-pv-hover] {
+    translate: 3px -2px;
+    rotate: -1.5deg;
+  }
+  html[data-dsh-calling-card-skin] .dsh-cc-ticket[data-pv-hover] .dsh-cc-ticket-tip {
+    opacity: 1 !important;
+    transform: translateY(-50%) translateX(0) rotate(-1.5deg) !important;
+  }
+  html[data-dsh-calling-card-skin] .dsh-cc-win[data-win="close"][data-pv-hover] {
+    background: #fff !important;
+    color: var(--dsh-cc-red) !important;
+    transform: translate(-2px, -2px) rotate(3deg) scale(1.08) !important;
+  }
+  html[data-dsh-calling-card-skin] [data-row-key^="session:"][data-pv-hover] > [class*="_rowActions"] {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateY(-50%) skewX(-8deg) scale(1) !important;
+  }
+  html[data-dsh-calling-card-skin] [data-row-key^="session:"][data-pv-hover] > [class*="_rowResting"] {
+    opacity: 0 !important;
+  }
+
+  /* ==========================================================================
+     PV CINEMATIC OVERLAYS: PHANTOM CURSOR, ACT CALLOUTS, INTRO & FINALE SLATES
+     ========================================================================== */
+
+  /* Simulated P5 Phantom Cursor */
+  #pv-cursor {
+    position: fixed;
+    left: 720px;
+    top: 450px;
+    width: 34px;
+    height: 34px;
+    z-index: 2200;
+    pointer-events: none;
+    transform: translate(-4px, -4px);
+    filter: drop-shadow(3px 4px 0 #0b0b0b) drop-shadow(-2px -2px 0 #e60012);
+    transition: opacity 150ms ease;
+  }
+  #pv-cursor svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  #pv-cursor-burst {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 58px;
+    height: 58px;
+    margin-left: -29px;
+    margin-top: -29px;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  #pv-cursor.is-clicking #pv-cursor-burst {
+    opacity: 1;
+    transform: scale(1.25) rotate(24deg);
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 240ms ease;
+  }
+
+  /* Lower-Left / Corner P5 Act Callout Banner */
+  #pv-callout {
+    position: fixed;
+    left: 28px;
+    bottom: 26px;
+    z-index: 2100;
+    pointer-events: none;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    transform-origin: left bottom;
+    filter: drop-shadow(6px 7px 0 #090909);
+  }
+  #pv-callout.is-right {
+    left: auto;
+    right: 28px;
+    transform-origin: right bottom;
+  }
+  #pv-callout::before {
+    content: "";
+    position: absolute;
+    inset: -5px -8px -7px -5px;
+    background: #e60012;
+    clip-path: polygon(0 8%, 98% 0, 100% 92%, 2% 100%);
+    z-index: -1;
+  }
+  .pv-callout-no {
+    background: #0b0b0b;
+    color: #fff;
+    border: 3px solid #fff;
+    padding: 8px 14px;
+    font-family: Anton, Impact, sans-serif;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    display: grid;
+    place-items: center;
+    clip-path: polygon(0 0, 100% 4%, 94% 100%, 4% 96%);
+    transform: rotate(-2.5deg);
+  }
+  .pv-callout-body {
+    background: #f7f4ee;
+    color: #0b0b0b;
+    border: 3px solid #0b0b0b;
+    padding: 7px 18px 8px 16px;
+    margin-left: -4px;
+    clip-path: polygon(1% 0, 100% 3%, 98% 100%, 0 97%);
+    transform: rotate(-1deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pv-callout-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Anton, Impact, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: #e60012;
+    text-transform: uppercase;
+  }
+  .pv-callout-kicker b {
+    background: #0b0b0b;
+    color: #fff;
+    padding: 1px 6px;
+    font-size: 11px;
+    clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  }
+  .pv-callout-title {
+    font-family: "Barlow Semi Condensed", "Noto Sans SC", sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1.15;
+    color: #0b0b0b;
+    letter-spacing: 0.01em;
+    margin-top: 1px;
+  }
+  .pv-callout-sub {
+    font-size: 12px;
+    font-weight: 800;
+    color: #333;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+  }
+
+  /* Full-Screen Intro & Finale Slates */
+  .pv-slate {
+    position: fixed;
+    inset: 0;
+    z-index: 2300;
+    pointer-events: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+  }
+  .pv-slate.is-visible {
+    opacity: 1;
+  }
+  .pv-slate-bg {
+    position: absolute;
+    inset: -10%;
+    background:
+      linear-gradient(112deg, #0b0b0b 0 42%, #e60012 42% 44.5%, #f7f4ee 44.5% 58%, #e60012 58% 100%);
+    transform: rotate(-3deg);
+  }
+  .pv-slate-stars {
+    position: absolute;
+    inset: -20%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpolygon points='80,10 98,58 150,62 110,96 122,148 80,120 38,148 50,96 10,62 62,58' fill='none' stroke='%23ffffff' stroke-width='5'/%3E%3Cpolygon points='80,32 92,66 128,70 100,92 108,128 80,108 52,128 60,92 32,70 68,66' fill='none' stroke='%23111111' stroke-width='4'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    opacity: 0.22;
+    transform: rotate(-12deg);
+  }
+  .pv-slate-card {
+    position: relative;
+    z-index: 2;
+    background: #0b0b0b;
+    color: #f7f4ee;
+    border: 5px solid #f7f4ee;
+    box-shadow: 16px 18px 0 #e60012, -10px -10px 0 #0b0b0b;
+    padding: 34px 48px 36px;
+    max-width: 920px;
+    clip-path: polygon(1.5% 0, 100% 2.5%, 98% 100%, 0 97.5%);
+    transform: rotate(-2deg);
+  }
+  .pv-slate-badge {
+    display: inline-block;
+    background: #e60012;
+    color: #fff;
+    font-family: Anton, Impact, sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    padding: 4px 14px;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    margin-bottom: 12px;
+  }
+  .pv-slate-headline {
+    font-family: Anton, Impact, "Noto Sans SC", sans-serif;
+    font-size: 64px;
+    line-height: 0.96;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin: 0;
+    color: #fff;
+    text-shadow: 5px 5px 0 #e60012;
+  }
+  .pv-slate-sub {
+    font-size: 22px;
+    font-weight: 900;
+    color: #f7f4ee;
+    margin: 14px 0 0;
+    letter-spacing: 0.04em;
+  }
+  .pv-slate-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .pv-slate-tag {
+    background: #f7f4ee;
+    color: #0b0b0b;
+    border: 2px solid #0b0b0b;
+    box-shadow: 4px 4px 0 #e60012;
+    padding: 4px 12px;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    transform: rotate(-1.5deg);
+  }
+  .pv-slate-tag:nth-child(even) {
+    background: #e60012;
+    color: #fff;
+    box-shadow: 4px 4px 0 #f7f4ee;
+    transform: rotate(1.5deg);
+  }
+  .pv-slate-cmd {
+    margin-top: 20px;
+    background: #161616;
+    border-left: 6px solid #e60012;
+    padding: 10px 16px;
+    font: 700 14px/1.4 Consolas, monospace;
+    color: #f7f4ee;
+  }
+
+  /* Interactive Player HUD (Hidden when ?record=1) */
+  #pv-hud {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0b0b0b;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 5px 5px 0 #e60012;
+    padding: 6px 12px;
+    clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+    font-size: 12px;
+    font-weight: 800;
+  }
+  html[data-pv-record="1"] #pv-hud {
+    display: none !important;
+  }
+  #pv-hud button {
+    background: #e60012;
+    color: #fff;
+    border: 0;
+    padding: 4px 9px;
+    font: inherit;
+    cursor: pointer;
+    clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+  }
+  #pv-hud button.pv-act-btn {
+    background: #222;
+    color: #ddd;
+    padding: 3px 7px;
+  }
+  #pv-hud button.pv-act-btn.is-active {
+    background: #f7f4ee;
+    color: #0b0b0b;
+  }
+  #pv-progress {
+    width: 110px;
+    accent-color: #e60012;
+    cursor: pointer;
+  }
+  #pv-time {
+    font-family: Anton, monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    min-width: 68px;
+    text-align: right;
+  }
+</style>
+<script>
+  /* Deterministic Clock, Virtual Timer Queue & Preload Stand-in */
+  (() => {
+    const params = new URLSearchParams(location.search)
+    const isRecord = params.get('record') === '1'
+    if (isRecord) {
+      document.documentElement.setAttribute('data-pv-record', '1')
+      const baseNow = 1762900000000
+      let virtualMs = 0
+      const realSetTimeout = window.setTimeout.bind(window)
+      const realClearTimeout = window.clearTimeout.bind(window)
+      let nextTimerId = 100000
+      const vTimers = new Map()
+
+      Date.now = () => baseNow + Math.round(virtualMs)
+      window.setTimeout = (fn, delay = 0, ...args) => {
+        const d = Number(delay) || 0
+        if (d >= 80) {
+          const id = ++nextTimerId
+          vTimers.set(id, { due: virtualMs + d, fn, args })
+          return id
+        }
+        return realSetTimeout(fn, d, ...args)
+      }
+      window.clearTimeout = (id) => {
+        if (vTimers.has(id)) vTimers.delete(id)
+        else realClearTimeout(id)
+      }
+      window.__pvAdvanceClock = (ms) => {
+        virtualMs = ms
+        const dueList = [...vTimers.entries()]
+          .filter(([, item]) => item.due <= virtualMs)
+          .sort((a, b) => a[1].due - b[1].due)
+        for (const [id, item] of dueList) {
+          if (vTimers.has(id)) {
+            vTimers.delete(id)
+            virtualMs = item.due
+            try { item.fn(...item.args) } catch {}
+          }
+        }
+        virtualMs = ms
+      }
+      window.__pvRealSetTimeout = realSetTimeout
+    }
+    try { localStorage.setItem('dsh-cc-message-style', 'plain') } catch {}
+
+    window.dshDesktop = {
+      protocolVersion: 1,
+      windowControls: {
+        invoke: async () => ({ maximized: false, minimized: false }),
+        menu: async () => true,
+      },
+    }
+    const shadowHost = (attr, css, labels) => {
+      const host = document.createElement('div')
+      host.setAttribute(attr, '')
+      const root = host.attachShadow({ mode: 'open' })
+      root.innerHTML = `<style>${css} button{height:40px;border:0;background:transparent;color:#ccc;font:13px sans-serif;padding:0 10px}</style>` + labels.map((label) => `<button type="button">${label}</button>`).join('')
+      document.documentElement.append(host)
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      shadowHost('data-windows-menu', ':host{position:fixed;top:0;left:var(--dsh-windows-menu-start,48px);height:40px;z-index:1100;display:flex}', ['应用', '编辑'])
+      shadowHost('data-industrial-caption-fallback', ':host{position:fixed;top:0;right:0;height:40px;z-index:1101;display:flex} button{width:46px}', ['—', '☐', '✕'])
+    })
+  })()
+</script>
+</head>
+<body>
+<div id="pv-stage">
+  <div id="pv-camera">
+    <div id="frame">
+      <!-- Left Sidebar Column -->
+      <div class="xx_sidebarCol">
+        <div class="xx_slotHost" data-fixture-slot style="height:100%">
+          <div class="wtg9ga_root" id="sideRoot">
+            <div class="wtg9ga_logoRow" data-window-drag>
+              <button type="button" class="wtg9ga_brand xx_wide"><span class="wtg9ga_brandIdentity" aria-hidden="true"><span class="wtg9ga_brandMark"><span class="dsh-cc-mark dsh-cc-void" aria-hidden="true"></span></span><span class="wtg9ga_brandName"><span class="dsh-cc-name dsh-cc-void" aria-hidden="true"></span></span></span></button>
+              <button type="button" data-sidebar-toggle class="wtg9ga_iconButton wtg9ga_toggle" aria-label="收起侧边栏"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><line x1="6" y1="3" x2="6" y2="13"/></svg></button>
+            </div>
+            <button type="button" class="wtg9ga_newSession" id="nav-new" aria-current="page" aria-label="New Session"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v10M3 8h10"/></svg><span class="xx_wide">New Session</span></button>
+            <nav class="wtg9ga_panelList" aria-label="全局面板">
+              <button type="button" class="wtg9ga_panelRow" id="nav-plugins" aria-label="Plugins" data-fixture-panel><span class="wtg9ga_panelGlyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="4" height="4"/><rect x="9" y="3" width="4" height="4"/><rect x="3" y="9" width="4" height="4"/><rect x="9" y="9" width="4" height="4"/></svg></span><span class="xx_wide">Plugins</span></button>
+              <button type="button" class="wtg9ga_panelRow" id="nav-auto" aria-label="Automation tasks"><span class="wtg9ga_panelGlyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v3l2 2"/></svg></span><span class="xx_wide">Automation tasks</span></button>
+            </nav>
+            <div class="wtg9ga_regionArea">
+              <div class="GAkraW_root">
+                <div class="GAkraW_sectionHeader xx_wide">
+                  <span class="GAkraW_sectionLabel">工作区</span>
+                  <button type="button" class="GAkraW_searchButton" aria-label="搜索会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg></button>
+                  <button type="button" class="GAkraW_searchButton" aria-label="添加工作区"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h5l1 1h6v7H2z"/></svg></button>
+                </div>
+                <div class="GAkraW_rail">
+                  <button type="button" class="wtg9ga_iconButton" aria-label="添加项目"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h5l1 1h6v7H2z"/></svg></button>
+                  <button type="button" class="wtg9ga_iconButton" aria-label="搜索会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg></button>
+                </div>
+                <div class="GAkraW_listArea">
+                  <div class="wnFoaW_projectRow" data-row-key="workspace:dsh" role="treeitem" aria-expanded="true"><span class="wnFoaW_slot wnFoaW_folder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="wnFoaW_slot wnFoaW_chevron"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4z"/></svg></span><span class="wnFoaW_projectText"><span class="wnFoaW_title">dsh</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="dsh 的更多操作" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="在 dsh 中新建会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v7H7l-3 3v-3H3z"/><path d="M8 5v3M6.5 6.5h3"/></svg></button></span></div>
+                  <div class="wnFoaW_sessionRow" id="row-sess-1" role="treeitem" data-row-key="session:demo-1" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"><span class="wnFoaW_dot" data-state="running"></span></span><span class="wnFoaW_title">检查令牌刷新</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">2分钟</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="检查令牌刷新 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+                  <div class="wnFoaW_sessionRow" id="row-sess-2" role="treeitem" data-row-key="session:demo-2" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">整理中庭改造方案</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">18分钟</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="整理中庭改造方案 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+                  <div class="wnFoaW_sessionRow" id="row-sess-3" role="treeitem" data-row-key="session:demo-3" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">阅读边界用例</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">24天前</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="阅读边界用例 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+                  <div class="wnFoaW_sessionRow" id="row-sess-4" role="treeitem" data-row-key="session:demo-4" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">Refactor auth middleware</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">1个月</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="Refactor auth middleware 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+                  <div class="wnFoaW_projectRow" data-row-key="workspace:stst" role="treeitem" aria-expanded="false"><span class="wnFoaW_slot wnFoaW_folder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="wnFoaW_slot wnFoaW_chevron"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4z"/></svg></span><span class="wnFoaW_projectText"><span class="wnFoaW_title">stst</span></span></div>
+                  <span class="GAkraW_fade"></span>
+                </div>
+              </div>
+            </div>
+            <div class="wtg9ga_footArea">
+              <div class="wtg9ga_footerActions"><button type="button" class="wtg9ga_iconButton" aria-label="远程访问"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="8"/><path d="M5 14h6M8 11v3"/></svg></button></div>
+              <div class="wtg9ga_settingsArea"><div class="_5Qcc8a_root"><div class="_5Qcc8a_anchor"><button type="button" class="_5Qcc8a_trigger" data-collapsed="false" data-signed-out="true" aria-label="账号菜单" aria-haspopup="menu" aria-expanded="false" id="acct"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg><span class="_5Qcc8a_label xx_wide">更多</span></button></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Main Sheet -->
+      <div id="center">
+        <!-- Starts in hero phase (Act I), switches to active phase in Act II -->
+        <div id="phase-root" data-phase="hero" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 32px;min-height:0">
+          <div id="hero-landing" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <span class="hitbox"><div><svg class="dsh-cc-hero" width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><polygon points="16,2 19.8,11.6 30,12.6 22.2,19.4 24.4,29.4 16,24.2 7.6,29.4 9.8,19.4 2,12.6 12.2,11.6" fill="none" stroke="#111" stroke-width="1.7"/><polygon points="16,8 18.4,14.2 25,14.8 20,19.2 21.4,25.6 16,22.2 10.6,25.6 12,19.2 7,14.8 13.6,14.2" fill="none" stroke="#e60012" stroke-width="1.4"/></svg></div></span>
+            <span class="title"><span>探索未至之境</span><span>预览版</span></span>
+          </div>
+
+          <div id="active-header" data-conversation-header-leading style="display:none">整理中庭改造方案</div>
+          <div id="chat-scroll" data-conversation-region="chat" data-conversation-scroll style="display:none"></div>
+
+          <form data-composer-seat data-conversation-region="composer" id="composer-form" style="margin-top:28px">
+            <div data-composer-card>
+              <textarea data-composer-input placeholder="下一步，要让 DSH 做什么？"></textarea>
+              <button class="send" id="btn-send" type="button">SEND</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Calling-Card Skin Overlay Slot -->
+      <div data-shell-overlay></div>
+    </div>
+
+    <!-- Popup Menus, Tooltips & Hover Dossier Cards (Hidden until Act IV / V) -->
+    <!-- 1. File Open-With Menu -->
+    <div id="m-open" role="menu" data-menu-material="translucent" data-menu-phase="enter" class="_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46" style="right:88px;bottom:168px;min-width:215px;display:none">
+      <div aria-hidden="true" class="_material_1w4el_21"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105 _selected_1p5el_240"><span class="_itemLabel_1p5el_208">用 WPS Office 打开</span><svg class="_check_1p5el_197" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-notepad"><span class="_itemLabel_1p5el_208">用 记事本 打开</span></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-explorer"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="_itemLabel_1p5el_208">在资源管理器中显示</span></button></div>
+      <div role="separator" class="_separator_1p5el_89"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-copypath"><span class="_itemLabel_1p5el_208">复制路径</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>C</kbd></span></span></button></div>
+    </div>
+
+    <!-- 2. Composer + Menu -->
+    <div id="m-plus" role="menu" data-menu-material="translucent" data-menu-phase="enter" class="_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 _compactList_1p5el_150" style="left:530px;bottom:168px;min-width:195px;display:none">
+      <div aria-hidden="true" class="_material_1w4el_21"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 2h5l3 3v9H4z"/></svg></span><span class="_itemLabel_1p5el_208">添加文件</span></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="10"/><path d="M2 11l4-4 3 3 2-2 3 3"/></svg></span><span class="_itemLabel_1p5el_208">添加图片</span></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-workspace"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="_itemLabel_1p5el_208">引用工作区</span></button></div>
+      <div role="separator" class="_separator_1p5el_89"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemLabel_1p5el_208">斜杠命令</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>/</kbd></span></span></button></div>
+    </div>
+
+    <!-- 3. Session Context Menu + Nested Submenu -->
+    <div id="m-ctx" role="menu" data-menu-material="translucent" data-menu-phase="enter" class="_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46" style="left:310px;top:370px;min-width:215px;display:none" data-context-menu>
+      <div aria-hidden="true" class="_material_1w4el_21"></div>
+      <div role="presentation" class="_label_1p5el_146">会话</div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></span><span class="_itemLabel_1p5el_208">置顶</span></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-rename"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13l1-3 7-7 2 2-7 7z"/></svg></span><span class="_itemLabel_1p5el_208">重命名</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>F2</kbd></span></span></button></div>
+      <div class="_itemWrap_1p5el_105" id="mi-fork-wrap">
+        <button type="button" role="menuitem" class="_item_1p5el_105" id="mi-fork" aria-haspopup="menu" aria-expanded="false"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="4" cy="3.5" r="1.5"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="8" cy="12.5" r="1.5"/><path d="M4 5c0 4 4 3 4 6M12 5c0 4-4 3-4 6"/></svg></span><span class="_itemLabel_1p5el_208">派生到新会话</span><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M6 4l5 4-5 4z"/></svg></span></button>
+        <div id="m-submenu" role="menu" data-menu-material="translucent" class="_surface_1w4el_1 _list_1p5el_7 _submenu_1p5el_8" style="display:none">
+          <button type="button" role="menuitem" class="_item_1p5el_105" id="mi-fork-all">保留全部消息</button>
+          <button type="button" role="menuitem" class="_item_1p5el_105" id="mi-fork-branch">仅保留当前分支</button>
+        </div>
+      </div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6"/></svg></span><span class="_itemLabel_1p5el_208">归档</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>Ctrl</kbd><kbd>E</kbd></span></span></button></div>
+      <div role="separator" class="_separator_1p5el_89"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105 _danger_1p5el_250" id="mi-delete"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 4.5h10M6 4.5V3h4v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5"/></svg></span><span class="_itemLabel_1p5el_208">删除</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>Del</kbd></span></span></button></div>
+    </div>
+
+    <!-- 4. Session Dossier HoverCard & Slanted Tooltip -->
+    <span class="_portal_bgejw_96">
+      <div id="hc-dossier" class="_card_bgejw_9" style="left:48px;top:450px;display:none">
+        <div class="xx_hoverTitle" style="font-weight:700;font-size:14px;line-height:20px">检查令牌刷新</div>
+        <div class="xx_hoverPath" style="font-size:12px;color:var(--dsw-alias-label-tertiary);margin-top:4px">C:\work\dsh</div>
+        <div style="display:flex;gap:10px;margin-top:8px;font-size:12px;color:var(--dsw-alias-label-secondary)"><span>2分钟前</span><span>◆ 空闲</span></div>
+      </div>
+    </span>
+    <span id="tt-new" role="tooltip" class="_bubble_44yfq_1" data-side="bottom" data-align="center" data-portal style="left:210px;top:245px;display:none">
+      <span class="_label_44yfq_30">新会话</span><span class="_keys_38b9q_1"><kbd>Ctrl</kbd><kbd>N</kbd></span>
+    </span>
+
+    <!-- 5. Model & Permission Selector Menu -->
+    <div id="m-model" role="group" data-menu-material="translucent" data-menu-phase="enter" class="_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 _denseList_1p5el_141 _9r0rkG_menu" style="left:640px;top:340px;min-width:245px;display:none">
+      <div aria-hidden="true" class="_material_1w4el_21"></div>
+      <div class="_9r0rkG_groups" role="menu">
+        <div role="presentation" class="_label_1p5el_146">模型</div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105 _selected_1p5el_240" aria-checked="true"><span class="_itemLabel_1p5el_208">DeepSeek V4</span><span class="_9r0rkG_check"><svg class="_check_1p5el_197" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg></span></button></div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105" id="mi-v4flash"><span class="_itemLabel_1p5el_208">DeepSeek V4 Flash</span></button></div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105" id="mi-r2"><span class="_itemLabel_1p5el_208">DeepSeek R2 推理</span></button></div>
+        <div role="separator" class="_separator_1p5el_89"></div>
+        <div role="presentation" class="_label_1p5el_146">权限</div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105 _selected_1p5el_240" aria-checked="true"><span class="_itemLabel_1p5el_208">完全权限</span><span class="_9r0rkG_check"><svg class="_check_1p5el_197" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3 3 7-7"/></svg></span></button></div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105" id="mi-confirm"><span class="_itemLabel_1p5el_208">每步确认</span></button></div>
+        <div class="_itemWrap_1p5el_105"><button type="button" role="menuitemradio" class="_item_1p5el_105" aria-disabled="true"><span class="_itemLabel_1p5el_208">只读</span></button></div>
+      </div>
+    </div>
+
+    <!-- 6. Bottom Account Menu (for Collapsed Rail MORE ticket) -->
+    <div id="m-acct" role="menu" data-menu-material="translucent" data-menu-phase="enter" class="_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 _signedOutMenu_5Qcc8a_1" style="left:104px;bottom:28px;min-width:195px;display:none">
+      <div aria-hidden="true" class="_material_1w4el_21"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105" id="mi-settings"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg></span><span class="_itemLabel_1p5el_208">设置</span><span class="_shortcut_1p5el_216"><span class="_shortcutKeys_1p5el_221"><kbd>Ctrl</kbd><kbd>,</kbd></span></span></button></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg></span><span class="_itemLabel_1p5el_208">意见反馈</span></button></div>
+      <div role="separator" class="_separator_1p5el_89"></div>
+      <div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 3h4v10H9M2.5 8h7M7 5.5 9.5 8 7 10.5"/></svg></span><span class="_itemLabel_1p5el_208">登录</span></button></div>
+    </div>
+  </div>
+
+  <!-- Simulated Phantom Cursor -->
+  <div id="pv-cursor" aria-hidden="true">
+    <svg id="pv-cursor-burst" viewBox="0 0 64 64">
+      <polygon points="32,2 39,21 59,17 44,32 58,48 38,44 31,62 24,43 5,47 19,31 6,15 25,20" fill="none" stroke="#e60012" stroke-width="3.5"/>
+      <polygon points="32,10 37,24 51,21 40,32 50,43 36,40 31,53 26,40 13,42 23,31 14,20 27,23" fill="none" stroke="#fff" stroke-width="2"/>
+    </svg>
+    <svg viewBox="0 0 36 36">
+      <polygon points="3,2 31,14 18,19 25,31 19,34 12,21 5,28" fill="#0b0b0b" stroke="#fff" stroke-width="2.2"/>
+      <polygon points="6,6 25,14 16,17 22,28 19,29 13,18 8,23" fill="#e60012"/>
+    </svg>
+  </div>
+
+  <!-- Lower-Third Act Callout Card -->
+  <div id="pv-callout" aria-hidden="true">
+    <div class="pv-callout-no" id="pv-callout-no">01</div>
+    <div class="pv-callout-body">
+      <div class="pv-callout-kicker"><span id="pv-callout-kicker">CALLING CARD</span><b id="pv-callout-tag">HERO &amp; 2° NAV</b></div>
+      <div class="pv-callout-title" id="pv-callout-title">怪盗预告信 · 探索未至之境</div>
+      <div class="pv-callout-sub" id="pv-callout-sub">红黑白剪贴几何 · 2° 斜排导航卡 · 漂移红底板</div>
+    </div>
+  </div>
+
+  <!-- Opening Slate (0.0s - 1.7s) -->
+  <div id="pv-intro-slate" class="pv-slate is-visible" aria-hidden="true">
+    <div class="pv-slate-bg"></div>
+    <div class="pv-slate-stars"></div>
+    <div class="pv-slate-card" id="pv-intro-card">
+      <span class="pv-slate-badge">CALLING CARD // OFFICIAL SKIN PV</span>
+      <h1 class="pv-slate-headline">DEEPSEEK HARNESS</h1>
+      <p class="pv-slate-sub">Persona 5 风格怪盗预告信皮肤 · <code>dsh-calling-card-skin v1.0.0</code></p>
+      <div class="pv-slate-tags">
+        <span class="pv-slate-tag">RED · BLACK · WHITE</span>
+        <span class="pv-slate-tag">COLLAGE LETTERS 拼贴信笺</span>
+        <span class="pv-slate-tag">HEIST WIDGETS 怪盗控件</span>
+        <span class="pv-slate-tag">SLANTED MENUS 斜切菜单</span>
+        <span class="pv-slate-tag">96PX BLADE RAIL 收起刀刃条</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finale Slate (35.4s - 38.0s) -->
+  <div id="pv-finale-slate" class="pv-slate" aria-hidden="true">
+    <div class="pv-slate-bg"></div>
+    <div class="pv-slate-stars"></div>
+    <div class="pv-slate-card" id="pv-finale-card">
+      <span class="pv-slate-badge">TAKE YOUR HEART // DSH CALLING CARD SKIN 1.0.0</span>
+      <h1 class="pv-slate-headline">STEAL THE NOISE.</h1>
+      <p class="pv-slate-sub">独立可安装 Web 客户端皮肤 Bundle · 不改宿主逻辑 · 完整怪盗视觉语言</p>
+      <div class="pv-slate-cmd">dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.0.0.tgz</div>
+      <div class="pv-slate-tags">
+        <span class="pv-slate-tag">600MS STAR-BAND CUT</span>
+        <span class="pv-slate-tag">PLAIN / COLLAGE SWITCH</span>
+        <span class="pv-slate-tag">DELIVERABLE FILE TICKETS</span>
+        <span class="pv-slate-tag">DOSSIER HOVER CARDS</span>
+        <span class="pv-slate-tag">WINDOWS DESKTOP CHROME</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Player HUD (Hidden during ?record=1) -->
+  <div id="pv-hud">
+    <button type="button" id="pv-btn-play">PAUSE</button>
+    <button type="button" id="pv-btn-restart">RESTART</button>
+    <button type="button" id="pv-btn-audio">SOUND: ON</button>
+    <button type="button" class="pv-act-btn" data-jump="0">01</button>
+    <button type="button" class="pv-act-btn" data-jump="5500">02</button>
+    <button type="button" class="pv-act-btn" data-jump="11500">03</button>
+    <button type="button" class="pv-act-btn" data-jump="23000">04</button>
+    <button type="button" class="pv-act-btn" data-jump="30000">05</button>
+    <button type="button" class="pv-act-btn" data-jump="34800">06</button>
+    <input type="range" id="pv-progress" min="0" max="38000" step="33" value="0">
+    <span id="pv-time">00.0 / 38.0s</span>
+  </div>
+</div>
+
+<p data-fixture-status style="display:none"></p>
+
+<script>
+  /* Host-like sidebar collapse helper */
+  (() => {
+    const frame = document.getElementById('frame')
+    const root = document.getElementById('sideRoot')
+    const toggle = document.querySelector('[data-sidebar-toggle]')
+    window.__ccSetCollapsed = (collapsed, animate) => {
+      if (animate) {
+        frame.setAttribute('data-animating', '')
+        setTimeout(() => frame.removeAttribute('data-animating'), 260)
+      }
+      frame.toggleAttribute('data-sidebar-collapsed', collapsed)
+      document.getElementById('acct')?.setAttribute('data-collapsed', String(collapsed))
+      root.classList.toggle('wtg9ga_collapsed', collapsed)
+      frame.style.gridTemplateColumns = `${collapsed ? 0 : 280}px minmax(400px, 1fr) minmax(0px, 0px)`
+      toggle.setAttribute('aria-label', collapsed ? '打开侧边栏' : '收起侧边栏')
+      document.documentElement.style.setProperty('--dsh-windows-menu-start', collapsed ? '84px' : '48px')
+      const list = document.querySelector('.GAkraW_listArea')
+      if (collapsed) {
+        if (!window.__ccRows) window.__ccRows = list.innerHTML
+        list.innerHTML = ''
+      } else if (window.__ccRows) {
+        list.innerHTML = window.__ccRows
+      }
+    }
+    toggle.addEventListener('click', () => window.__ccSetCollapsed(!frame.hasAttribute('data-sidebar-collapsed'), true))
+  })()
+</script>
+<script src="fixture.js"></script>
+<script>
+  /* ==========================================================================
+     PV DIRECTOR ENGINE (38.0s Timeline, Camera Rig, Cursor, Audio & Recorder)
+     ========================================================================== */
+  (() => {
+    const TOTAL_MS = 38000
+    const isRecord = new URLSearchParams(location.search).get('record') === '1'
+    const rawSetTimeout = window.__pvRealSetTimeout || window.setTimeout.bind(window)
+
+    const camera = document.getElementById('pv-camera')
+    const cursor = document.getElementById('pv-cursor')
+    const introSlate = document.getElementById('pv-intro-slate')
+    const introCard = document.getElementById('pv-intro-card')
+    const finaleSlate = document.getElementById('pv-finale-slate')
+    const finaleCard = document.getElementById('pv-finale-card')
+    const callout = document.getElementById('pv-callout')
+    const calloutNo = document.getElementById('pv-callout-no')
+    const calloutKicker = document.getElementById('pv-callout-kicker')
+    const calloutTag = document.getElementById('pv-callout-tag')
+    const calloutTitle = document.getElementById('pv-callout-title')
+    const calloutSub = document.getElementById('pv-callout-sub')
+
+    /* Web Audio API Procedural P5 Acid-Jazz / Heist Synth (for Interactive Mode) */
+    let audioCtx = null
+    let soundEnabled = !isRecord
+    function ensureAudio() {
+      if (!soundEnabled || isRecord) return null
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext
+        if (Ctx) audioCtx = new Ctx()
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {})
+      return audioCtx
+    }
+    function playSfx(kind) {
+      const ctx = ensureAudio()
+      if (!ctx) return
+      const now = ctx.currentTime
+      if (kind === 'slash') {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sawtooth'
+        osc.frequency.setValueAtTime(920, now)
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.16)
+        gain.gain.setValueAtTime(0.16, now)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17)
+        osc.connect(gain).connect(ctx.destination)
+        osc.start(now)
+        osc.stop(now + 0.18)
+      } else if (kind === 'slam') {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'triangle'
+        osc.frequency.setValueAtTime(160, now)
+        osc.frequency.exponentialRampToValueAtTime(38, now + 0.22)
+        gain.gain.setValueAtTime(0.28, now)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24)
+        osc.connect(gain).connect(ctx.destination)
+        osc.start(now)
+        osc.stop(now + 0.25)
+      } else if (kind === 'tick') {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'square'
+        osc.frequency.setValueAtTime(1320, now)
+        osc.frequency.exponentialRampToValueAtTime(660, now + 0.045)
+        gain.gain.setValueAtTime(0.09, now)
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05)
+        osc.connect(gain).connect(ctx.destination)
+        osc.start(now)
+        osc.stop(now + 0.055)
+      } else if (kind === 'burst') {
+        ;[523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sawtooth'
+          osc.frequency.setValueAtTime(freq, now + idx * 0.018)
+          gain.gain.setValueAtTime(0.08, now + idx * 0.018)
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22 + idx * 0.018)
+          osc.connect(gain).connect(ctx.destination)
+          osc.start(now + idx * 0.018)
+          osc.stop(now + 0.24 + idx * 0.018)
+        })
+      }
+    }
+
+    /* Smooth Easing Helpers */
+    function clamp01(t) { return Math.max(0, Math.min(1, t)) }
+    function easeOutExpo(t) {
+      const x = clamp01(t)
+      return x === 1 ? 1 : 1 - Math.pow(2, -10 * x)
+    }
+    function easeInOutCubic(t) {
+      const x = clamp01(t)
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
+    }
+    function lerp(a, b, t) { return a + (b - a) * t }
+
+    /* Hover & Click Simulation Helpers */
+    let currentHoverEl = null
+    function hoverSelector(selector) {
+      const next = selector ? document.querySelector(selector) : null
+      if (currentHoverEl && currentHoverEl !== next) {
+        currentHoverEl.removeAttribute('data-pv-hover')
+        currentHoverEl.removeAttribute('data-highlighted')
+        currentHoverEl.dispatchEvent(new PointerEvent('pointerout', { bubbles: true }))
+      }
+      currentHoverEl = next
+      if (next) {
+        next.setAttribute('data-pv-hover', '')
+        if (next.getAttribute('role')?.startsWith('menuitem')) {
+          next.setAttribute('data-highlighted', '')
+        }
+        next.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      }
+    }
+
+    let clickTimeout = 0
+    function triggerClickVisual() {
+      cursor.classList.remove('is-clicking')
+      void cursor.offsetWidth
+      cursor.classList.add('is-clicking')
+      clearTimeout(clickTimeout)
+      clickTimeout = rawSetTimeout(() => cursor.classList.remove('is-clicking'), 240)
+    }
+
+    /* Conversation Widget HTML Builders */
+    function appendFlow(kind, html, id) {
+      const scroll = document.getElementById('chat-scroll')
+      if (id && document.getElementById(id)) return
+      const article = document.createElement('article')
+      if (id) article.id = id
+      article.setAttribute('data-chat-flow-kind', kind)
+      article.innerHTML = html
+      scroll.appendChild(article)
+    }
+
+    function buildWidgetsTurnHtml() {
+      return `
+        <div class="xMeOpW_root"><div class="xMeOpW_body">
+          <h2>中庭双层挑空改造</h2>
+          <p>中庭改成双层挑空，结构说明已写入 <a href="#atrium">notes/atrium.md</a>。执行渲染与导出校验：</p>
+          <section class="hSzSIW_root" data-turn-trigger="true" id="trigger">
+            <button class="hSzSIW_header" id="btn-trigger" type="button" aria-expanded="false" aria-controls="tb">
+              <span class="hSzSIW_icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.6"/></svg></span>
+              <span class="hSzSIW_title">后台任务状态更新</span>
+              <time class="hSzSIW_time" datetime="2026-11-11T09:41:00Z">18:41</time>
+              <svg width="12" height="12" viewBox="0 0 16 16" class="hSzSIW_chevron" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.6"/></svg>
+            </button>
+          </section>
+          <div data-tool="bash" data-state="done" data-variant="row" class="hKdVjq_root" id="tool-row-1"><div class="hKdVjq_row"><span class="hKdVjq_title">运行</span><span class="hKdVjq_sep"></span><span class="hKdVjq_summary">npm run render -- atrium</span></div></div>
+          <div data-tool="edit_file" data-state="done" data-variant="row" class="hKdVjq_root" id="tool-row-2"><div class="hKdVjq_row"><span class="hKdVjq_title">编辑</span><span class="hKdVjq_sep"></span><span class="hKdVjq_summary">notes/atrium.md</span><span class="hKdVjq_summarySuffix hKdVjq_diffStat"><span class="hKdVjq_diffAdded">+42</span> <span class="hKdVjq_diffRemoved">-7</span></span></div></div>
+          <div data-tool="bash" data-state="error" data-variant="row" class="hKdVjq_root" id="tool-row-3"><div class="hKdVjq_row"><span class="hKdVjq_title">运行</span><span class="hKdVjq_sep"></span><span class="hKdVjq_summary hKdVjq_errorSummary">python export.py 失败</span></div></div>
+          <div class="_card_1mqf1_1" id="widget-code">
+            <div class="_header_1mqf1_10" data-code-block-banner="true">
+              <div class="_heading_1mqf1_23"><span class="_language_1mqf1_30">bash</span></div>
+              <div class="_actions_1mqf1_43">
+                <button type="button" class="_action_1mqf1_43" id="btn-wrap" aria-label="自动换行" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 4h12M2 8h9a2 2 0 0 1 0 4H8" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></button>
+                <button type="button" class="_action_1mqf1_43" id="btn-code-copy" aria-label="复制"><svg width="14" height="14" viewBox="0 0 16 16"><rect x="5" y="5" width="8" height="8" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M3 11V3h8" stroke="currentColor" fill="none" stroke-width="1.5"/></svg></button>
+              </div>
+            </div>
+            <div class="_body_1mqf1_81"><pre><code>npm run render -- atrium --out after-atrium.png</code></pre></div>
+          </div>
+          <div class="_block_15hvo_1" data-terminal="" data-body="" id="widget-term">
+            <div class="_header_15hvo_32">
+              <div class="_prompt_15hvo_70"><div class="_promptLine_15hvo_78"><span class="_cwd_15hvo_108">~/work</span><span class="_command_15hvo_115">python export.py --dpi 300</span></div></div>
+              <span class="_status_15hvo_124">退出码 1</span>
+              <button type="button" class="_copyButton_15hvo_132" id="btn-term-copy">复制</button>
+            </div>
+            <div class="_output_15hvo_152"><div class="_line_15hvo_179">Traceback (most recent call last):</div><div class="_line_15hvo_179">  KeyError: 'dpi'</div></div>
+          </div>
+          <span class="xMeOpW_stopped" id="widget-stopped">已停止</span>
+          <div class="Zf6DNq_root" data-approval-key="req-1" id="widget-approval">
+            <div class="Zf6DNq_card">
+              <div class="Zf6DNq_strip"><span class="_dot_1i3xo_2" data-state="warning"></span>等待批准</div>
+              <div class="Zf6DNq_body" data-approval-scroll="" role="group" aria-label="请求详情">运行命令以覆盖输出文件<div class="Zf6DNq_command">rm -f out/after-atrium.png</div></div>
+              <div class="Zf6DNq_actionRow"><button type="button" class="Zf6DNq_reject" id="btn-reject">拒绝</button><button type="button" id="btn-allow">允许</button></div>
+            </div>
+          </div>
+          <div class="LOmM4q_turnErrorRow" role="status" id="widget-error">
+            <span class="_dot_1i3xo_2 LOmM4q_turnErrorDot" data-state="error"></span>
+            <div class="LOmM4q_turnErrorCopy"><span class="LOmM4q_turnErrorTitle">任务已停止</span><span class="LOmM4q_turnErrorMessage">DSH 进程在本轮完成前退出，重新启动后本轮已中止。未完成的工具调用结果未知。</span></div>
+          </div>
+          <div class="K5rwea_root" data-turn-tail id="widget-files">
+            <div class="K5rwea_presented">
+              <div class="K5rwea_file" data-presented-file="true" id="file-card-md">
+                <button type="button" class="K5rwea_cardPreview" title="/work/atrium-notes.md" aria-label="预览 atrium-notes.md"></button>
+                <span class="K5rwea_fileIcon"><svg width="20" height="20" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M8 3h9l6 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#2f6fed"/></svg></span>
+                <div class="K5rwea_fileBody">
+                  <div class="K5rwea_details"><span class="K5rwea_fileName">atrium-notes.md</span><span class="K5rwea_description" data-presented-description="true"><span class="K5rwea_secondaryText">中庭改造说明</span></span></div>
+                  <div class="K5rwea_actions"><div class="mOxcpG_menuAnchor"><div class="mOxcpG_split" data-open-target="file" data-size="compact" data-open-path="" data-state="idle"><button type="button" class="mOxcpG_main" aria-label="用 WPS Office 打开"><span style="display:inline-block;width:13px;height:13px;background:#d33;border-radius:3px"></span></button><button type="button" class="mOxcpG_chevron" aria-haspopup="menu" aria-expanded="false" aria-label="更多打开方式"><svg width="10" height="10" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.6"/></svg></button></div></div></div>
+                </div>
+              </div>
+              <div class="K5rwea_file" data-presented-file="true" id="file-card-png">
+                <button type="button" class="K5rwea_cardPreview" title="/work/after-atrium.png" aria-label="预览 after-atrium.png"></button>
+                <span class="K5rwea_fileIcon"><svg width="20" height="20" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M8 3h9l6 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#8b5cf6"/></svg></span>
+                <div class="K5rwea_fileBody">
+                  <div class="K5rwea_details"><span class="K5rwea_fileName">after-atrium.png</span><span class="K5rwea_description" data-presented-description="true"><span class="K5rwea_secondaryText">PNG · 双层挑空渲染图</span></span></div>
+                  <div class="K5rwea_actions"><div class="mOxcpG_menuAnchor"><div class="mOxcpG_split" data-open-target="file" data-size="compact" data-open-path="" data-state="idle"><button type="button" class="mOxcpG_main" id="btn-open-main" aria-label="用 WPS Office 打开"><span style="display:inline-block;width:13px;height:13px;background:#d33;border-radius:3px"></span></button><button type="button" class="mOxcpG_chevron" id="btn-open-more" aria-haspopup="menu" aria-expanded="false" aria-label="更多打开方式"><svg width="10" height="10" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="currentColor" fill="none" stroke-width="1.6"/></svg></button></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      `
+    }
+
+    /* Reset DOM to t=0 clean state */
+    const firedCues = new Set()
+    function resetState() {
+      firedCues.clear()
+      hoverSelector(null)
+      try { localStorage.setItem('dsh-cc-message-style', 'plain') } catch {}
+      const lettersBtn = document.querySelector('.dsh-cc-letters')
+      if (lettersBtn && lettersBtn.getAttribute('data-cc-mode') === 'collage') {
+        lettersBtn.click()
+      }
+      if (document.getElementById('frame').hasAttribute('data-sidebar-collapsed')) {
+        window.__ccSetCollapsed(false, false)
+      }
+      for (const nav of document.querySelectorAll('#nav-new, #nav-plugins, #nav-auto')) {
+        nav.removeAttribute('aria-current')
+      }
+      document.getElementById('nav-new')?.setAttribute('aria-current', 'page')
+      for (const row of document.querySelectorAll('[data-row-key^="session:"]')) {
+        row.setAttribute('aria-selected', 'false')
+        row.classList.remove('wnFoaW_selected')
+      }
+      const phaseRoot = document.getElementById('phase-root')
+      phaseRoot.setAttribute('data-phase', 'hero')
+      phaseRoot.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 32px;min-height:0'
+      document.getElementById('hero-landing').style.display = 'flex'
+      const activeHeader = document.getElementById('active-header')
+      if (activeHeader) activeHeader.style.display = 'none'
+      const chatScroll = document.getElementById('chat-scroll')
+      chatScroll.style.display = 'none'
+      chatScroll.innerHTML = ''
+      chatScroll.scrollTop = 0
+      document.getElementById('composer-form').style.marginTop = '28px'
+      for (const id of ['m-open', 'm-plus', 'm-ctx', 'm-submenu', 'hc-dossier', 'tt-new', 'm-model', 'm-acct']) {
+        const el = document.getElementById(id)
+        if (el) el.style.display = 'none'
+      }
+    }
+
+    /* Discrete Timeline Events (Cues) */
+    const CUES = [
+      {
+        at: 1800,
+        id: 'reveal-hero',
+        run: () => {
+          playSfx('slash')
+          hoverSelector('#nav-new')
+        },
+      },
+      {
+        at: 3100,
+        id: 'hover-plugins-leaf',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#nav-plugins')
+        },
+      },
+      {
+        at: 4200,
+        id: 'hover-session-row',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#row-sess-2')
+        },
+      },
+      {
+        at: 5500,
+        id: 'switch-to-active-session',
+        run: () => {
+          triggerClickVisual()
+          playSfx('slash')
+          document.getElementById('nav-new')?.removeAttribute('aria-current')
+          const row2 = document.getElementById('row-sess-2')
+          if (row2) {
+            row2.setAttribute('aria-selected', 'true')
+            row2.classList.add('wnFoaW_selected')
+          }
+          const phaseRoot = document.getElementById('phase-root')
+          phaseRoot.setAttribute('data-phase', 'active')
+          phaseRoot.style.cssText = 'flex:1;display:flex;flex-direction:column;min-height:0'
+          document.getElementById('hero-landing').style.display = 'none'
+          const activeHeader = document.getElementById('active-header')
+          if (activeHeader) activeHeader.style.display = 'block'
+          const chatScroll = document.getElementById('chat-scroll')
+          chatScroll.style.display = 'block'
+          document.getElementById('composer-form').style.marginTop = '0'
+        },
+      },
+      {
+        at: 6500,
+        id: 'flow-user-prompt',
+        run: () => {
+          playSfx('burst')
+          appendFlow(
+            'user',
+            `<p>按这张图改一下中庭，再写个说明。</p>
+             <div class="LOmM4q_attachmentRow" data-message-attachments>
+               <div class="LOmM4q_fileCard" id="att-card">
+                 <span class="LOmM4q_fileIcon"><svg width="20" height="20" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M8 3h9l6 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#8b5cf6"/></svg></span>
+                 <div class="LOmM4q_fileContent"><span class="LOmM4q_fileName">before-atrium.png</span><span class="LOmM4q_fileMeta">PNG · 1.2 MB</span></div>
+               </div>
+             </div>`,
+            'flow-user-1'
+          )
+        },
+      },
+      {
+        at: 7700,
+        id: 'flow-tool-call',
+        run: () => {
+          playSfx('burst')
+          appendFlow(
+            'tool-call',
+            `<h3>inspect_layout</h3><p>已扫描中庭挑空网格与采光剖面（3 处结构切口）。</p>`,
+            'flow-tool-1'
+          )
+        },
+      },
+      {
+        at: 8900,
+        id: 'flow-assistant-reply',
+        run: () => {
+          playSfx('burst')
+          appendFlow('assistant-step', buildWidgetsTurnHtml(), 'flow-assistant-1')
+        },
+      },
+      {
+        at: 9800,
+        id: 'hover-letters-switch',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('.dsh-cc-letters')
+        },
+      },
+      {
+        at: 10200,
+        id: 'toggle-letters-collage',
+        run: () => {
+          triggerClickVisual()
+          playSfx('slam')
+          const btn = document.querySelector('.dsh-cc-letters')
+          if (btn && btn.getAttribute('data-cc-mode') !== 'collage') {
+            btn.click()
+          }
+        },
+      },
+      {
+        at: 12100,
+        id: 'hover-trigger-bar',
+        run: () => {
+          playSfx('tick')
+          const scroll = document.getElementById('chat-scroll')
+          if (scroll) scroll.scrollTop = 180
+          hoverSelector('#btn-trigger')
+        },
+      },
+      {
+        at: 12650,
+        id: 'expand-trigger-bar',
+        run: () => {
+          triggerClickVisual()
+          playSfx('slash')
+          const btn = document.getElementById('btn-trigger')
+          if (btn && btn.getAttribute('aria-expanded') !== 'true') {
+            btn.setAttribute('aria-expanded', 'true')
+            btn.querySelector('svg:last-child')?.setAttribute('class', 'hSzSIW_openChevron')
+            btn.parentElement.insertAdjacentHTML(
+              'beforeend',
+              '<div id="tb" class="hSzSIW_body"><p class="hSzSIW_explanation">这一轮由后台任务的状态变化触发，不是你发的消息。</p><div class="hSzSIW_content">job render-atrium: exited (code 0)\nartifact: out/after-atrium.png</div></div>'
+            )
+          }
+        },
+      },
+      {
+        at: 14600,
+        id: 'scroll-to-code-and-tools',
+        run: () => {
+          playSfx('slash')
+          const scroll = document.getElementById('chat-scroll')
+          if (scroll) scroll.scrollTop = 560
+          hoverSelector('#btn-wrap')
+        },
+      },
+      {
+        at: 15500,
+        id: 'click-code-wrap',
+        run: () => {
+          triggerClickVisual()
+          playSfx('tick')
+          const wrapBtn = document.getElementById('btn-wrap')
+          if (wrapBtn) wrapBtn.setAttribute('aria-pressed', 'true')
+        },
+      },
+      {
+        at: 16300,
+        id: 'hover-terminal-copy',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#btn-term-copy')
+        },
+      },
+      {
+        at: 17400,
+        id: 'scroll-to-approval-and-errors',
+        run: () => {
+          playSfx('slash')
+          const scroll = document.getElementById('chat-scroll')
+          if (scroll) scroll.scrollTop = 1040
+          hoverSelector('#btn-allow')
+        },
+      },
+      {
+        at: 18700,
+        id: 'hover-reject-btn',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#btn-reject')
+        },
+      },
+      {
+        at: 20100,
+        id: 'scroll-to-deliverable-files',
+        run: () => {
+          playSfx('slash')
+          const scroll = document.getElementById('chat-scroll')
+          if (scroll) scroll.scrollTop = scroll.scrollHeight
+          hoverSelector('#file-card-md')
+        },
+      },
+      {
+        at: 21200,
+        id: 'hover-file-card-png',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#file-card-png')
+        },
+      },
+      {
+        at: 22100,
+        id: 'click-file-open-split',
+        run: () => {
+          hoverSelector('#btn-open-more')
+          triggerClickVisual()
+          playSfx('slam')
+          document.getElementById('btn-open-more')?.setAttribute('aria-expanded', 'true')
+        },
+      },
+      {
+        at: 23000,
+        id: 'open-file-and-plus-menus',
+        run: () => {
+          playSfx('slam')
+          document.getElementById('m-open').style.display = 'flex'
+          document.getElementById('m-plus').style.display = 'flex'
+          hoverSelector('#mi-explorer')
+        },
+      },
+      {
+        at: 24200,
+        id: 'hover-copypath-and-workspace',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#mi-copypath')
+          document.getElementById('mi-workspace')?.setAttribute('data-highlighted', '')
+        },
+      },
+      {
+        at: 25400,
+        id: 'open-ctx-menu-and-dossier',
+        run: () => {
+          playSfx('slam')
+          document.getElementById('m-open').style.display = 'none'
+          document.getElementById('m-plus').style.display = 'none'
+          document.getElementById('btn-open-more')?.setAttribute('aria-expanded', 'false')
+          document.getElementById('m-ctx').style.display = 'flex'
+          document.getElementById('hc-dossier').style.display = 'block'
+          document.getElementById('tt-new').style.display = 'inline-flex'
+          hoverSelector('#mi-rename')
+        },
+      },
+      {
+        at: 26500,
+        id: 'expand-ctx-submenu',
+        run: () => {
+          playSfx('slash')
+          const forkBtn = document.getElementById('mi-fork')
+          if (forkBtn) forkBtn.setAttribute('aria-expanded', 'true')
+          document.getElementById('m-submenu').style.display = 'flex'
+          hoverSelector('#mi-fork-branch')
+        },
+      },
+      {
+        at: 27400,
+        id: 'hover-ctx-danger',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#mi-delete')
+        },
+      },
+      {
+        at: 28000,
+        id: 'open-model-selector',
+        run: () => {
+          playSfx('slam')
+          document.getElementById('m-ctx').style.display = 'none'
+          document.getElementById('m-submenu').style.display = 'none'
+          document.getElementById('hc-dossier').style.display = 'none'
+          document.getElementById('tt-new').style.display = 'none'
+          document.getElementById('m-model').style.display = 'flex'
+          hoverSelector('#mi-r2')
+        },
+      },
+      {
+        at: 29100,
+        id: 'hover-permission-confirm',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('#mi-confirm')
+        },
+      },
+      {
+        at: 30000,
+        id: 'focus-window-chrome',
+        run: () => {
+          playSfx('slash')
+          document.getElementById('m-model').style.display = 'none'
+          hoverSelector('.dsh-cc-menu[data-menu="application"]')
+        },
+      },
+      {
+        at: 31000,
+        id: 'hover-window-close',
+        run: () => {
+          playSfx('tick')
+          hoverSelector('.dsh-cc-win[data-win="close"]')
+        },
+      },
+      {
+        at: 32100,
+        id: 'collapse-sidebar-rail',
+        run: () => {
+          hoverSelector('[data-sidebar-toggle]')
+          triggerClickVisual()
+          playSfx('slam')
+          window.__ccSetCollapsed(true, false)
+          window.dispatchEvent(new Event('resize'))
+        },
+      },
+      {
+        at: 33000,
+        id: 'hover-rail-ticket',
+        run: () => {
+          playSfx('tick')
+          window.dispatchEvent(new Event('resize'))
+          hoverSelector('.dsh-cc-ticket')
+        },
+      },
+      {
+        at: 33800,
+        id: 'open-rail-more-menu',
+        run: () => {
+          hoverSelector('#acct')
+          triggerClickVisual()
+          playSfx('slam')
+          document.getElementById('acct')?.setAttribute('aria-expanded', 'true')
+          document.getElementById('m-acct').style.display = 'flex'
+          hoverSelector('#mi-settings')
+        },
+      },
+      {
+        at: 34800,
+        id: 'final-transition-slash',
+        run: () => {
+          playSfx('slash')
+          document.getElementById('m-acct').style.display = 'none'
+          document.getElementById('acct')?.setAttribute('aria-expanded', 'false')
+          window.__ccSetCollapsed(false, false)
+          for (const nav of document.querySelectorAll('#nav-new, #nav-plugins, #nav-auto')) {
+            nav.removeAttribute('aria-current')
+          }
+          document.getElementById('nav-plugins')?.setAttribute('aria-current', 'page')
+          const activeHeader = document.getElementById('active-header')
+          if (activeHeader) activeHeader.style.display = 'none'
+        },
+      },
+      {
+        at: 35450,
+        id: 'finale-slate-slam',
+        run: () => {
+          playSfx('slam')
+        },
+      },
+    ]
+
+    /* Camera Shots: [startMs, endMs, targetScale, targetTx, targetTy, targetRot] */
+    const CAMERA_SHOTS = [
+      // Act I: Hero & 2deg Nav
+      [0, 1800, 1.0, 0, 0, 0],
+      [1800, 3100, 1.0, 0, 0, 0],
+      [3100, 5500, 1.22, 165, -10, 0.3],
+      // Act II: Transition, SFX Bursts & Collage Switch
+      [5500, 6400, 1.0, 0, 0, 0],
+      [6400, 9600, 1.06, -35, 18, -0.2],
+      [9600, 11500, 1.24, -125, 45, -0.4],
+      // Act III: Calling-Card Widgets Macro Tour
+      // 3A: Attachment & Trigger Bar
+      [11500, 14300, 1.28, -135, 10, 0.2],
+      // 3B: Tool Rows, Code Banner & Terminal
+      [14300, 17300, 1.30, -140, -15, -0.2],
+      // 3C: Approval Card, Stopped Stamp & Turn Error Board
+      [17300, 20100, 1.30, -140, -25, 0.2],
+      // 3D: Deliverable File Tickets (MD / PNG + Split Button)
+      [20100, 23000, 1.34, -155, -75, -0.3],
+      // Act IV: Slanted Popup Menus & Dossier Hover Cards
+      // 4A: File Open-With & Composer + Menus
+      [23000, 25400, 1.28, -135, -65, 0.2],
+      // 4B: Session Context Menu + Submenu & INFO Dossier Card
+      [25400, 28000, 1.24, 155, -10, -0.3],
+      // 4C: Model & Permission Selector
+      [28000, 30000, 1.32, -55, -25, 0.2],
+      // Act V: Window Chrome & 96px Collapsed Rail
+      [30000, 32000, 1.26, -210, 142, -0.3],
+      [32000, 34800, 1.05, 58, 4, 0.2],
+      // Act VI: Finale Transition & Slate
+      [34800, 38000, 1.0, 0, 0, 0],
+    ]
+
+    /* Cursor Waypoints: [timeMs, x, y] */
+    const CURSOR_PATH = [
+      [0, 720, 450],
+      [1800, 720, 450],
+      [2500, 150, 250],
+      [3100, 155, 340],
+      [4200, 155, 575],
+      [5500, 155, 575],
+      [6500, 860, 380],
+      [9600, 1275, 222],
+      [10200, 1275, 222],
+      [11500, 1050, 360],
+      [12100, 880, 470],
+      [12650, 880, 470],
+      [14600, 1280, 485],
+      [15500, 1280, 485],
+      [16300, 1310, 610],
+      [17400, 1295, 555],
+      [18700, 1225, 555],
+      [20100, 620, 660],
+      [21200, 1060, 660],
+      [22100, 1312, 660],
+      [23000, 1210, 635],
+      [24200, 1210, 695],
+      [25400, 410, 465],
+      [26500, 430, 505],
+      [27000, 595, 525],
+      [27400, 410, 590],
+      [28000, 760, 465],
+      [29100, 760, 575],
+      [30000, 1135, 26],
+      [31000, 1408, 26],
+      [32100, 290, 34],
+      [33000, 44, 470],
+      [33800, 44, 865],
+      [34300, 115, 735],
+      [34800, 44, 165],
+      [38000, 720, 450],
+    ]
+
+    /* Act Callout Definitions */
+    const CALLOUTS = [
+      {
+        start: 1800,
+        end: 5500,
+        no: '01',
+        kicker: 'ACT I // CALLING CARD',
+        tag: 'HERO & 2° SLANTED NAV',
+        title: '怪盗预告信 · 探索未至之境',
+        sub: '红黑白剪贴几何 · 2° 斜排导航卡 + 3px 黑边 · 撕边打孔会话票',
+      },
+      {
+        start: 5500,
+        end: 11500,
+        no: '02',
+        kicker: 'ACT II // INFILTRATION & COLLAGE',
+        tag: '600MS CUT · SFX · LETTERS',
+        title: '斜切星带转场 · 拟声词爆发 · 拼贴信笺',
+        sub: '咚! / 咔! / 唰! 漫画星爆 · LETTERS 一键切换混合字体剪贴字',
+      },
+      {
+        start: 11500,
+        end: 14300,
+        no: '03',
+        kicker: 'ACT III-A // CONVERSATION WIDGETS',
+        tag: 'ATTACHMENT & TRIGGER BAR',
+        title: '怪盗对话控件 · 附件票签与后台触发条',
+        sub: '白纸附件卡 + PNG 粗体印章 · 斜切触发条 + 红刃箭头甩转展开',
+      },
+      {
+        start: 14300,
+        end: 17300,
+        no: '03',
+        kicker: 'ACT III-B // CONVERSATION WIDGETS',
+        tag: 'TOOL ROWS · CODE · TERMINAL',
+        title: '怪盗对话控件 · 工具调用行与代码终端',
+        sub: '红菱形分隔 · 黑 +42 / 红 -7 差异片 · bash 红签 + 斜切操作票',
+      },
+      {
+        start: 17300,
+        end: 20100,
+        no: '03',
+        kicker: 'ACT III-C // CONVERSATION WIDGETS',
+        tag: 'APPROVAL · STOPPED · ERROR BOARD',
+        title: '怪盗对话控件 · 批准卡与错误警示板',
+        sub: '等待批准红带 + 斜切按钮 · 已停止流动斜线 · 任务已停止红星警示板',
+      },
+      {
+        start: 20100,
+        end: 23000,
+        no: '03',
+        kicker: 'ACT III-D // CONVERSATION WIDGETS',
+        tag: 'DELIVERABLE FILE TICKETS',
+        title: '怪盗对话控件 · 交付文件票签与分体按钮',
+        sub: 'MD / PNG 类型印章 · 悬停前冲 + 漂移红四边形 · 分体打开票签',
+      },
+      {
+        start: 23000,
+        end: 25400,
+        no: '04',
+        kicker: 'ACT IV-A // SLANTED POPUP MENUS',
+        tag: 'OPEN-WITH & COMPOSER + MENU',
+        title: '斜切二级菜单 · 打开方式与输入框菜单',
+        sub: '黑底白边 + 红错位底板砸入 · 悬停白条前冲 + 红快捷键小票',
+      },
+      {
+        start: 25400,
+        end: 28000,
+        no: '04',
+        kicker: 'ACT IV-B // MENUS & DOSSIER CARD',
+        tag: 'SUBMENU & INFO HOVER CARD',
+        title: '斜切二级菜单 · 嵌套子菜单与档案悬停卡',
+        sub: '派生会话子菜单展开 · 黑色 INFO 档案卡（路径 / 时间 / ◆ 空闲）',
+      },
+      {
+        start: 28000,
+        end: 30000,
+        no: '04',
+        kicker: 'ACT IV-C // MODEL & PERMISSION PICKER',
+        tag: 'RED BAR & CHECKMARK',
+        title: '斜切二级菜单 · 模型与完全权限选择器',
+        sub: 'DeepSeek V4 / R2 推理 · 已选项左侧红条 + 红色对勾 + 斜条分隔线',
+      },
+      {
+        start: 30000,
+        end: 34800,
+        no: '05',
+        kicker: 'ACT V // DESKTOP CHROME & 96PX RAIL',
+        tag: 'WINDOW TILES & COLLAPSED RAIL',
+        title: '桌面端无边框窗口票签 · 96px 刀刃收起条',
+        sub: '应用/编辑撕边签 · 300ms 弹性收起 · 编号红票签 + 竖排 DSH + MORE',
+      },
+    ]
+
+    function applyCamera(timeMs) {
+      let idx = 0
+      for (let i = 0; i < CAMERA_SHOTS.length; i += 1) {
+        if (timeMs >= CAMERA_SHOTS[i][0] && timeMs <= CAMERA_SHOTS[i][1]) {
+          idx = i
+          break
+        }
+      }
+      const [t0, t1, s1, x1, y1, r1] = CAMERA_SHOTS[idx]
+      const prev = idx > 0 ? CAMERA_SHOTS[idx - 1] : CAMERA_SHOTS[0]
+      const [, , s0, x0, y0, r0] = prev
+      const snapP = easeOutExpo((timeMs - t0) / 420)
+      const holdP = clamp01((timeMs - t0) / Math.max(1, t1 - t0))
+      const drift = s1 > 1.01 ? holdP * 0.014 : 0
+      const s = lerp(s0, s1, snapP) + drift
+      const tx = lerp(x0, x1, snapP)
+      const ty = lerp(y0, y1, snapP)
+      const rot = lerp(r0, r1, snapP)
+      camera.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${s.toFixed(4)}) rotate(${rot.toFixed(3)}deg)`
+    }
+
+    function applyCursor(timeMs) {
+      if (timeMs < 1750 || timeMs > 35300) {
+        cursor.style.opacity = '0'
+        return
+      }
+      cursor.style.opacity = '1'
+      let i = 0
+      while (i < CURSOR_PATH.length - 2 && timeMs > CURSOR_PATH[i + 1][0]) i += 1
+      const [t0, x0, y0] = CURSOR_PATH[i]
+      const [t1, x1, y1] = CURSOR_PATH[i + 1]
+      const p = easeOutExpo((timeMs - t0) / Math.max(1, t1 - t0))
+      const x = lerp(x0, x1, p)
+      const y = lerp(y0, y1, p)
+      cursor.style.left = `${x.toFixed(1)}px`
+      cursor.style.top = `${y.toFixed(1)}px`
+    }
+
+    function applySlatesAndCallouts(timeMs) {
+      if (timeMs < 1800) {
+        introSlate.classList.add('is-visible')
+        const enterP = easeOutExpo(timeMs / 420)
+        const exitP = timeMs > 1450 ? easeInOutCubic((timeMs - 1450) / 350) : 0
+        const scale = lerp(1.35, 1.0, enterP) * (1 + exitP * 0.15)
+        const tx = exitP * -1480
+        introCard.style.transform = `translate3d(${tx.toFixed(1)}px, 0, 0) scale(${scale.toFixed(3)}) rotate(-2deg)`
+        introSlate.style.opacity = String(1 - exitP)
+      } else {
+        introSlate.classList.remove('is-visible')
+        introSlate.style.opacity = '0'
+      }
+
+      if (timeMs >= 35400) {
+        finaleSlate.classList.add('is-visible')
+        const enterP = easeOutExpo((timeMs - 35400) / 450)
+        const scale = lerp(1.4, 1.0, enterP)
+        finaleCard.style.transform = `scale(${scale.toFixed(3)}) rotate(-2deg)`
+        finaleSlate.style.opacity = String(clamp01((timeMs - 35400) / 220))
+      } else {
+        finaleSlate.classList.remove('is-visible')
+        finaleSlate.style.opacity = '0'
+      }
+
+      const activeCallout = CALLOUTS.find((c) => timeMs >= c.start && timeMs < c.end)
+      callout.classList.toggle('is-right', timeMs >= 30000)
+      if (!activeCallout) {
+        callout.style.opacity = '0'
+        callout.style.transform = 'translate3d(-40px, 20px, 0) scale(0.92)'
+      } else {
+        calloutNo.textContent = activeCallout.no
+        calloutKicker.textContent = activeCallout.kicker
+        calloutTag.textContent = activeCallout.tag
+        calloutTitle.textContent = activeCallout.title
+        calloutSub.textContent = activeCallout.sub
+        const localT = timeMs - activeCallout.start
+        const p = easeOutExpo(localT / 280)
+        callout.style.opacity = String(clamp01(localT / 150))
+        callout.style.transform = `translate3d(${lerp(-50, 0, p).toFixed(1)}px, ${lerp(14, 0, p).toFixed(1)}px, 0) scale(${lerp(0.9, 1, p).toFixed(3)})`
+      }
+    }
+
+    const progressInput = document.getElementById('pv-progress')
+    const timeLabel = document.getElementById('pv-time')
+    const actBtns = Array.from(document.querySelectorAll('.pv-act-btn'))
+    function updateHud(timeMs) {
+      if (isRecord) return
+      progressInput.value = String(Math.round(timeMs))
+      timeLabel.textContent = `${(timeMs / 1000).toFixed(1).padStart(4, '0')} / 38.0s`
+      const thresholds = [0, 5500, 11500, 23000, 30000, 34800]
+      let activeIdx = 0
+      for (let i = 0; i < thresholds.length; i += 1) {
+        if (timeMs >= thresholds[i]) activeIdx = i
+      }
+      actBtns.forEach((btn, idx) => btn.classList.toggle('is-active', idx === activeIdx))
+    }
+
+    /* Deterministic Frame-Stepping & Live Render Loop */
+    let currentMs = 0
+    let playing = !isRecord
+    let lastWallMs = performance.now()
+    const animBirth = new WeakMap()
+
+    function tagAnimationsAt(bornMs, nowMs) {
+      for (const anim of document.getAnimations({ subtree: true })) {
+        if (!animBirth.has(anim)) {
+          animBirth.set(anim, bornMs)
+          try { anim.pause() } catch {}
+        }
+        const born = animBirth.get(anim) ?? 0
+        try { anim.currentTime = Math.max(0, nowMs - born) } catch {}
+      }
+    }
+
+    async function renderAtAsync(targetMs) {
+      if (targetMs < currentMs - 50) {
+        resetState()
+        currentMs = 0
+      }
+      const clamped = Math.max(0, Math.min(TOTAL_MS, targetMs))
+
+      // Temporarily unscale camera so any DOM measurements inside MutationObserver / rail.sync() see true 1440x900
+      camera.style.transform = 'none'
+
+      for (const cue of CUES) {
+        if (clamped >= cue.at && !firedCues.has(cue.id)) {
+          firedCues.add(cue.id)
+          if (window.__pvAdvanceClock) window.__pvAdvanceClock(cue.at)
+          cue.run()
+          // Flush microtasks so MutationObserver in overlay.tsx runs at exact cue.at
+          await Promise.resolve()
+          await new Promise((r) => rawSetTimeout(r, 0))
+          if (window.__pvAdvanceClock) window.__pvAdvanceClock(cue.at)
+          if (isRecord) tagAnimationsAt(cue.at, cue.at)
+        }
+      }
+
+      currentMs = clamped
+      if (window.__pvAdvanceClock) window.__pvAdvanceClock(currentMs)
+      await Promise.resolve()
+      if (isRecord) tagAnimationsAt(currentMs, currentMs)
+      window.dispatchEvent(new Event('resize'))
+      if (isRecord) tagAnimationsAt(currentMs, currentMs)
+
+      applyCamera(currentMs)
+      applyCursor(currentMs)
+      applySlatesAndCallouts(currentMs)
+      updateHud(currentMs)
+      return currentMs
+    }
+
+    function renderAtSync(timeMs) {
+      if (timeMs < currentMs - 50) {
+        resetState()
+      }
+      currentMs = Math.max(0, Math.min(TOTAL_MS, timeMs))
+      for (const cue of CUES) {
+        if (currentMs >= cue.at && !firedCues.has(cue.id)) {
+          firedCues.add(cue.id)
+          camera.style.transform = 'none'
+          cue.run()
+        }
+      }
+      applyCamera(currentMs)
+      applyCursor(currentMs)
+      applySlatesAndCallouts(currentMs)
+      updateHud(currentMs)
+    }
+
+    window.__pvStepTo = (timeMs) => renderAtAsync(timeMs)
+    window.__pvTotalMs = TOTAL_MS
+
+    function tick(now) {
+      if (playing && !isRecord) {
+        const dt = Math.min(100, Math.max(0, now - lastWallMs))
+        let next = currentMs + dt
+        if (next > TOTAL_MS) next = 0
+        renderAtSync(next)
+      }
+      lastWallMs = now
+      if (!isRecord) requestAnimationFrame(tick)
+    }
+
+    /* HUD Event Listeners */
+    const playBtn = document.getElementById('pv-btn-play')
+    playBtn?.addEventListener('click', () => {
+      ensureAudio()
+      playing = !playing
+      playBtn.textContent = playing ? 'PAUSE' : 'PLAY'
+      lastWallMs = performance.now()
+    })
+    document.getElementById('pv-btn-restart')?.addEventListener('click', () => {
+      ensureAudio()
+      resetState()
+      renderAtSync(0)
+      playing = true
+      if (playBtn) playBtn.textContent = 'PAUSE'
+      lastWallMs = performance.now()
+    })
+    const audioBtn = document.getElementById('pv-btn-audio')
+    audioBtn?.addEventListener('click', () => {
+      soundEnabled = !soundEnabled
+      if (soundEnabled) ensureAudio()
+      audioBtn.textContent = soundEnabled ? 'SOUND: ON' : 'SOUND: OFF'
+    })
+    progressInput?.addEventListener('input', (e) => {
+      const target = Number(e.target.value)
+      resetState()
+      renderAtSync(target)
+      lastWallMs = performance.now()
+    })
+    actBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        ensureAudio()
+        const target = Number(btn.getAttribute('data-jump') || 0)
+        resetState()
+        renderAtSync(target)
+        lastWallMs = performance.now()
+      })
+    })
+
+    /* Start once client.js has mounted the skin overlay */
+    const waitBoot = async () => {
+      if (document.querySelector('.dsh-cc-chrome') && document.querySelector('[data-cc-leaf]')) {
+        if (isRecord) {
+          // Advance virtual clock past 600ms settle so initial hero headline is cut into ransom tiles
+          await renderAtAsync(600)
+          await renderAtAsync(0)
+        } else {
+          renderAtSync(0)
+          lastWallMs = performance.now()
+          requestAnimationFrame(tick)
+        }
+        window.__pvReady = true
+      } else {
+        rawSetTimeout(waitBoot, 20)
+      }
+    }
+    waitBoot()
+  })()
+</script>
+</body>
+</html>

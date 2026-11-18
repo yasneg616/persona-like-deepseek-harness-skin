@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="none">
+<!-- Original water/void boundary. A continuous meniscus follows the cord's
+     S-gesture, gathers around the capsule shoulder, then releases below it. -->
+<path d="M0 0H819C833 83 654 113 605 187C549 272 611 335 575 418C551 473 512 550 480 643C461 699 453 718 468 751C486 798 444 864 425 900H0Z" fill="#f8fbfa"/>
+<path d="M819 0C833 83 654 113 605 187C549 272 611 335 575 418C551 473 512 550 480 643C461 699 453 718 468 751C486 798 444 864 425 900" fill="none" stroke="#8ceaff" stroke-opacity=".5" stroke-width="2"/>
+<path d="M574 411C552 459 521 506 507 555M478 651C462 690 461 708 471 738" fill="none" stroke="#fff" stroke-width="4"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" preserveAspectRatio="none"><!-- Original empty carriage / school-window memory. No game assets, people, logos or silhouettes. -->
+<defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#0c3795"/><stop offset="1" stop-color="#031647"/></linearGradient><linearGradient id="glass"><stop stop-color="#61dfff" stop-opacity=".22"/><stop offset="1" stop-color="#032477" stop-opacity=".03"/></linearGradient></defs>
+<path fill="url(#wall)" fill-rule="evenodd" d="M0 0H1400V900H0ZM55 126 335 105 333 525 65 560ZM375 102 777 62 785 540 375 530ZM823 57 1364 0 1385 615 832 550Z"/>
+<g fill="none" stroke="#68dfff"><path stroke-width="3" opacity=".7" d="M55 126 335 105 333 525 65 560ZM375 102 777 62 785 540 375 530ZM823 57 1364 0 1385 615 832 550Z"/><path stroke-width="2" opacity=".45" d="m68 138 254-19M389 115l374-36M839 70l512-54M65 571l268-34 452 14 603 77"/></g>
+<path fill="url(#glass)" d="m823 57 541-57 21 615-553-65Z"/>
+<path fill="#03123e" d="m0 604 354-40 447 28 599 85v30l-604-82-443-23L0 645Z"/>
+<path fill="#1951a7" d="m0 650 350-35 444 32 606 80v20l-607-72-445-30L0 679Z"/>
+<path fill="#05245f" d="m0 736 350-37 470 62 580 86v53H0Z"/>
+<path fill="#2a69b5" d="m0 732 350-39 470 62 580 86v8l-581-79-470-61L0 745Z"/>
+<path fill="#7af2ff" opacity=".16" d="m1272 20 67-7-396 722-79-12Z"/>
+</svg>

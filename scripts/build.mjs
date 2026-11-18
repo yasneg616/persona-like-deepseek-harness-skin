@@ -3,9 +3,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 
 const cssResult = await esbuild.build({
-  entryPoints: ['src/client/skin.css'],
+  entryPoints: ['src/client/skin.css', 'src/client/persona.css', 'src/client/p3r.css', 'src/client/p4g.css'],
   bundle: true,
   write: false,
+  outdir: 'lib',
   loader: {
     '.ttf': 'dataurl',
     '.woff2': 'dataurl',
@@ -14,7 +15,8 @@ const cssResult = await esbuild.build({
   legalComments: 'none',
 })
 
-const css = cssResult.outputFiles[0].text
+const styles = new Map(cssResult.outputFiles.map(file => [file.path.split(/[\\/]/).at(-1), file.text]))
+const css = styles.get('skin.css')
 await mkdir('lib', { recursive: true })
 await writeFile('lib/skin.css', css)
 
@@ -29,9 +31,9 @@ const client = await esbuild.build({
   plugins: [{
     name: 'skin-css-text',
     setup(build) {
-      build.onResolve({ filter: /^skin\.css$/ }, () => ({ path: 'skin.css', namespace: 'skin-text' }))
-      build.onLoad({ filter: /.*/, namespace: 'skin-text' }, () => ({
-        contents: `export default ${JSON.stringify(css)}`,
+      build.onResolve({ filter: /^(skin|persona|p3r|p4g)\.css$/ }, ({ path }) => ({ path, namespace: 'skin-text' }))
+      build.onLoad({ filter: /.*/, namespace: 'skin-text' }, ({ path }) => ({
+        contents: `export default ${JSON.stringify(styles.get(path))}`,
         loader: 'js',
       }))
     },

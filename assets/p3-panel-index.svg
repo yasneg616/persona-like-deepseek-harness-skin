@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700" preserveAspectRatio="none"><!-- Original tall P3 quadrilateral. Unequal leaning sides and a clean white offset corner. -->
+<path fill="#c9f9ff" d="M12 18 392 38 380 128 396 138 382 576 398 588 386 696 16 682 4 522 14 510 2 164 14 152Z"/>
+<path fill="#39ddff" d="M0 6 378 24 370 58 22 44 16 668 388 656 382 690 8 676Z"/>
+<path fill="#031a50" d="M12 36 384 52 376 664 14 672Z"/>
+<path fill="#07286e" d="M18 68 378 82 374 122 16 108Z"/>
+<path fill="#07286e" d="M16 204 376 218 372 258 14 244Z"/>
+<path fill="#07286e" d="M14 340 374 354 370 394 12 380Z"/>
+<path fill="#07286e" d="M12 476 372 490 368 530 10 516Z"/>
+<path fill="#f4ffff" d="M0 6 356 22 346 48 6 34Z"/>
+<path fill="#1466f5" d="M286 18 314 20 302 48 274 46Z"/>
+<path fill="#39ddff" d="M314 20 348 22 336 50 302 48Z"/>
+<path fill="#39ddff" d="M2 52 12 54 10 186 0 184Z"/>
+<path fill="#8fe6ff" d="M2 194 10 196 8 320 0 318Z"/>
+<path fill="#1466f5" d="M2 328 10 330 8 412 0 410Z"/>
+<path fill="#39ddff" d="M2 420 10 422 8 648 0 646Z"/>
+<path fill="#f4ffff" d="M254 666 384 658 378 682 244 686Z"/>
+</svg>

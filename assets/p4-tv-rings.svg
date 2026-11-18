@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><!-- Original P4 Midnight Channel concentric TV portal rings and studio test crosshair. -->
+<circle cx="160" cy="160" r="148" fill="#ffe600" fill-opacity=".22" stroke="#12110d" stroke-width="6"/>
+<circle cx="160" cy="160" r="122" fill="#ff9c00" fill-opacity=".24" stroke="#ffe600" stroke-width="8"/>
+<circle cx="160" cy="160" r="96" fill="#12110d" fill-opacity=".18" stroke="#12110d" stroke-width="6" stroke-dasharray="28 12"/>
+<circle cx="160" cy="160" r="70" fill="#fff7c2" fill-opacity=".42" stroke="#ff9c00" stroke-width="6"/>
+<circle cx="160" cy="160" r="42" fill="#ffe600" fill-opacity=".68" stroke="#12110d" stroke-width="4"/>
+<path fill="none" stroke="#12110d" stroke-width="3" opacity=".55" d="M160 24 160 296M24 160 296 160"/>
+<circle cx="160" cy="160" r="12" fill="#12110d"/>
+<circle cx="160" cy="160" r="5" fill="#ffe600"/>
+</svg>

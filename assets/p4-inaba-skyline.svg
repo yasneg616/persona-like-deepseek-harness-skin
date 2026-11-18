@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none"><!-- Original P4 rural Inaba golden-hour townscape: subtle distant rooftops, utility poles, Yagi TV antennas and horizon power lines. -->
+<g fill="#c97700" opacity=".22">
+  <path d="M0 900 0 700 220 660 460 688 720 632 980 676 1260 622 1460 662 1600 635 1600 900Z"/>
+</g>
+<g fill="#3a2a0a" opacity=".28">
+  <path d="M0 900 0 790 110 790 110 758 220 758 250 732 340 732 340 778 480 778 520 740 650 740 650 792 800 792 800 715 950 715 950 780 1120 780 1160 742 1310 742 1310 786 1460 786 1460 736 1600 736 1600 900Z"/>
+  <path d="M830 715 830 660 925 660 925 715ZM850 660 850 634 905 634 905 660Z"/>
+</g>
+<g stroke="#3a2a0a" fill="none" stroke-linecap="round" opacity=".24">
+  <path stroke-width="6" d="M290 900 302 440M1280 900 1294 410"/>
+  <path stroke-width="3.5" d="M270 468 334 462M274 498 330 492M1260 440 1330 432M1266 472 1324 464"/>
+  <path stroke-width="1.6" d="M0 486Q150 532 301 464Q790 562 1292 436Q1446 490 1600 456"/>
+  <path stroke-width="1.2" d="M0 518Q150 562 299 494Q790 590 1290 468Q1446 520 1600 486"/>
+  <path stroke-width="2.2" d="M580 740 580 630M554 646 606 638M560 664 600 658M1045 780 1045 620M1016 638 1074 628M1022 658 1068 650"/>
+</g>
+</svg>

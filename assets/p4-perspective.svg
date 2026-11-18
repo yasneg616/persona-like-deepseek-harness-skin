@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="none">
+<!-- Original P4G editorial studio planes: warm golden-amber geometry, obsidian anchor, hairline broadcast grid and sleek SMPTE spectrum accent. -->
+<path fill="#ffdf00" d="M0 0h1440v900H0z"/>
+<path fill="#f6c400" d="M0 0h620L240 900H0zM1440 120v780H860l410-580z"/>
+<path fill="#eba400" opacity=".55" d="M1440 420v480H680l560-360z"/>
+<path fill="#12110d" d="M0 0h410L270 360 0 430z"/>
+<g stroke="#12110d" stroke-width="1" opacity=".08" fill="none">
+  <path d="M0 180h1440M0 450h1440M0 720h1440M480 0v900M960 0v900"/>
+  <circle cx="1060" cy="340" r="240"/>
+  <circle cx="1060" cy="340" r="360" stroke-dasharray="10 14"/>
+</g>
+<g opacity=".92">
+  <path fill="#f54329" d="M1040 0h28L520 900h-28z"/>
+  <path fill="#ff9c00" d="M1068 0h28L548 900h-28z"/>
+  <path fill="#ffe600" d="M1096 0h28L576 900h-28z"/>
+  <path fill="#58c322" d="M1124 0h28L604 900h-28z"/>
+  <path fill="#1da5f8" d="M1152 0h28L632 900h-28z"/>
+  <path fill="#3a48d2" d="M1180 0h24L656 900h-24z"/>
+  <path fill="#b239d8" d="M1204 0h20L676 900h-20z"/>
+</g>
+<path fill="#12110d" opacity=".88" d="M1224 0h16L692 900h-16z"/>
+<path fill="#fff8d6" opacity=".32" d="M1440 0h-180L820 900h42z"/>
+</svg>

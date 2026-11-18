@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 1000" preserveAspectRatio="none"><!-- Original narrow P4 broadcast margin: bold P4G yellow/sky-blue diagonal slash across obsidian spine, SMPTE signal ribbon and low-contrast Arcana watermark. -->
+<path fill="#12110d" d="M0 0 202 0 192 260 198 540 186 800 194 1000 0 1000Z"/>
+<path fill="#ffe600" d="M0 102 200 54 196 168 0 232Z"/>
+<path fill="#1da5f8" d="M0 186 198 118 195 190 0 264Z"/>
+<path fill="#12110d" d="M0 246 196 176 192 260 198 540 186 800 194 1000 0 1000Z"/>
+<path fill="#ffe600" d="M202 0 212 0 202 260 208 540 196 800 204 1000 194 1000 186 800 198 540 192 260Z"/>
+<path fill="#ff9c00" d="M212 0 217 0 207 260 213 540 201 800 209 1000 204 1000 196 800 208 540 202 260Z"/>
+<g opacity=".95">
+  <path fill="#f54329" d="M0 44 200 18 199 25 0 51Z"/>
+  <path fill="#ff9c00" d="M0 51 199 25 198 32 0 58Z"/>
+  <path fill="#ffe600" d="M0 58 198 32 197 39 0 65Z"/>
+  <path fill="#58c322" d="M0 65 197 39 196 46 0 72Z"/>
+  <path fill="#1da5f8" d="M0 72 196 46 195 53 0 79Z"/>
+</g>
+<g transform="translate(26 560) rotate(-6)" fill="none" stroke="#ffe600" stroke-width="1.4" opacity=".16">
+  <path d="M0 0 112 0 112 172 0 172Z"/>
+  <path stroke="#ff9c00" stroke-width="1" d="M7 7 105 7 105 165 7 165Z"/>
+  <circle cx="56" cy="74" r="30"/>
+  <circle cx="56" cy="74" r="19" stroke-dasharray="5 4"/>
+</g>
+<g fill="#ffe600" font-family="Georgia,serif" font-weight="700" font-style="italic" opacity=".24">
+  <text x="20" y="956" font-size="11" fill="#ff9c00" letter-spacing="2">INABA · CH·04</text>
+</g>
+</svg>

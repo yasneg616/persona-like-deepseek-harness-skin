@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" preserveAspectRatio="none">
+  <defs>
+    <clipPath id="sky"><path d="M855 176 1158 0h122v146z"/></clipPath>
+  </defs>
+  <g clip-path="url(#sky)">
+    <path fill="#2a7de0" d="M830 0h450v190H830z"/>
+    <path fill="#e4f4ff" d="M1009 99q21-28 53-20 26-28 57-8 23-3 42 12zm152-49q21-25 48-16 20-23 38-8 23-4 35 11z"/>
+    <path fill="#fff" d="M1059 79q29-27 53-9l25 8-48 11zm141-46q24-19 44-6l12 4-23 11z"/>
+  </g>
+  <path d="M831 226Q1051-92 1318 199" fill="none" stroke="#ffef00" stroke-width="42"/>
+  <path fill="#f39a12" opacity=".48" d="m208 454 154-180-29 165zm35-9 8-28-26 29zm23-4 19-55-28 30zm29-5 34-91-37 37z"/>
+  <path fill="#ffef00" d="M0 820v-79l320-123L77 820z"/>
+  <path fill="#e0303a" d="M12 820h10l298-202z"/>
+  <path fill="#fff" d="M22 820h12l286-202z"/>
+  <path fill="#3fa21a" d="M34 820h9l277-202z"/>
+  <path fill="#14d0e8" d="M43 820h10l267-202z"/>
+  <path fill="#ffc61a" d="M53 820h16l251-202z"/>
+  <path fill="#df790c" d="M107 689l8-32-13-5-19-26 8-6 22 21 8-21 14-9 1-9q-11-9-6-22 7-14 21-10 14 5 11 21l-5 11 11 16 14 12 15-21 9 3-18 35-21-8-2 30-18 23-4-32-16 36z"/>
+  <path fill="#70bb38" d="M29 720l7-25-6-8 1-23 11-17 11-6-2-7q-12-2-11-14 1-18 18-18 19 3 16 20l-5 13 11 12 5 24-7 16 2 27-14-11-10-25-9 15-1 28z"/>
+  <g transform="translate(32 771)" fill="#fffdf0">
+    <ellipse rx="12" ry="32"/>
+    <ellipse rx="12" ry="32" transform="rotate(60)"/>
+    <ellipse rx="12" ry="32" transform="rotate(120)"/>
+    <circle r="8" fill="#ffc61a"/>
+  </g>
+</svg>

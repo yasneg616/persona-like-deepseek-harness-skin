@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 360">
+  <!-- Original art for the calling-card skin's P3 mode: a moon card, not a game asset. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06164f"/><stop offset=".62" stop-color="#0a3a9e"/><stop offset="1" stop-color="#021036"/></linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#19c3ff"/><stop offset="1" stop-color="#03227a"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e9fbff" stop-opacity=".9"/><stop offset="1" stop-color="#8fe6ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="3" y="3" width="204" height="354" rx="12" fill="#f4fbff"/>
+  <rect x="11" y="11" width="188" height="338" rx="7" fill="url(#sky)"/>
+  <rect x="17" y="17" width="176" height="326" rx="4" fill="none" stroke="#8fe6ff" stroke-width="1.2" stroke-dasharray="2 4"/>
+  <text x="105" y="44" fill="#f4fbff" font-family="Georgia, serif" font-size="22" font-style="italic" text-anchor="middle" letter-spacing="4">XVIII</text>
+  <circle cx="105" cy="120" r="58" fill="url(#glow)"/>
+  <path d="M105 82a38 38 0 1 0 0 76a30 30 0 1 1 0-76z" fill="#f4fbff"/>
+  <g stroke="#8fe6ff" stroke-width="1.4" opacity=".8">
+    <path d="M105 64v-10M105 186v10M49 120h-10M161 120h10M66 81l-7-7M144 159l7 7M144 81l7-7M66 159l-7 7"/>
+  </g>
+  <path d="M28 236h22v-52l-11-12-11 12zM160 236h22v-52l-11-12-11 12z" fill="#021036" stroke="#8fe6ff" stroke-width="1.2"/>
+  <rect x="35" y="196" width="8" height="12" fill="#19c3ff"/><rect x="167" y="196" width="8" height="12" fill="#19c3ff"/>
+  <path d="M11 236c30-10 58 10 94 0s64 10 94 0v77H11z" fill="url(#sea)"/>
+  <path d="M11 256c30-8 58 8 94 0s64 8 94 0M11 276c30-8 58 8 94 0s64 8 94 0" fill="none" stroke="#e9fbff" stroke-width="1.4" opacity=".55"/>
+  <path d="M105 236l-34 77h68z" fill="#e9fbff" opacity=".22"/>
+  <rect x="11" y="313" width="188" height="36" fill="#f4fbff"/>
+  <text x="105" y="338" fill="#06164f" font-family="Impact, 'Arial Black', sans-serif" font-size="19" text-anchor="middle" letter-spacing="3">THE MOON</text>
+</svg>

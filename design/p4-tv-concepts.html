@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 電視世界概念稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=VT323&display=swap">
+<style>
+  :root { --page: #f1eee6; --ink: #141414; --mute: #6b6760; --line: #d9d5cc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.65 "Noto Sans TC", system-ui, sans-serif; }
+  header.top { max-width: 1240px; margin: 0 auto; padding: 32px 16px 10px; }
+  header.top h1 { margin: 0 0 6px; font: 900 28px/1.25 "Noto Sans TC"; }
+  header.top p { margin: 0; color: var(--mute); max-width: 820px; }
+  .controls { max-width: 1240px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; position: sticky; top: 0; z-index: 50; background: var(--page); border-bottom: 1px solid var(--line); }
+  .controls button { font: 800 14px "Noto Sans TC"; border: 2px solid var(--ink); background: #fff; padding: 6px 14px; cursor: pointer; color: var(--ink); }
+  .controls button:hover { background: #ffd400; }
+  .controls small { color: var(--mute); margin-left: auto; }
+  main.wrap { max-width: 1240px; margin: 0 auto; padding: 20px 16px 56px; }
+  .frame { width: 100%; aspect-ratio: 1440 / 900; position: relative; overflow: hidden; border-radius: 6px; box-shadow: 0 12px 40px rgba(0,0,0,.2); background: #000; }
+  .stage { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; transform-origin: 0 0; overflow: hidden; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 24px; }
+  .notes article { background: #fff; border: 1px solid var(--line); padding: 16px 18px; border-radius: 4px; }
+  .notes h3 { margin: 0 0 8px; font: 900 16px "Noto Sans TC"; }
+  .notes ul { margin: 0; padding-left: 18px; } .notes li { margin: 4px 0; }
+  .notes .tag { display: inline-block; font: 800 11px "Noto Sans TC"; padding: 1px 7px; margin-right: 6px; color: #111; background: #ffd400; }
+  .notes article.ask { border: 2px solid var(--ink); }
+  .stage button { all: unset; cursor: pointer; box-sizing: border-box; }
+  .stage button:focus-visible { outline: 2px dashed currentColor; outline-offset: 3px; }
+
+  /* =========================================================
+     P4 — 整個都在電視裡
+     黑色攝影棚 · 黃霧 · 報紙節目表 · 字幕條標題 · 眼鏡鏡框閱讀區
+     ========================================================= */
+  .tv { --y: #ffd400; --fog: 255, 226, 140; --news: #efe6cf; --blk: #0d0b07; --red: #e2241b; --org: #f08a1c;
+    color: #111; font-family: "Noto Sans TC", sans-serif; background: #120f08; }
+
+  /* 原生標題列（示意） */
+  .tv .cap { position: absolute; left: 0; right: 0; top: 0; height: 34px; z-index: 60; background: #0b0a07; color: #bdb497; font: 600 12px/34px "Noto Sans TC"; padding-left: 14px; display: flex; }
+  .tv .cap .wb { margin-left: auto; display: flex; } .tv .cap .wb i { width: 46px; text-align: center; font-style: normal; color: #7d765f; }
+
+  /* 攝影棚 */
+  .tv .world { position: absolute; inset: 34px 0 0 0; overflow: hidden; background: radial-gradient(ellipse 58% 60% at 62% 34%, #3b3013 0%, #19140a 58%, #0a0805 100%); }
+  .tv .world svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tv .spot { position: absolute; top: -40px; width: 300px; height: 820px; transform-origin: 50% 0; background: linear-gradient(rgba(255,244,190,.2), rgba(255,244,190,0) 86%);
+    clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%); transform: rotate(var(--r)); animation: sway 16s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: rotate(calc(var(--r) - 3deg)); } to { transform: rotate(calc(var(--r) + 3deg)); } }
+  .tv .echo { position: absolute; right: -40px; top: 120px; font: 800 520px/0.8 "Barlow Condensed"; color: transparent; -webkit-text-stroke: 3px rgba(255,212,0,.16); letter-spacing: -10px; pointer-events: none; }
+  .tv .checker { position: absolute; left: 340px; top: 34px; bottom: 0; width: 14px; z-index: 7; background: repeating-conic-gradient(#0b0a07 0 25%, #f4efe0 0 50%) 0 0 / 14px 14px; }
+
+  /* 霧：後層（攝影棚）、思考時的濃霧、節目表前霧 */
+  .tv .fog { position: absolute; pointer-events: none; overflow: hidden; }
+  .tv .fog.back { inset: 34px 0 0 354px; z-index: 2; background: linear-gradient(rgba(var(--fog),0) 45%, rgba(var(--fog),.26)); }
+  .tv .fog .b { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--fog),.34), rgba(var(--fog),0)); animation: drift var(--d) ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translateX(calc(var(--dx) * -1)); } to { transform: translateX(var(--dx)); } }
+  .tv .thick { position: absolute; top: 34px; bottom: 0; width: 62%; z-index: 3; pointer-events: none; transition: transform 1.1s cubic-bezier(.5,0,.2,1); }
+  .tv .thick.l { left: 0; background: linear-gradient(90deg, rgba(var(--fog),.95), rgba(var(--fog),.78) 55%, rgba(var(--fog),0)); transform: translateX(-102%); }
+  .tv .thick.r { right: 0; background: linear-gradient(270deg, rgba(var(--fog),.95), rgba(var(--fog),.78) 55%, rgba(var(--fog),0)); transform: translateX(102%); }
+  .tv.thinking .thick.l, .tv.thinking .thick.r { transform: none; transition-duration: 1.6s; }
+
+  /* 節目表（側邊欄） */
+  .tv .epg { position: absolute; left: 0; top: 34px; bottom: 0; width: 340px; z-index: 5; background: var(--news); display: flex; flex-direction: column; overflow: hidden; color: #141310; }
+  .tv .remote { background: #16140f; padding: 14px 14px 14px; display: grid; gap: 6px; position: relative; z-index: 4; }
+  .tv .remote .brand { display: flex; justify-content: space-between; align-items: baseline; color: #f4efe0; font: 800 15px "Barlow Condensed"; letter-spacing: .22em; margin: 0 2px 6px; }
+  .tv .remote .brand span { font: 400 18px "VT323"; letter-spacing: .05em; color: #8dff7e; }
+  .tv .remote button { display: grid; grid-template-columns: 42px 1fr auto; align-items: center; background: #25221a; color: #f4efe0; border-radius: 6px; padding: 6px 12px; font: 700 15px "Noto Sans TC"; box-shadow: inset 0 -3px 0 rgba(0,0,0,.4); }
+  .tv .remote button .n { font: 400 24px/1 "VT323"; color: var(--y); }
+  .tv .remote button kbd { font: 600 11px "Barlow Condensed"; color: #8d866e; letter-spacing: .08em; }
+  .tv .remote button:hover { background: #343026; }
+  .tv .remote button[aria-current] { background: var(--y); color: #111; } .tv .remote button[aria-current] .n, .tv .remote button[aria-current] kbd { color: #111; }
+  .tv .gh { padding: 14px 16px 8px; display: flex; align-items: baseline; gap: 10px; border-bottom: 3px solid #141310; position: relative; z-index: 4; background: var(--news); }
+  .tv .gh b { font: 900 26px/1 "Noto Serif TC"; } .tv .gh small { font: 800 12px "Barlow Condensed"; letter-spacing: .2em; color: #6a6250; }
+  .tv .gh::after { content: ""; position: absolute; left: 0; right: 0; bottom: -11px; height: 8px; background: repeating-conic-gradient(#141310 0 25%, var(--news) 0 50%) 0 0 / 8px 8px; }
+  .tv .list { flex: 1; overflow: auto; padding-top: 10px; position: relative; scrollbar-width: none; }
+  .tv .day { position: relative; z-index: 1; margin: 6px 0 0; padding: 3px 16px; background: #141310; color: #efe6cf; font: 700 12px "Noto Sans TC"; display: flex; justify-content: space-between; }
+  .tv .row { position: relative; z-index: 1; display: grid; grid-template-columns: 56px 1fr; gap: 2px 8px; width: 100%; padding: 9px 16px 9px; border-bottom: 1px solid rgba(20,19,16,.18); }
+  .tv .row time { font: 700 17px/1.1 "Barlow Condensed"; } .tv .row time small { display: block; font: 600 11px "Barlow Condensed"; color: #7a705a; letter-spacing: .06em; }
+  .tv .row b { font: 700 16px/1.35 "Noto Serif TC"; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .tv .row span { grid-column: 2; font-size: 12px; color: #6a6250; }
+  .tv .row:hover { z-index: 4; background: #f8f0d8; }
+  .tv .row[aria-current] { z-index: 4; background: var(--y); box-shadow: inset 6px 0 #141310; }
+  .tv .row[aria-current]::after { content: "ON AIR"; position: absolute; right: 12px; top: 10px; background: var(--red); color: #fff; font: 800 11px/1 "Barlow Condensed"; letter-spacing: .1em; padding: 4px 6px 3px; }
+  .tv .row[aria-current] b { padding-right: 52px; }
+  .tv .row[aria-current] span, .tv .row[aria-current] time small { color: #3d3410; }
+  .tv .epg .fog.front { left: 0; right: 0; top: 230px; bottom: 0; z-index: 3; background: linear-gradient(rgba(var(--fog),0), rgba(var(--fog),.3) 55%, rgba(var(--fog),.45)); transition: transform 1.4s cubic-bezier(.5,0,.2,1); }
+  .tv.thinking .epg .fog.front { transform: translateY(-60px); }
+  .tv .foot { position: relative; z-index: 4; display: flex; gap: 6px; padding: 10px 14px; background: #16140f; }
+  .tv .foot button { color: #c9c0a2; font: 700 13px "Noto Sans TC"; padding: 4px 10px; border-radius: 4px; } .tv .foot button:hover { background: #2c281f; color: #fff; }
+
+  /* 節目區 */
+  .tv .show { position: absolute; left: 354px; right: 0; top: 34px; bottom: 0; z-index: 4; pointer-events: none; }
+  .tv .show > * { pointer-events: auto; }
+  .tv .telop { position: absolute; left: 140px; top: 26px; display: flex; height: 46px; filter: drop-shadow(0 6px 0 rgba(0,0,0,.35)); }
+  .tv .telop .ch { background: var(--y); color: #111; font: 800 20px/46px "Barlow Condensed"; padding: 0 22px 0 14px; clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); letter-spacing: .04em; }
+  .tv .telop h2 { margin: 0 0 0 -8px; background: var(--blk); color: #fff; font: 700 22px/46px "Noto Serif TC"; padding: 0 30px 0 26px; clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%); max-width: 600px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .tv .telop .live { align-self: center; margin-left: 10px; color: #fff; font: 800 12px "Barlow Condensed"; letter-spacing: .14em; display: flex; align-items: center; gap: 6px; }
+  .tv .telop .live::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .tv .hud { position: absolute; right: 36px; top: 22px; display: flex; align-items: center; gap: 0; }
+  .tv .hud .pill { background: var(--blk); color: #fff; border-radius: 30px 0 0 30px; padding: 4px 34px 4px 20px; display: flex; align-items: baseline; gap: 8px; box-shadow: 0 0 0 2px rgba(255,212,0,.5); }
+  .tv .hud .pill b { font: 800 30px/1 "Barlow Condensed"; } .tv .hud .pill i { font: 700 14px "Noto Sans TC"; font-style: normal; }
+  .tv .hud .pill em { font: 900 20px "Noto Sans TC"; font-style: normal; color: transparent; -webkit-text-stroke: 1.2px var(--y); }
+  .tv .hud .wx { width: 58px; height: 58px; margin-left: -22px; border-radius: 50%; background: #fff7d6; border: 5px solid var(--y); box-shadow: 0 0 0 3px var(--blk); display: grid; place-items: center; font: 900 22px "Noto Serif TC"; color: #6f6233; }
+  .tv .osd { position: absolute; right: 44px; top: 136px; font: 400 64px/1 "VT323"; color: #8dff7e; text-shadow: 0 0 10px rgba(120,255,110,.7), 2px 2px 0 #062006; transform: translateX(170%); transition: transform .22s steps(3); z-index: 9; }
+  .tv .osd.on { transform: none; }
+
+  .tv .screen { position: absolute; left: 140px; top: 92px; width: 800px; height: 594px; background: #fbf7ea; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 3px var(--blk), 0 26px 60px rgba(0,0,0,.5); }
+  .tv .lens { position: absolute; left: 128px; top: 80px; width: 824px; height: 618px; pointer-events: none !important; z-index: 1;
+    --c: linear-gradient(var(--y), var(--y));
+    background: var(--c) 0 0 / 34px 5px no-repeat, var(--c) 0 0 / 5px 34px no-repeat, var(--c) 100% 0 / 34px 5px no-repeat, var(--c) 100% 0 / 5px 34px no-repeat,
+      var(--c) 0 100% / 34px 5px no-repeat, var(--c) 0 100% / 5px 34px no-repeat, var(--c) 100% 100% / 34px 5px no-repeat, var(--c) 100% 100% / 5px 34px no-repeat; }
+  .tv .screen .glint { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
+  .tv .screen .glint::before { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 46%; background: linear-gradient(105deg, transparent 30%, rgba(255,250,225,.55) 48%, rgba(255,212,0,.18) 54%, transparent 70%); transform: translateX(-130%); animation: glint 12s ease-in-out infinite 3s; }
+  @keyframes glint { 0%, 84% { transform: translateX(-130%); } 100% { transform: translateX(300%); } }
+  .tv .feed { position: absolute; inset: 0; overflow: auto; padding: 34px 46px 30px; scrollbar-width: thin; scrollbar-color: #c9bd96 transparent; }
+  .tv .msg { margin: 0 0 26px; }
+  .tv .msg .np { display: inline-block; font: 800 13px/1 "Noto Sans TC"; padding: 6px 24px 6px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+  .tv .msg .box { white-space: pre-wrap; }
+  .tv .msg.me { margin-left: 140px; } .tv .msg.me .np { background: var(--org); color: #fff; }
+  .tv .msg.me .box { background: #2b2217; color: #fbf3df; padding: 14px 18px; box-shadow: inset 0 0 0 2px #4d3c25; font-size: 15px; }
+  .tv .msg.ai .np { background: #111; color: var(--y); }
+  .tv .msg.ai .box { padding: 10px 2px 0; border-top: 2px solid #111; color: #1b1912; font-size: 16px; line-height: 1.85; }
+  .tv .tuning { height: 70px; display: grid; place-items: center; background: var(--noise) 0 0 / 128px; animation: jit .14s steps(2) infinite; box-shadow: inset 0 0 0 2px #111; filter: contrast(1.2); }
+  .tv .tuning em { font: 400 22px "VT323"; font-style: normal; color: #fff; background: #111; padding: 0 12px; }
+  @keyframes jit { to { background-position: 41px 77px; } }
+  .tv .screen .static { position: absolute; inset: 0; z-index: 5; display: none; background: var(--noise) 0 0 / 150px; animation: jit .1s steps(2) infinite; }
+  .tv .screen.switching .static { display: block; }
+  .tv .screen .hold { position: absolute; left: 0; right: 0; top: -70px; height: 60px; z-index: 5; background: linear-gradient(transparent, rgba(0,0,0,.35), transparent); }
+  .tv .screen.rolling .hold { animation: hold .45s linear; }
+  .tv .screen.rolling .feed { animation: roll .45s cubic-bezier(.2,.7,.2,1); }
+  @keyframes hold { to { transform: translateY(740px); } }
+  @keyframes roll { from { transform: translateY(-40%); } 65% { transform: translateY(3%); } to { transform: none; } }
+  .tv .screen.poweron, .tv .screen.poweroff { background: #050505; }
+  .tv .screen.poweron .feed, .tv .screen.poweron .bars { animation: pon .6s cubic-bezier(.2,.8,.2,1); }
+  .tv .screen.poweroff .feed, .tv .screen.poweroff .bars { animation: poff .5s cubic-bezier(.6,0,.8,.4) forwards; }
+  @keyframes pon { 0% { transform: scale(.15, .004); filter: brightness(4); } 30% { transform: scale(1, .004); filter: brightness(3); } 100% { transform: none; filter: none; } }
+  @keyframes poff { 0% { transform: none; } 55% { transform: scale(1, .004); filter: brightness(3); } 100% { transform: scale(0, .004); filter: brightness(4); } }
+  .tv .screen .dot { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: radial-gradient(#fff, #fff 40%, rgba(255,255,255,0)); transform: scale(0); z-index: 6; }
+  .tv .screen.poweroff .dot { animation: dot .75s ease-out forwards; }
+  @keyframes dot { 0%, 60% { transform: scale(0); } 70% { transform: scale(1.4); } 100% { transform: scale(0); } }
+  .tv .bars { position: absolute; inset: 0; display: none; grid-template-rows: 64% 8% 1fr; }
+  .tv .screen.empty .bars { display: grid; } .tv .screen.empty .feed { display: none; }
+  .tv .bars > div { display: flex; } .tv .bars > div i { flex: 1; }
+  .tv .bars > div.label { display: block; white-space: nowrap; position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); background: #0d0b07; color: #fff; padding: 12px 34px 14px; text-align: center; box-shadow: 0 0 0 3px var(--y); }
+  .tv .bars .label b { display: block; font: 400 52px/1 "VT323"; letter-spacing: .08em; } .tv .bars .label span { font: 500 15px "Noto Sans TC"; color: #e8dfc4; }
+
+  .tv .callin { position: absolute; left: 140px; top: 724px; width: 800px; height: 104px; background: var(--blk); display: grid; grid-template-columns: 1fr 104px; box-shadow: 0 0 0 3px var(--blk), 0 0 0 5px rgba(255,212,0,.55), 0 20px 40px rgba(0,0,0,.45); }
+  .tv .callin .tag { position: absolute; left: 18px; top: -15px; background: var(--y); color: #111; font: 800 13px/1 "Noto Sans TC"; padding: 7px 26px 7px 12px; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+  .tv .callin .tag b { font: 800 14px "Barlow Condensed"; letter-spacing: .12em; margin-right: 8px; }
+  .tv .callin textarea { all: unset; box-sizing: border-box; padding: 26px 22px 12px; color: #f4efe0; font: 16px/1.6 "Noto Sans TC"; white-space: pre-wrap; overflow: auto; }
+  .tv .callin textarea::placeholder { color: #8e866c; }
+  .tv .callin .knob { align-self: center; justify-self: center; width: 70px; height: 70px; border-radius: 50%; position: relative;
+    background: radial-gradient(circle at 36% 30%, #504a3b, #16140f 70%); box-shadow: 0 0 0 3px var(--y), 0 0 0 8px var(--blk), 0 0 0 10px rgba(255,212,0,.35); transform: rotate(var(--k, 0deg)); transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .tv .callin .knob::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; background: repeating-conic-gradient(var(--y) 0 2deg, transparent 2deg 30deg); -webkit-mask: radial-gradient(closest-side, transparent 88%, #000 89%); mask: radial-gradient(closest-side, transparent 88%, #000 89%); }
+  .tv .callin .knob::after { content: ""; position: absolute; left: 50%; top: 8px; width: 4px; height: 22px; margin-left: -2px; border-radius: 2px; background: var(--y); }
+  .tv .callin .knob:hover { box-shadow: 0 0 0 3px #fff, 0 0 0 8px var(--blk), 0 0 0 10px rgba(255,212,0,.6); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* CRT 表層 */
+  .tv .scan { position: absolute; inset: 34px 0 0 0; z-index: 30; pointer-events: none; background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.06) 2px 3px); }
+  .tv .crt { position: absolute; inset: 34px 0 0 0; z-index: 31; pointer-events: none; box-shadow: inset 0 0 140px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,212,0,.08); }
+
+  /* 抵達：介面從霧裡滑進來 */
+  .tv.arrive .epg { animation: inL .8s cubic-bezier(.2,.8,.2,1) both; }
+  .tv.arrive .telop { animation: inL .8s cubic-bezier(.2,.8,.2,1) .15s both; }
+  .tv.arrive .screen, .tv.arrive .lens { animation: inU .9s cubic-bezier(.2,.8,.2,1) .1s both; }
+  .tv.arrive .callin { animation: inU .9s cubic-bezier(.2,.8,.2,1) .22s both; }
+  .tv.arrive .hud { animation: inR .8s cubic-bezier(.2,.8,.2,1) .2s both; }
+  @keyframes inL { from { transform: translateX(-70px); } to { transform: none; } }
+  @keyframes inR { from { transform: translateX(70px); } to { transform: none; } }
+  @keyframes inU { from { transform: translateY(46px); } to { transform: none; } }
+
+  /* 入場：把手伸進電視 */
+  .tv .entry { position: absolute; inset: 34px 0 0 0; z-index: 50; overflow: hidden; background: #060706; cursor: pointer; }
+  .tv .entry .glass { position: absolute; inset: 14px; border-radius: 34px / 26px; filter: url(#wob); transform-origin: var(--x, 50%) var(--y, 50%); transition: transform .9s cubic-bezier(.2,.7,.2,1);
+    background: radial-gradient(ellipse 46% 34% at 30% 24%, rgba(255,255,255,.09), transparent 70%), linear-gradient(118deg, transparent 54%, rgba(255,255,255,.05) 56%, transparent 63%), radial-gradient(ellipse at center, #1c201d, #060706 76%);
+    box-shadow: inset 0 0 160px 50px #000, 0 0 0 14px #0b0a07; }
+  .tv .entry .glass .hint { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; color: rgba(214,226,214,.6); font: 500 20px "Noto Sans TC"; letter-spacing: .1em; }
+  .tv .entry .glass .hint b { display: block; font: 400 30px "VT323"; color: rgba(141,255,126,.55); letter-spacing: .2em; margin-bottom: 6px; }
+  .tv .entry .glass .clock { position: absolute; right: 48px; top: 36px; font: 400 34px "VT323"; color: rgba(141,255,126,.45); }
+  .tv .entry .ring { position: absolute; border-radius: 50%; border: 2px solid rgba(225,255,236,.6); width: 20px; height: 20px; margin: -10px; animation: ring 1.1s cubic-bezier(.2,.6,.3,1) forwards; pointer-events: none; }
+  @keyframes ring { to { width: 1500px; height: 1500px; margin: -750px; border-color: rgba(225,255,236,0); border-width: 6px; } }
+  .tv .entry .glass { filter: none; }
+  .tv .entry.touch .glass { transform: scale(1.04); filter: url(#wob); }
+  .tv .entry .tunnel { position: absolute; inset: 0; display: none; background: #000; overflow: hidden; }
+  .tv .entry.fall .tunnel { display: block; } .tv .entry.fall .glass { display: none; }
+  .tv .entry .spin { position: absolute; left: 50%; top: 50%; width: 0; height: 0; animation: spin 1.4s linear both; }
+  .tv .entry .zoom { position: absolute; left: 0; top: 0; animation: zoom .55s linear infinite; }
+  @keyframes spin { to { transform: rotate(28deg); } }
+  @keyframes zoom { to { transform: scale(2.56); } }
+  .tv .entry .sq { position: absolute; }
+  .tv .entry .sq.ck { background: repeating-conic-gradient(#0b0b0b 0 25%, #f2f0e8 0 50%) 0 0 / var(--t) var(--t); }
+  .tv .entry .sq.bk { background: #050505; }
+  .tv .entry .core { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px; border-radius: 50%; background: radial-gradient(#fff6c8, #ffd400 40%, rgba(255,212,0,0) 70%); animation: core 1.4s ease-in both; }
+  @keyframes core { from { transform: scale(.3); } to { transform: scale(5); } }
+  .tv .entry .flood { position: absolute; top: 0; bottom: 0; width: 64%; transition: transform .5s cubic-bezier(.5,0,.4,1); }
+  .tv .entry .flood.l { left: 0; background: linear-gradient(90deg, #eadb9f, #f1e5b4 72%, rgba(241,229,180,0)); transform: translateX(-105%); }
+  .tv .entry .flood.r { right: 0; background: linear-gradient(270deg, #eadb9f, #f1e5b4 72%, rgba(241,229,180,0)); transform: translateX(105%); }
+  .tv .entry.flooded .flood { transform: none; }
+  .tv .entry.part { background: transparent; pointer-events: none; } .tv .entry.part .tunnel { display: none; }
+  .tv .entry.part .flood { transition-duration: 1.3s; }
+  .tv .entry.part .flood.l { transform: translateX(-105%); } .tv .entry.part .flood.r { transform: translateX(105%); }
+  .tv .entry.gone { display: none; }
+
+  @media (prefers-reduced-motion: reduce) { .stage *, .stage *::before, .stage *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="wob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.016" numOctaves="2" seed="4"/><feDisplacementMap id="wobmap" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+
+<header class="top">
+  <h1>P4 · 整個都在電視裡（概念稿 v1）</h1>
+  <p>使用者就是把手伸進電視的那個人。這一版只做三件事：①入場時把手伸進電視、②濃霧與眼鏡、③節目表與轉台。畫面是 1440×900 的示意稿，所有圖形都是原創的 CSS/SVG，沒有角色、剪影或遊戲素材。</p>
+</header>
+<div class="controls">
+  <button id="replay">▶ 重播入場</button>
+  <button id="think">AI 思考中（濃霧）</button>
+  <button id="newBtn">＋ 新對話（開機）</button>
+  <button id="delBtn">刪除目前對話（關機）</button>
+  <small>點左邊節目表可以轉台，在下方輸入框打字按 Enter 也會觸發思考濃霧</small>
+</div>
+
+<main class="wrap">
+  <div class="frame"><div class="stage tv" id="st">
+    <div class="cap">DeepSeek Harness<div class="wb"><i>—</i><i>▢</i><i>✕</i></div></div>
+
+    <div class="world" aria-hidden="true">
+      <svg viewBox="0 0 1440 866" preserveAspectRatio="none" id="floor"></svg>
+      <div class="spot" style="left:560px;--r:20deg"></div>
+      <div class="spot" style="left:840px;--r:-3deg"></div>
+      <div class="spot" style="left:1180px;--r:-24deg"></div>
+      <div class="echo" id="echo">06</div>
+    </div>
+    <div class="fog back" aria-hidden="true">
+      <div class="b" style="left:-120px;top:420px;width:700px;height:300px;--d:19s;--dx:60px"></div>
+      <div class="b" style="left:420px;top:560px;width:900px;height:360px;--d:23s;--dx:-80px"></div>
+      <div class="b" style="left:640px;top:120px;width:620px;height:260px;--d:27s;--dx:70px"></div>
+      <div class="b" style="left:-60px;top:40px;width:520px;height:240px;--d:31s;--dx:-50px"></div>
+    </div>
+    <div class="thick l" aria-hidden="true"></div><div class="thick r" aria-hidden="true"></div>
+    <div class="checker" aria-hidden="true"></div>
+
+    <aside class="epg">
+      <div class="remote">
+        <div class="brand">DSH-TV <span id="clock">14:33</span></div>
+        <button id="cmdNew"><span class="n">01</span>新對話<kbd>CTRL N</kbd></button>
+        <button><span class="n">02</span>外掛<kbd></kbd></button>
+        <button><span class="n">03</span>自動化<kbd></kbd></button>
+      </div>
+      <div class="gh"><b>節目表</b><small>PROGRAM GUIDE</small></div>
+      <div class="list" id="list"></div>
+      <div class="fog front" aria-hidden="true"></div>
+      <div class="foot"><button>設定</button><button>帳號</button></div>
+    </aside>
+
+    <section class="show">
+      <div class="telop"><span class="ch" id="telopCh">CH 06</span><h2 id="telopTitle">檢查權杖更新機制</h2><span class="live">LIVE</span></div>
+      <div class="hud"><div class="pill"><b>11/17</b><i>（二）</i><em>午後</em></div><div class="wx" title="依時段產生的氣氛天氣，不是天氣預報">霧</div></div>
+      <div class="lens" aria-hidden="true"></div>
+      <div class="screen" id="screen">
+        <div class="feed" id="feed"></div>
+        <div class="bars" aria-hidden="true">
+          <div><i style="background:#c0c0c0"></i><i style="background:#c0c000"></i><i style="background:#00c0c0"></i><i style="background:#00c000"></i><i style="background:#c000c0"></i><i style="background:#c00000"></i><i style="background:#0000c0"></i></div>
+          <div><i style="background:#0000c0"></i><i style="background:#111"></i><i style="background:#c000c0"></i><i style="background:#111"></i><i style="background:#00c0c0"></i><i style="background:#111"></i><i style="background:#c0c0c0"></i></div>
+          <div><i style="background:#00214c"></i><i style="background:#fff"></i><i style="background:#32006a"></i><i style="background:#131313;flex:3"></i><i style="background:#090909"></i></div>
+          <div class="label"><b>NO SIGNAL</b><span>等待你的第一則訊息</span></div>
+        </div>
+        <div class="static" aria-hidden="true"></div>
+        <div class="hold" aria-hidden="true"></div>
+        <div class="dot" aria-hidden="true"></div>
+        <div class="glint" aria-hidden="true"></div>
+      </div>
+      <form class="callin" id="callin">
+        <span class="tag"><b>CALL-IN</b>現場連線</span>
+        <textarea id="input" rows="2" placeholder="打電話進節目……（Enter 送出，Shift + Enter 換行）" aria-label="輸入訊息"></textarea>
+        <button class="knob" id="knob" type="submit" aria-label="送出"><span class="sr">送出</span></button>
+      </form>
+    </section>
+    <div class="osd" id="osd" aria-hidden="true">CH 06</div>
+
+    <div class="scan" aria-hidden="true"></div><div class="crt" aria-hidden="true"></div>
+
+    <div class="entry" id="entry" role="button" aria-label="點一下進入電視">
+      <div class="glass"><div class="clock">00:00</div><div class="hint"><b>· · · NO SIGNAL · · ·</b>點一下螢幕，把手伸進去</div></div>
+      <div class="tunnel"><div class="spin"><div class="zoom" id="zoom"></div></div><div class="core"></div></div>
+      <div class="flood l"></div><div class="flood r"></div>
+    </div>
+  </div></div>
+
+  <div class="notes">
+    <article>
+      <h3><span class="tag">①</span>入場：把手伸進電視</h3>
+      <ul>
+        <li>一開始是一片關掉的 CRT 玻璃，有弧形反光。點下去的位置會泛起漣漪，玻璃往內凹，手就「穿」進去了。</li>
+        <li>接著掉進黑白格子隧道（約 1.4 秒），中心有一點黃光，然後黃霧從兩側湧上把畫面蓋住。</li>
+        <li>霧往左右散開時，節目表、字幕條、閱讀區、輸入框依序從霧裡滑進定位。總長約 3.8 秒。</li>
+        <li>正式版：只在切換成 P4 時播一次，沿用 P3 那套入場控制器，一開始打字就立刻跳過。沒有點擊時，漣漪從「切換外觀」按鈕的位置開始。</li>
+      </ul>
+    </article>
+    <article>
+      <h3><span class="tag">②</span>濃霧與眼鏡</h3>
+      <ul>
+        <li>霧只會飄在攝影棚背景和節目表下半部。閱讀區、輸入框、選中的那一行就像戴了眼鏡，永遠清楚，四角的黃色鏡框就是那副眼鏡。</li>
+        <li>AI 思考時，濃霧從兩側吞掉整個攝影棚，閱讀區裡出現「訊號調整中」的雜訊條；第一個字開始輸出時，霧就散開。</li>
+        <li>任何文字都不加模糊，霧也不會蓋到功能按鈕的字。</li>
+        <li>閱讀區每隔一段時間會有一道淡淡的鏡片反光掃過。</li>
+      </ul>
+    </article>
+    <article>
+      <h3><span class="tag">③</span>節目表與轉台</h3>
+      <ul>
+        <li>側邊欄變成報紙上的電視節目表：依日期分組，每段對話是一個時段，標明時間與頻道號碼，正在看的那段標著紅色「ON AIR」。</li>
+        <li>切換對話就是轉台：雜訊閃一下（約 0.2 秒）、畫面上下捲動，右上角跳出綠色頻道號碼，背景的大數字也會跟著換。</li>
+        <li>新對話是 CRT 開機（光線拉開），還沒有訊息時顯示彩條測試畫面加「NO SIGNAL」；刪除對話是關機，畫面縮成一個光點。</li>
+      </ul>
+    </article>
+    <article>
+      <h3><span class="tag">規矩</span>跟 P3 一樣</h3>
+      <ul>
+        <li>只套在 <code>data-dsh-persona="p4"</code>；P3、P5 不動。原生的按鈕、名稱和無障礙標籤都保留，不搬動、不替換節點。</li>
+        <li>內文與輸入框不旋轉、不傾斜。開啟「減少動態效果」時，所有動態全部停止。</li>
+        <li>不畫角色、剪影、人形輪廓，不用遊戲截圖、標誌或歌詞。</li>
+        <li>正式版的掃描線會避開閱讀區，這張概念稿為了看整體感覺才全畫面蓋上。</li>
+      </ul>
+    </article>
+    <article class="ask">
+      <h3><span class="tag">想請你決定</span>看完告訴我</h3>
+      <ul>
+        <li>霧的濃度：現在這樣，還是再濃一點、淡一點？</li>
+        <li>閱讀區：維持奶油色紙張，還是改成黑底白字、更像電視螢幕？</li>
+        <li>頻道號碼：每段對話固定一個號碼，還是依照節目表順序每次重排？</li>
+        <li>入場動畫：每次切換到 P4 都播，還是每天第一次才播？</li>
+      </ul>
+    </article>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const st = $('st'), screen = $('screen'), feed = $('feed'), list = $('list');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const fit = () => document.querySelectorAll('.frame').forEach(f => { const s = f.querySelector('.stage'); if (s) s.style.transform = `scale(${f.clientWidth / 1440})`; });
+  new ResizeObserver(fit).observe(document.body); fit();
+
+  // 雜訊材質
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const cx = cv.getContext('2d'), img = cx.createImageData(128, 128);
+  for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255 | 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  cx.putImageData(img, 0, 0); st.style.setProperty('--noise', `url(${cv.toDataURL()})`);
+
+  // 攝影棚地板：透視線 + 圓形舞台
+  const ns = 'http://www.w3.org/2000/svg', floor = $('floor'), vx = 894, vy = 300;
+  let d = '';
+  for (let x = -900; x <= 2700; x += 160) d += `M${vx} ${vy}L${x} 866`;
+  for (let k = 1; k < 12; k++) { const y = vy + 566 * (1 - 1 / (1 + k * k * .06)); d += `M0 ${y.toFixed(1)}H1440`; }
+  floor.innerHTML = `<defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd400" stop-opacity="0"/><stop offset="1" stop-color="#ffd400" stop-opacity=".22"/></linearGradient></defs>
+    <path d="${d}" stroke="url(#fl)" stroke-width="1.5" fill="none"/>
+    <ellipse cx="${vx}" cy="806" rx="560" ry="84" fill="#100d07" stroke="#ffd400" stroke-opacity=".35" stroke-width="3"/>
+    <ellipse cx="${vx}" cy="806" rx="470" ry="66" fill="none" stroke="#f4efe0" stroke-opacity=".18" stroke-width="10" stroke-dasharray="22 22"/>
+    <ellipse cx="${vx}" cy="806" rx="380" ry="50" fill="none" stroke="#ffd400" stroke-opacity=".25" stroke-width="2"/>`;
+
+  // 隧道：一層套一層的正方形，持續放大形成無限下墜
+  const zoom = $('zoom');
+  for (let n = 9; n >= 0; n--) {
+    const s = 46 * Math.pow(1.6, n), el = document.createElement('div');
+    el.className = 'sq ' + (n % 2 ? 'bk' : 'ck');
+    Object.assign(el.style, { width: s + 'px', height: s + 'px', left: -s / 2 + 'px', top: -s / 2 + 'px' });
+    el.style.setProperty('--t', (s / 6).toFixed(1) + 'px');
+    zoom.appendChild(el);
+  }
+
+  // 假資料
+  const days = ['今天 11/17（二）', '昨天 11/16（一）', '', '11/14（六）'];
+  let seq = 6;
+  const sessions = [
+    { ch: 6, day: 0, time: '14:32', title: '檢查權杖更新機制', msgs: [
+      ['me', '登入權杖過期之後，前端好像沒有自動更新，可以幫我找找看是哪裡出問題嗎？'],
+      ['ai', '看起來是更新請求和原本的請求同時送出，兩邊都拿到 401。\n\n建議加一個共用的更新鎖：第一個 401 負責去換新權杖，其他請求先排隊，等新權杖回來再一起重送。這樣不會重複更新，也不會把使用者踢回登入頁。'],
+      ['me', '那如果換權杖本身也失敗呢？'],
+      ['ai', '那就是真的過期了。把排隊中的請求全部拒絕，清掉本地的權杖，再導回登入頁，並且記下使用者原本所在的頁面，登入後直接帶回去。']] },
+    { ch: 5, day: 0, time: '11:05', title: 'P3 水面動畫重構', msgs: [
+      ['me', '水面的漣漪在 1024 寬的時候會蓋到標題列，怎麼修比較好？'],
+      ['ai', '問題出在漣漪用固定的 36px 位移，但 Windows 標題列的高度會跟著縮放改變。改用 --dsh-windows-titlebar-height 當起點，漣漪就會永遠貼在標題列下緣。']] },
+    { ch: 4, day: 0, time: '09:40', title: '這週的週報草稿', msgs: [
+      ['me', '幫我把這週做的事整理成三點週報。'],
+      ['ai', '1. 完成 P3 窗外月亮與唱片頁的動態。\n2. 修好原生側欄在 rc3 版的捲動範圍。\n3. 開始規劃 P4「整個都在電視裡」的核心比喻。']] },
+    { ch: 3, day: 1, time: '22:10', title: '午夜電視素材研究', msgs: [
+      ['me', '老電視關機時那個縮成一點的效果，原理是什麼？'],
+      ['ai', '映像管關機時，掃描電路先停掉垂直偏轉，畫面被壓成一條水平線；接著水平偏轉也停了，剩下電子束打在中心，就成了一個慢慢暗掉的亮點。']] },
+    { ch: 2, day: 1, time: '16:48', title: '修正側欄捲動', msgs: [
+      ['me', '側欄捲到底的時候最後一行會被設定按鈕擋住。'],
+      ['ai', '捲動容器少了底部留白。給清單加上 padding-bottom，數值等於底部按鈕列的高度，或改用 scroll-padding-bottom。']] },
+    { ch: 1, day: 3, time: '20:03', title: '台南兩天一夜行程', msgs: [
+      ['me', '週末想去台南兩天一夜，幫我排一下行程。'],
+      ['ai', '第一天：上午逛赤崁樓和神農街，中午吃牛肉湯；下午去安平老街，傍晚在安平看夕陽。\n第二天：早上吃碗粿，接著去奇美博物館待半天，回程前再買點伴手禮。']] },
+  ];
+  let cur = 0;
+  const pad = n => String(n).padStart(2, '0');
+
+  const renderList = () => {
+    list.innerHTML = ''; let lastDay = -1;
+    sessions.forEach((s, i) => {
+      if (s.day !== lastDay) { lastDay = s.day; const h = document.createElement('div'); h.className = 'day'; h.innerHTML = `<span></span><span>${s.day === 0 ? '晴時多霧' : ''}</span>`; h.firstChild.textContent = days[s.day] || ''; list.appendChild(h); }
+      const b = document.createElement('button'); b.className = 'row';
+      if (i === cur) b.setAttribute('aria-current', 'true');
+      b.innerHTML = `<time>${s.time}<small>CH ${pad(s.ch)}</small></time><b></b><span>${s.msgs.length ? s.msgs.length + ' 則訊息' : '尚未開播'}</span>`;
+      b.querySelector('b').textContent = s.title;
+      b.addEventListener('click', () => { if (i !== cur) tune(i); });
+      list.appendChild(b);
+    });
+  };
+  const msgEl = (who, text) => {
+    const m = document.createElement('div'); m.className = 'msg ' + who;
+    m.innerHTML = `<span class="np">${who === 'me' ? '你' : 'DeepSeek'}</span><div class="box"></div>`;
+    m.querySelector('.box').textContent = text; return m;
+  };
+  const renderFeed = () => {
+    const s = sessions[cur]; feed.innerHTML = '';
+    s.msgs.forEach(([w, t]) => feed.appendChild(msgEl(w, t)));
+    screen.classList.toggle('empty', !s.msgs.length);
+    $('telopCh').textContent = 'CH ' + pad(s.ch); $('telopTitle').textContent = s.title;
+    $('echo').textContent = pad(s.ch);
+    feed.scrollTop = feed.scrollHeight;
+  };
+  let osdT;
+  const osd = ch => { const o = $('osd'); o.textContent = 'CH ' + pad(ch); o.classList.add('on'); clearTimeout(osdT); osdT = setTimeout(() => o.classList.remove('on'), 1600); };
+  const restart = (el, cls, ms) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms); };
+
+  const tune = i => {
+    cur = i; renderList();
+    if (reduce) { renderFeed(); return; }
+    screen.classList.add('switching');
+    setTimeout(() => { screen.classList.remove('switching'); renderFeed(); restart(screen, 'rolling', 460); osd(sessions[cur].ch); }, 200);
+  };
+
+  const newSession = () => {
+    seq += 1; sessions.unshift({ ch: seq, day: 0, time: '14:33', title: '新節目', msgs: [] }); cur = 0; renderList(); renderFeed();
+    if (!reduce) { restart(screen, 'poweron', 620); osd(seq); }
+    $('input').focus();
+  };
+  const delSession = () => {
+    if (sessions.length <= 1) return;
+    const finish = () => { sessions.splice(cur, 1); cur = Math.min(cur, sessions.length - 1); screen.classList.remove('poweroff'); renderList(); renderFeed(); if (!reduce) { restart(screen, 'poweron', 620); osd(sessions[cur].ch); } };
+    if (reduce) return finish();
+    screen.classList.add('poweroff'); setTimeout(finish, 900);
+  };
+
+  // 送出 → 思考濃霧 → 第一個字出現時霧散開
+  let busy = false, knobDeg = 0;
+  const send = text => {
+    if (busy) return; busy = true;
+    const s = sessions[cur];
+    if (text) { s.msgs.push(['me', text]); if (s.title === '新節目') s.title = text.slice(0, 14); }
+    knobDeg += 60; $('knob').style.setProperty('--k', knobDeg + 'deg');
+    renderList(); renderFeed();
+    const t = document.createElement('div'); t.className = 'tuning'; t.innerHTML = '<em>訊號調整中 · · ·</em>'; feed.appendChild(t); feed.scrollTop = feed.scrollHeight;
+    st.classList.add('thinking');
+    const reply = '收到你的來電！這是概念稿的示範回覆。\n\n正式版裡，思考中的濃霧會一直持續到模型輸出第一個字，接著霧就從兩側散開，閱讀區從頭到尾都保持清楚。';
+    setTimeout(() => {
+      st.classList.remove('thinking'); t.remove();
+      const m = msgEl('ai', ''); feed.appendChild(m); const box = m.querySelector('.box'); let k = 0;
+      const step = () => { k += 2; box.textContent = reply.slice(0, k); feed.scrollTop = feed.scrollHeight; if (k < reply.length) setTimeout(step, reduce ? 0 : 22); else { s.msgs.push(['ai', reply]); renderList(); busy = false; } };
+      step();
+    }, 2600);
+  };
+  $('callin').addEventListener('submit', e => { e.preventDefault(); const v = $('input').value.trim(); if (!v) return; $('input').value = ''; send(v); });
+  $('input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('callin').requestSubmit(); } });
+
+  // 入場
+  const entry = $('entry'), wob = $('wobmap');
+  let timers = [], started = false;
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const ripple = (x, y) => {
+    entry.style.setProperty('--x', x + 'px'); entry.style.setProperty('--y', y + 'px');
+    [0, 140, 300].forEach(dl => later(() => { const r = document.createElement('div'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; entry.appendChild(r); later(() => r.remove(), 1200); }, dl));
+    const t0 = performance.now();
+    const anim = now => { const p = Math.min(1, (now - t0) / 900); wob.setAttribute('scale', (38 * Math.sin(Math.PI * p)).toFixed(1)); if (p < 1 && started) requestAnimationFrame(anim); };
+    requestAnimationFrame(anim);
+  };
+  const enter = ev => {
+    if (started) return; started = true;
+    const r = entry.getBoundingClientRect(), sc = r.width / 1440;
+    const x = ev ? (ev.clientX - r.left) / sc : 720, y = ev ? (ev.clientY - r.top) / sc : 433;
+    if (reduce) { entry.classList.add('gone'); return; }
+    entry.classList.add('touch'); ripple(x, y);
+    later(() => entry.classList.add('fall'), 750);
+    later(() => entry.classList.add('flooded'), 1900);
+    later(() => { st.classList.add('arrive'); entry.classList.add('part'); }, 2450);
+    later(() => osd(sessions[cur].ch), 2900);
+    later(() => { entry.classList.add('gone'); st.classList.remove('arrive'); }, 3800);
+  };
+  entry.addEventListener('click', enter);
+  entry.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') enter(); });
+  entry.tabIndex = 0;
+  const replay = () => {
+    timers.forEach(clearTimeout); timers = []; started = false; wob.setAttribute('scale', 0);
+    entry.className = 'entry'; st.classList.remove('arrive'); entry.querySelectorAll('.ring').forEach(r => r.remove());
+    entry.querySelector('.tunnel').querySelectorAll('.spin, .core').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+  };
+
+  $('replay').addEventListener('click', replay);
+  $('think').addEventListener('click', () => send(''));
+  $('newBtn').addEventListener('click', newSession);
+  $('cmdNew').addEventListener('click', newSession);
+  $('delBtn').addEventListener('click', delSession);
+
+  renderList(); renderFeed();
+  if (reduce) entry.classList.add('gone');
+})();
+</script>
+</body>
+</html>
