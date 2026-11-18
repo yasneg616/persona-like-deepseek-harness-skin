@@ -26,7 +26,7 @@ Open **Settings → General → Appearance** and use the **Skin** row. The choic
 
 The demo shows the diagonal navigation, cut-in transitions, collage letters, pop-up menu, and collapsible sidebar with sample sessions.
 
-The P5-only stable package is available on [GitHub Releases](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2). To try all three skins from this branch, run `npm ci` and `npm pack` and use the resulting tarball in the installation steps below.
+[Download the 1.6.0 plugin](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.6.0). The package includes all three skins, with P5 Calling Card selected by default.
 
 ## What it actually changes
 
@@ -193,7 +193,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 With the target profile stopped, install the package and start the profile:
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.4.0.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.6.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -213,7 +213,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 Stop the DSH process first. The command drops this dependency and its line in `dsh.profile.bundles`. It does not edit the industrial package, the audio package, or `$env:USERPROFILE\.dsh\cordis.patch.yml`. Start DSH again. The web client then has no calling-card style, root attribute, or architectural word. Settings → Plugins can deselect the bundle without deleting the files; that selection is saved immediately and the client drops it on the next process start, not on a page reload. Launch the previous profile to leave `calling-card` unused. Do not grant `allow-version` unless you accept an untested host.
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.4.0.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.6.0.tgz
 ```
 
 ## Develop

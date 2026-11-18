@@ -1,6 +1,6 @@
 {
   "name": "dsh-calling-card-skin",
-  "version": "1.5.8",
+  "version": "1.6.0",
   "private": true,
   "description": "Calling-card skin for the DeepSeek Harness web client. Red, black, and white paper geometry over live sessions, messages, and the composer.",
   "type": "module",

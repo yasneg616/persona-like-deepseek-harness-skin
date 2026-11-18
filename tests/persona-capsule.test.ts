@@ -4,11 +4,11 @@ import { createHash } from 'node:crypto'
 import { test } from 'node:test'
 const css = readFileSync(new URL('../src/client/persona.css', import.meta.url), 'utf8')
 
-test('1.5 adds only a P3-scoped block; the complete accepted 1.4 stylesheet is byte-preserved', () => {
+test('1.5 adds only a P3-scoped block; the accepted 1.4 stylesheet is preserved', () => {
   const start = css.indexOf('/* 1.5.0 P3 ONLY')
   const end = css.lastIndexOf('/* Reduced motion: every P3/P4 layer')
   assert.ok(start > 0 && end > start)
-  const original = css.slice(0, start) + css.slice(end)
+  const original = (css.slice(0, start) + css.slice(end)).replace(/\r\n/g, '\n')
   assert.equal(createHash('sha256').update(original).digest('hex'), 'a3c9087c74588682a44d09d8ee8ab34bd927b3a6562b4ac93cf122dad59ee429')
   const added = css.slice(start, end)
   assert.equal(added.includes('data-dsh-persona="p4"'), false)

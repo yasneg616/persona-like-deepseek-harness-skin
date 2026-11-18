@@ -26,7 +26,7 @@ DeepSeek Harness 网页和桌面客户端的三款可选皮肤。
 
 演示使用示例会话，展示斜排导航、切页转场、拼贴信、弹出菜单和侧栏收放。
 
-P5 稳定版在 [GitHub Releases](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2) 提供。要体验此分支的三款皮肤，可运行 `npm ci` 和 `npm pack`，再按下方步骤安装生成的压缩包。
+[下载 1.6.0 插件](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.6.0)。安装包内含三款皮肤，默认使用 P5 Calling Card。
 
 ## 它真正接上的接口
 
@@ -206,7 +206,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 退出目标配置档后，安装下载的包，再启动配置档：
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.4.0.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.6.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -228,7 +228,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 校验压缩包：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.4.0.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.6.0.tgz
 ```
 
 ## 本地构建与夹具
