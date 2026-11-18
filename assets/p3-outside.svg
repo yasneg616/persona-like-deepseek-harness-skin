@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="none"><!-- Original seamless passing coastal city. Not a map or a copied P3 location. -->
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#125dda"/><stop offset=".6" stop-color="#45b2f4"/><stop offset="1" stop-color="#06369a"/></linearGradient></defs><path fill="url(#sky)" d="M0 0H1200V900H0Z"/>
+<path fill="#82d7ff" opacity=".25" d="M0 180h230l48-16h222l58 20h275l63-14h304v18H0Z"/>
+<path fill="#1653b1" d="M0 370h65V304h69v66h80V274h80v96h52V320h89v50h60V295h92v75h85V247h78v123h67V286h81v84h85V320h87v50h85V296h65v74h60v530H0Z"/>
+<path fill="#1749a2" d="M0 400h100V350h50v50h140V327h70v73h140V355h110v45h160V316h55v84h130V346h85v54h160v500H0Z"/>
+<path fill="#226bd3" d="M0 435H1200V900H0Z"/><g fill="#a5f1ff" opacity=".23"><path d="M0 484h160v3H0Zm290-8h260v3H290Zm460 12h220v3H750Zm310-12h140v3h-140ZM90 540h140v4H90Zm260 40h260v3H350Zm450-30h160v3H800Zm230 40h170v3h-170ZM0 658h270v4H0Zm430-10h100v4H430Zm250 35h360v3H680Zm440-20h80v3h-80Z"/></g>
+<path fill="#052151" d="M0 733H1200v13H0Z"/><path fill="#67c7ee" opacity=".3" d="M0 731H1200v2H0Z"/>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 280 180 360">
+<!-- Original flat vector study, same researched capsule proportions and twin cord.
+     P3 editorial language: five solid inks, hard cel planes. No photographic finish. -->
+<!-- Long twin cord is an unbroken graphic gesture, not a shaded tube. -->
+<path d="M206 337C267 274 68 170 173 102S304 37 293 -30" fill="none" stroke="#030711" stroke-width="6"/>
+<path d="M216 336C287 262 98 171 184 121S327 48 319 -18" fill="none" stroke="#06122e" stroke-width="3"/>
+<g transform="rotate(23 206 430)" stroke="#030711" stroke-width="2.5" stroke-linejoin="miter">
+ <!-- Capsule silhouette: broad shuttle collar above a long cylindrical body. -->
+ <path d="M186 319l4-12 25 1 7 16" fill="none" stroke-width="5"/>
+ <rect x="177" y="325" width="58" height="294" rx="25" fill="#06122e"/>
+ <!-- Flat anime colour cuts, deliberately discontinuous rather than metallic. -->
+ <path d="M206 336l28 9v254l-27 17 9-88-13-41 14-75z" fill="#34e1ff" stroke="none"/>
+ <path d="M180 351l10-12 2 226-12 36z" fill="#1455f5" stroke="none"/>
+ <path d="M225 347l8 9v183l-9 27 5-121z" fill="#f8fbfa" stroke="none"/>
+ <ellipse cx="206" cy="328" rx="28" ry="11" fill="#f8fbfa"/>
+ <path d="M185 326l26-5 16 7-22 7z" fill="#06122e" stroke="none"/>
+ <!-- Bold jog-shuttle collar and its one unmistakable recessed control. -->
+ <path d="M170 350l12-7 49-1 11 8v43l-12 9-49-1-11-9z" fill="#06122e"/>
+ <path d="M212 345l29 6v40l-23 10 7-24z" fill="#f8fbfa" stroke="none"/>
+ <path d="M172 387l44 4 25-7v10l-12 8-48-1-11-9z" fill="#1455f5" stroke="none"/>
+ <path d="M178 354l13 2v29l-13-2z" fill="#06122e" stroke-width="1.5"/>
+ <path d="M182 361v15m5-14v15" fill="none" stroke="#f8fbfa" stroke-width="2"/>
+ <!-- Small narrow display: a flat black face, cyan data, no glass or gloss. -->
+ <rect x="190" y="407" width="36" height="128" rx="1" fill="#030711" stroke="#f8fbfa" stroke-width="2"/>
+ <path d="M221 411h2v120h-2z" fill="#34e1ff" stroke="none"/>
+ <g transform="translate(212 420) rotate(90)" fill="#34e1ff" stroke="none" font-family="monospace" font-size="11" font-weight="bold">
+  <path d="M0 0l7 4-7 4z"/><text x="15" y="8">00:49</text>
+  <path d="M72 3h4v5h-4zM79 0h4v8h-4zM86-4h4V8h-4z"/>
+ </g>
+ <!-- Sparse controls, graphic white not tiny product photography markings. -->
+ <path d="M197 548h21v13h-21z" fill="#f8fbfa" stroke-width="1.5"/>
+ <path d="M202 551l6 3-6 4m10-7v7" fill="none" stroke-width="1.5"/>
+ <circle cx="208" cy="578" r="4" fill="#34e1ff" stroke="#f8fbfa" stroke-width="1.5"/>
+ <path d="M179 596l53 9-3 11-49-10z" fill="#f8fbfa"/>
+ <ellipse cx="206" cy="614" rx="27" ry="10" fill="#1455f5"/>
+ <path d="M183 615l20 4 24-5" fill="none" stroke="#34e1ff" stroke-width="3"/>
+ <!-- One sharp caustic slash: solid ink, never a gradient or soft reflection. -->
+ <path d="M178 541l56-20-1 7-55 20z" fill="#f8fbfa" stroke="none"/>
+</g>
+</svg>

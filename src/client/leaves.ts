@@ -17,10 +17,35 @@ const GLOSS: Record<string, string> = {
 export function syncNavLeaves(documentRef: Document): void {
   const side = sidebarColumn(documentRef)
   if (!side) return
+  const isP3 = documentRef.documentElement?.getAttribute('data-dsh-persona') === 'p3'
+  const native = side.querySelector('.wtg9ga_scrollRegion')
+  if (isP3 && native) side.parentElement?.setAttribute('data-p3-native-layout', 'rc3')
+  else {
+    side.parentElement?.removeAttribute('data-p3-native-layout')
+    side.querySelectorAll('[data-cc-label]').forEach(node => node.removeAttribute('data-cc-label'))
+  }
   // Collapsed to the rail: no paper leaves; rail.ts turns the controls into tickets.
   const frame = side.parentElement
   if (frame?.hasAttribute('data-sidebar-collapsed') && !frame.hasAttribute('data-sidebar-drawer')) {
     clearNavLeaves(documentRef)
+    return
+  }
+  // rc3 adds scrollRegion/scrollArea and a session-action slot. These are
+  // genuine host controls, not every descendant button with text (shortcuts,
+  // workspace tools and unpin buttons are not navigation).
+  if (documentRef.documentElement?.getAttribute('data-dsh-persona') !== 'p3') frame?.removeAttribute('data-p3-native-layout')
+  if (documentRef.documentElement?.getAttribute('data-dsh-persona') === 'p3' && native) {
+    clearNavLeaves(documentRef)
+    frame?.setAttribute('data-p3-native-layout', 'rc3')
+    const buttons = Array.from(side.querySelectorAll<HTMLButtonElement>('button.wtg9ga_newSession, button.wtg9ga_panelRow'))
+    buttons.forEach((button, index) => {
+      const label = (button.querySelector('.wtg9ga_newSessionLabel, .wtg9ga_panelTitle')?.textContent || button.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim()
+      button.setAttribute(LEAF, '')
+      button.setAttribute('data-cc-label', label)
+      button.setAttribute('data-cc-i', String(index))
+      button.setAttribute('data-cc-num', String(index + 1).padStart(2, '0'))
+      button.style.setProperty('--cc-i', String(index))
+    })
     return
   }
   let index = 0
@@ -58,6 +83,7 @@ export function clearNavLeaves(documentRef: Document): void {
     button.removeAttribute('data-cc-gloss')
     button.removeAttribute('data-cc-lines')
     button.removeAttribute('data-cc-i')
+    button.removeAttribute('data-cc-label')
     const styled = button as { style?: { removeProperty: (name: string) => void } }
     styled.style?.removeProperty('--cc-i')
   }

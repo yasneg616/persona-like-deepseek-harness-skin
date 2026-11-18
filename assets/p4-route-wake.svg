@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="none"><!-- Original whole-viewport P4 channel-tuning wake: golden broadcast sweep and SMPTE color-bar ribbon, no screenshot or character. -->
+<path fill="#ffe600" fill-opacity=".68" d="M0 0H1600V1000H0Z"/>
+<path fill="#12110d" fill-opacity=".82" d="M0 0 1600 0 1600 220 0 420Z"/>
+<path fill="#f54329" fill-opacity=".85" d="M0 420 1600 220 1600 265 0 465Z"/>
+<path fill="#ff9c00" fill-opacity=".85" d="M0 465 1600 265 1600 310 0 510Z"/>
+<path fill="#fff8d6" fill-opacity=".9" d="M0 510 1600 310 1600 355 0 555Z"/>
+<path fill="#58c322" fill-opacity=".85" d="M0 555 1600 355 1600 400 0 600Z"/>
+<path fill="#1da5f8" fill-opacity=".85" d="M0 600 1600 400 1600 445 0 645Z"/>
+<g fill="none" stroke="#12110d" stroke-width="6" opacity=".45">
+  <circle cx="240" cy="480" r="180"/>
+  <circle cx="240" cy="480" r="320"/>
+  <circle cx="240" cy="480" r="480"/>
+</g>
+</svg>

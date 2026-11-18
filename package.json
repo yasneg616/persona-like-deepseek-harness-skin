@@ -1,6 +1,6 @@
 {
   "name": "dsh-calling-card-skin",
-  "version": "1.0.2",
+  "version": "1.5.8",
   "private": true,
   "description": "Calling-card skin for the DeepSeek Harness web client. Red, black, and white paper geometry over live sessions, messages, and the composer.",
   "type": "module",
@@ -50,7 +50,8 @@
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-ui-layout",
         "@deepseek-ai/dsh-client-ui-sidebar",
-        "@deepseek-ai/dsh-client-ui-conversation"
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-settings-general"
       ]
     }
   },
@@ -59,12 +60,16 @@
     "dsh": ">=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3",
-    "@deepseek-ai/cordis": ">=4.0.4 <5"
+    "@deepseek-ai/cordis": ">=4.0.4 <5",
+    "@deepseek-ai/dsh": ">=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh": { "optional": true },
-    "@deepseek-ai/cordis": { "optional": true }
+    "@deepseek-ai/dsh": {
+      "optional": true
+    },
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
   },
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -78,11 +83,13 @@
     "@deepseek-ai/dsh-client-ui-theme": "0.2.0-rc.2",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.2",
+    "@types/three": "^0.160.0",
     "dsh-theme-022": "npm:@deepseek-ai/dsh-client-ui-theme@0.2.2-rc.1",
     "esbuild": "^0.25.11",
     "jsdom": "^27.0.1",
     "react": "^19.2.0",
     "semver": "^7.7.3",
+    "three": "^0.160.0",
     "typescript": "^5.9.3"
   }
 }

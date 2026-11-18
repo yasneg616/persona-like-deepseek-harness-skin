@@ -86,14 +86,15 @@ test('a streaming headline waits until it settles', () => {
   assert.ok(title.querySelectorAll('.dsh-cc-han').length >= 2)
 })
 
-test('the star field keeps four v9 contours with a visible gap', () => {
+test('the star field layers dark and gray nested stars at different sizes', () => {
   const svg = readFileSync(new URL('../assets/star-field.svg', import.meta.url), 'utf8')
-  assert.match(svg, /80\.0,4\.0 101\.0,51\.1 152\.3,56\.5/)
-  // One star body, stamped across the sheet.
   const body = svg.match(/<defs>([\s\S]*?)<\/defs>/)![1]
-  assert.equal((body.match(/fill="#111"/g) ?? []).length, 3, 'three black contours per star')
-  const marks = svg.match(/<use href="#s" transform="translate\([-\d.]+ [-\d.]+\) rotate\((-8|18)\) scale\(/g) ?? []
-  assert.ok(marks.length >= 600, `expected a dense oversized field, got ${marks.length}`)
+  assert.equal((body.match(/fill="currentColor"/g) ?? []).length, 3)
+  assert.equal((body.match(/fill="#fff"/g) ?? []).length, 2)
+  assert.match(svg, /<use href="#star" color="#111"/)
+  assert.match(svg, /<use href="#star" color="#8[\da-f]{5}"/)
+  const scales = Array.from(svg.matchAll(/scale\(([\d.]+)\)/g), match => Number(match[1]))
+  assert.ok(Math.max(...scales) / Math.min(...scales) >= 3, 'large foreground stars overlap smaller fillers')
 })
 
 test('the star field flows one seamless lattice period along the band, still under reduced motion', () => {
@@ -105,12 +106,10 @@ test('the star field flows one seamless lattice period along the band, still und
   assert.match(frames, /to \{ transform: translate3d\(var\(--cc-star-px\), var\(--cc-star-py\), 0\); \}/)
   const x = Number(css.match(/--cc-star-px: (-?[\d.]+)px/)![1])
   const y = Number(css.match(/--cc-star-py: (-?[\d.]+)px/)![1])
-  // P = 10 lattice rows (keeps the rotation checker and the 1-in-5 large stars) x 1.12.
-  const b = [-47.79621543, 78.61021581]
-  assert.ok(Math.abs(x - 10 * b[0] * 1.12) < 0.05 && Math.abs(y - 10 * b[1] * 1.12) < 0.05, `P ${x} ${y}`)
+  assert.equal(x, -w)
+  assert.equal(y, 2 * h)
   assert.ok(x < 0 && y > 0, 'down-left, along the band')
-  // Sheet covers a 2560x1600 box for the whole loop.
-  assert.ok(w >= 2560 - x && h >= 1600 + y)
+  assert.match(css, /\.dsh-cc-stars::before \{[^}]*background-repeat: repeat;/)
   const flow = css.match(/\.dsh-cc-stars::before \{\s*animation: dsh-cc-flow-stars ([\d.]+)s linear infinite;/)
   assert.ok(flow, 'linear endless flow')
   const seconds = Number(flow![1])

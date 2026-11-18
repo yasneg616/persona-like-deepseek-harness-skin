@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320" viewBox="0 0 480 320" fill="none" stroke-linecap="round">
+  <!-- Original water-caustic tile for the P3 mode: loose cells of light, tiled seamlessly. -->
+  <g stroke="#8fe6ff" stroke-width="2.2" stroke-opacity=".55">
+    <path d="M0 40c40-24 70 22 112 6s58-38 104-14 62 30 104 8 70-22 112-4 48 10 48 10"/>
+    <path d="M0 200c36 18 64-26 110-10s54 42 100 22 70-38 112-16 64 26 108 6 50-8 50-8"/>
+    <path d="M60 46c-8 40 26 62 18 104s-34 50-26 50M216 32c14 42-18 66-4 108s20 60 8 60M320 40c-16 36 22 58 10 98s-12 56-12 62M432 44c10 40-20 60-10 100s10 50 0 56"/>
+    <path d="M78 210c-10 36 22 54 12 90M210 212c10 30-14 58-2 108M322 206c-12 34 18 70 6 114M430 196c8 40-18 70-6 124"/>
+  </g>
+  <g stroke="#e8fbff" stroke-width="1.1" stroke-opacity=".5">
+    <path d="M0 120c50 14 80-20 128-6s60 30 108 10 70-26 116-8 76 20 128 2"/>
+    <path d="M0 280c46-16 84 18 126 4s66-30 110-8 74 26 118 6 80-16 126 0"/>
+  </g>
+</svg>

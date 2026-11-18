@@ -18,5 +18,7 @@ They cover 3,751 ideographs. A rarer character can still fall through to a gener
 assets/star-band.svg and the calling-card geometry are original to this skin.
 No game artwork, character art, or game fonts are included.
 
+The P4 3D room bundles three.js under the MIT license. See LICENSES/MIT-three.txt.
+
 This package does not modify DeepSeek Harness, dsh-industrial-acid-skin, or
 dsh-audio-reactive.

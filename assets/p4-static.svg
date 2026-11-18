@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Original TV-static grain for the P4 mode (procedural noise, no imagery). -->
+  <filter id="n" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".92" numOctaves="2" seed="4" stitchTiles="stitch"/>
+    <feColorMatrix values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1"/>
+    <feComponentTransfer><feFuncR type="discrete" tableValues="0 .35 .7 1"/><feFuncG type="discrete" tableValues="0 .35 .7 1"/><feFuncB type="discrete" tableValues="0 .35 .7 1"/></feComponentTransfer>
+  </filter>
+  <rect width="240" height="240" filter="url(#n)"/>
+</svg>

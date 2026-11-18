@@ -1,0 +1,9 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {readFileSync} from 'node:fs'
+import {JSDOM} from 'jsdom'
+import {syncNavLeaves,clearNavLeaves} from '../src/client/leaves.ts'
+function native(mode='p3') {const html=readFileSync(new URL('../preview/native-rc3.html',import.meta.url),'utf8').replace(/<style[\s\S]*?<\/style>/g,'');const d=new JSDOM(html).window.document;d.documentElement.setAttribute('data-dsh-persona',mode);return d}
+test('rc3 native controls: only four real navigation commands; shortcuts/unpin/settings never become pages',()=>{const d=native();syncNavLeaves(d);const nav=Array.from(d.querySelectorAll('[data-cc-leaf]'));assert.equal(nav.length,4);assert.deepEqual(nav.map(n=>n.getAttribute('data-cc-label')),['新会话','Plugins','Automation tasks','更多']);assert.ok(!d.querySelector('.wtg9ga_panelUnpin[data-cc-leaf]'));assert.ok(!d.querySelector('.wtg9ga_newSessionShortcut[data-cc-leaf]'));assert.equal(d.querySelector('#frame')?.getAttribute('data-p3-native-layout'),'rc3');assert.equal(d.querySelector('.wtg9ga_newSessionShortcut')?.textContent,'CtrlN');clearNavLeaves(d);assert.equal(d.querySelector('[data-cc-label]'),null)})
+test('rc3 compact initial mount still recognizes native wrapper constraints',()=>{const d=native();d.querySelector('#frame')?.setAttribute('data-sidebar-collapsed','true');syncNavLeaves(d);assert.equal(d.querySelector('#frame')?.getAttribute('data-p3-native-layout'),'rc3');assert.equal(d.querySelector('[data-cc-leaf]'),null)})
+test('rc3 native compatibility layout is P3-only and released when mode changes',()=>{const d=native();syncNavLeaves(d);d.documentElement.setAttribute('data-dsh-persona','p4');syncNavLeaves(d);assert.equal(d.querySelector('[data-p3-native-layout]'),null);assert.equal(d.querySelector('[data-cc-label]'),null)})

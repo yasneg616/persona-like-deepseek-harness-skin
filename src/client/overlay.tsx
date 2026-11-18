@@ -3,6 +3,7 @@ import { restoreCollage, syncCollage } from './collage.ts'
 import { cutoutFor } from './cutouts.ts'
 import { clearHeroType, clearNavLeaves, syncHeroType, syncNavLeaves, syncSideWidth } from './leaves.ts'
 import { countFlows, burstFor, createBurst } from './sfx.ts'
+import { createConversationWindow } from './conversation-window.ts'
 import { createEntryTracker } from './motion.ts'
 import { createMorphTracker } from './morph.ts'
 import { createGiant } from './giant.ts'
@@ -161,6 +162,7 @@ export function CallingCardOverlay() {
     else node.insertBefore(giant.root, node.firstChild)
     const burst = createBurst(document, window)
     node.appendChild(burst.root)
+    const conversationWindow = createConversationWindow(document, window)
     const entries = createEntryTracker(document, window)
     const morph = createMorphTracker(document, window)
     const chrome = mountChrome(document, window, node.querySelector<HTMLElement>('.dsh-cc-chrome'))
@@ -212,6 +214,7 @@ export function CallingCardOverlay() {
       const stateChanged = (next.state ?? '') !== current
       const grewInPlace = primed && !stateChanged && nextKey === flowKey
       const phaseChanged = primed && nextKey.split('|')[1] !== flowKey.split('|')[1]
+      conversationWindow.sync(grewInPlace)
       // Entry motion only for nodes that just arrived; papers only when the transcript grew in place.
       entries.sync({ flows: grewInPlace, replayLeaves: phaseChanged })
       // Bursts only for growth inside the same transcript: never the first paint or a switch.
@@ -256,7 +259,7 @@ export function CallingCardOverlay() {
       childList: true,
       characterData: true,
       attributes: true,
-      attributeFilter: ['aria-current', 'aria-selected', 'data-row-key', 'data-sidebar-collapsed', 'data-sidebar-drawer', 'lang'],
+      attributeFilter: ['aria-current', 'aria-selected', 'data-phase', 'data-question-key', 'data-row-key', 'data-sidebar-collapsed', 'data-sidebar-drawer', 'lang'],
     })
     const onResize = () => {
       syncSideWidth(document)
@@ -306,6 +309,7 @@ export function CallingCardOverlay() {
       clearHeroType(document)
       restoreCollage(document)
       burst.dispose()
+      conversationWindow.dispose()
       entries.dispose()
       morph.dispose()
       caption.dispose()

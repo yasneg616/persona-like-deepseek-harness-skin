@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 680" preserveAspectRatio="none">
+  <!-- Original P4 Midnight Channel Broadcast Rack Spine: stepped SMPTE signal rail, warm cream-gold & sunshine-yellow diagonal collage, and angled broadcast brackets -->
+  <!-- Outer matte-black & amber drop shadow plates -->
+  <path d="M18 18 434 6 426 672 10 678 10 538 22 528 10 518 10 278 22 268 10 258Z" fill="#12110d"/>
+  <path d="M24 24 438 12 430 676 16 680Z" fill="#ff9c00"/>
+
+  <!-- Stepped golden-yellow broadcast spine frame -->
+  <path d="M6 12 426 2 418 664 4 672 4 532 16 522 4 512 4 272 16 262 4 252Z" fill="#ffe600"/>
+  <path d="M10 16 422 6 414 660 8 668 8 530 20 520 8 510 8 270 20 260 8 250Z" fill="#12110d"/>
+
+  <!-- Warm ivory-gold broadcast stage with diagonal P4G sunshine-yellow & amber graphic slashes -->
+  <path d="M24 26 416 16 408 652 22 660 22 528 32 518 22 508 22 268 32 258 22 248Z" fill="#fffbf0"/>
+  <path d="M24 94 415 62 414 118 24 150Z" fill="#fff2b8"/>
+  <path d="M24 210 413 178 412 234 24 266Z" fill="#fff2b8"/>
+  <path d="M24 334 411 302 410 358 24 390Z" fill="#fff2b8"/>
+  <path d="M24 458 409 426 408 482 24 514Z" fill="#fff2b8"/>
+  <path d="M24 568 408 536 407 604 22 636Z" fill="#ffe600" fill-opacity="0.35"/>
+  <!-- Diagonal amber-gold accent ribbon across lower rack -->
+  <path d="M160 656 410 490 409 532 222 655Z" fill="#ff9c00" fill-opacity="0.22"/>
+  <path d="M248 655 409 550 408 584 300 654Z" fill="#ffe600" fill-opacity="0.45"/>
+
+  <!-- Left vertical 7-color SMPTE broadcast signal rail -->
+  <path d="M10 16 22 16 22 108 10 108Z" fill="#f54329"/>
+  <path d="M10 108 22 108 22 200 10 200Z" fill="#ff9c00"/>
+  <path d="M10 200 22 200 22 250 10 250Z" fill="#ffe600"/>
+  <path d="M10 270 22 270 22 365 10 365Z" fill="#58c322"/>
+  <path d="M10 365 22 365 22 460 10 460Z" fill="#1da5f8"/>
+  <path d="M10 460 22 460 22 510 10 510Z" fill="#3a48d2"/>
+  <path d="M10 530 22 530 22 666 10 666Z" fill="#b239d8"/>
+
+  <!-- Top-right SMPTE diagonal slash header accents -->
+  <path d="M294 5 328 4 314 23 280 24Z" fill="#f54329"/>
+  <path d="M328 4 362 3 348 22 314 23Z" fill="#ff9c00"/>
+  <path d="M362 3 394 2 380 21 348 22Z" fill="#58c322"/>
+  <path d="M394 2 424 2 410 20 380 21Z" fill="#1da5f8"/>
+
+  <!-- Bottom-right SMPTE diagonal corner tab -->
+  <path d="M296 655 416 651 412 664 288 666Z" fill="#ffe600"/>
+  <path d="M336 654 366 653 360 665 330 666Z" fill="#f54329"/>
+  <path d="M366 653 394 652 388 664 360 665Z" fill="#1da5f8"/>
+</svg>

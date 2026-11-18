@@ -1,6 +1,24 @@
 # Persona 5 风格的 DeepSeek Harness 皮肤
 
-DeepSeek Harness 网页客户端的预告信皮肤。只有一套红、黑、白。巨大的剪贴字 **SESSION**、斜向阶梯会话条、黑色提问纸条、白色回复信纸。这是独立可安装的 bundle，不覆盖 DeepSeek Harness 本体，也不改 `dsh-industrial-acid-skin` 和 `dsh-audio-reactive`。
+## 1.5.2 — narrow P3 title margin / 左侧窄留白
+P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+
+
+## 1.5.1 — whole-app immersion / 整个界面入水
+P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
+
+
+## 1.5.0 — P3 capsule descent / 胶囊下潜
+P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
+
+
+DeepSeek Harness 网页和桌面客户端的三款可选皮肤。
+
+- **P3 Reload** 使用蓝白侧栏、水下夜车、工作区站点和斜向碎片转场。
+- **P4 Golden** 使用金黄色侧栏与雨夜 3D 电视房。开启减少动态效果或无法使用 WebGL 时会使用 2D 版。
+- **P5 Calling Card** 使用红、黑、白剪纸拼贴。
+
+打开 **设置 → 通用设置 → 外观** 下的 **皮肤**。选择即时生效，保存在当前客户端，默认使用 P5。
 
 兼容性证据见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。英文安装说明见 [README.md](README.md)。
 
@@ -8,13 +26,14 @@ DeepSeek Harness 网页客户端的预告信皮肤。只有一套红、黑、白
 
 演示使用示例会话，展示斜排导航、切页转场、拼贴信、弹出菜单和侧栏收放。
 
-[下载 1.0.2 插件](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2)。安装包内含编译好的插件、样式和字体，在兼容的 Harness Web 配置档中以 `dsh-calling-card-skin` 安装。
+P5 稳定版在 [GitHub Releases](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2) 提供。要体验此分支的三款皮肤，可运行 `npm ci` 和 `npm pack`，再按下方步骤安装生成的压缩包。
 
 ## 它真正接上的接口
 
 对照已发布的 `@deepseek-ai/dsh-client-ui-theme@0.2.0-rc.2` 与 `0.2.2-rc.1`，以及当时的布局、会话、聊天包：
 
-- **`ctx.theme.overrideTokens(source, tokens)`**。每个令牌都是 `{ light, dark }`，而且两边写同一个值。宿主「外观」仍然只有浅色 / 深色 / 跟随系统。本插件不调用 `setTheme`，不把选择写进设置。
+- **`ctx.theme.overrideTokens(source, tokens)`**。每款皮肤给宿主浅色、深色提供相同的配色。
+- **`settings.general.item`**。在宿主的外观选项下方提供皮肤选择。
 - **插件自己的样式表**。一条带 `data-plugin="dsh-calling-card-skin"` 的 `<style>`。卸载或禁用时由客户端模块系统连同本插件的 effect 一起摘掉。选择器都挂在 `html[data-dsh-calling-card-skin]` 下。
 - **`shell.overlay`**。这是布局包声明的列表槽，说明文字写明它用来放浮层，并且层本身不接点击。建筑字、斜切转场、信笺开关、桌面端窗口按钮和收起侧栏的会话票签放在这里。根节点 `pointer-events: none`，只有这些按钮重新打开点击。
 - **`sidebar.brand.mark` 与 `sidebar.brand.name`**。侧栏文档写明这里可以换掉鱼标和默认名称。注册优先级 `-1`，卸下后原来的占用者回来。若该格点已被同样优先级占用，会留下警告并放弃这一格，主题令牌仍然生效。
@@ -27,7 +46,7 @@ DeepSeek Harness 网页客户端的预告信皮肤。只有一套红、黑、白
 
 消息和输入框换成随皮肤打包、离线可用的粗体窄体：拉丁字母用 Barlow Semi Condensed（正文 SemiBold，提问和加粗用 ExtraBold），中文用 Noto Sans SC 的 Bold / Black 子集（`CcHeavy`），标题用 Anton。缺字时依次回退到 Microsoft YaHei UI、Microsoft YaHei、PingFang SC、Noto Sans CJK SC。正文不用毛笔或书法字体。
 
-主纸右上角有一个 **LETTERS 信笺** 开关：**平文 PLAIN**（默认）或 **拼贴 COLLAGE**。选择存进 `localStorage` 的 `dsh-cc-message-style`（这是本皮肤唯一存的值），重启后仍然有效。拼贴模式下，提问和回复里已经稳定的段落和标题会变成混合字体的剪贴字；宿主原来的文字仍留在下面（字号为 0），所以流式输出、复制和读屏仍然用真实文字。代码、链接、列表、表格、引用和工具卡保持平文。超过 220 字的段落保持平文，每条消息最多剪 480 个字，只剪最近 12 条消息。欢迎标题无论哪种模式都是拼贴。DSH 0.2.x 没有给客户端插件的设置接口，所以开关放在浮层里。
+P5 主纸右上角有一个 **LETTERS 信笺** 开关（**平文 PLAIN** 或 **拼贴 COLLAGE**）。选择存进 `localStorage` 的 `dsh-cc-message-style`，重启后仍然有效。拼贴模式下，提问和回复里已经稳定的段落和标题会变成混合字体的剪贴字；宿主原来的文字仍留在下面（字号为 0），所以流式输出、复制和读屏仍然用真实文字。代码、链接、列表、表格、引用和工具卡保持平文。超过 220 字的段落保持平文，每条消息最多剪 480 个字，只剪最近 12 条消息。P5 欢迎标题在两种模式下都是拼贴。
 
 ## 窗口按钮与收起侧栏（0.5.2）
 
@@ -111,6 +130,42 @@ Windows 桌面端顶部那条 40px 的栏不是系统原生的。主窗口无边
 
 紧凑导航卡统一倾斜 2°，每张向右错开 10px。选中动画结束后，高亮底板保持静止。已有回复只更新正文时，皮肤跳过全局刷新，拼贴信仍会在文字稳定后生成。
 
+## P3 Reload 与 P4 Golden（1.1.0）
+
+在 设置 → 通用 → 皮肤 里切换。P5 保持不变；P3、P4 各有自己的场景、字体、选中样式、转场和标语。全部是原创 CSS/SVG 绘制，不含游戏素材、标志或字样。
+
+- **P3 Reload**（标语 MEMENTO MORI）：深蓝到黑的夜海，两层流动的水面焦散，气泡沿侧栏上升，玻璃质感的 SESSION 标题后面是一轮大月亮。导航项平时是细斜体，选中后变成粗压缩字体，落在倾斜的青色条上（白字），下面有一条流动的青色缎带；当前会话行同样处理。首页标题是磨砂玻璃板上的玻璃字。倾斜的时钟显示本地时间、时段（MORNING、AFTER SCHOOL…）和当天真实的月相。本地 0:00–0:59 显示 DARK HOUR，海面变绿、月亮变大。工具卡片做成塔罗牌框，用罗马数字编号。切换场景时，一道带浪花的水带从对话区升过。
+- **P4 Golden**（标语 SEEK YOUR TRUTH）：黄色世界，带扫描线、噪点条和飘动的雾。侧栏变成带警戒胶带边的黑色面板；导航项和当前会话选中后是黄底黑字的色块，并弹跳一下。对话区装进圆角显像管电视框，带 “ON AIR” 标签；首页把这块屏幕切到黑色雪花频道，标题是电视节目标题样式。日历框显示日期、星期标签（周六蓝、周日红）和天气图标。图标只是按时段挑的心情，不是天气预报。提问是波普风对话框，工具卡片是网点黄色提示框，切换场景时播放开电视效果（雪花爆开后收成一条线，屏幕弯曲展开）。
+- 开启“减少动态效果”时，P3/P4 所有图层静止，两种转场都不播放。没有闪烁，也没有透明度变化的动画。
+- 预览：`preview/persona.html?persona=p3` 或 `?persona=p4`，加 `&hero=1` 看首页。
+
+## 每个模式自己的画面（1.2.0）
+
+1.1.0 的细节全部保留；1.2.0 按各自游戏的界面语法重排整个画面（笔记和出处见 `docs/p34-research.md`）。
+
+- **P3 Reload：夜海。**去掉顶部横条。品牌名竖排在最左边，像招牌；页面变成向右错开的倾斜暂停菜单。选中的页面在青色条上放大，带流动丝带；悬停的项向右滑上青色光带，后面的项让开。选中页面的名字以巨大空心字竖立在列表和对话之间的海里：首页是 NEW SESSION，其他时候是 SESSION。月光斜照在列表上。右上的日期牌显示日期、星期、时段、时间和月相，下面是 WEEKDAY / WEEKEND / DARK HOUR 横幅。对话是一块更窄、靠右的斜切玻璃板，标题是带 TALK 标签的白色名牌。首页旁有一张“月亮”塔罗牌在水里翻转入场。收起时竖排品牌名留作侧条。弹出菜单是深蓝斜板，青色边、细斜体项，光标下是青色条。设置的标题是 CONFIG 名牌，导航用同样的细斜体，当前页有青色条和丝带。
+- **P4 Golden：午夜频道片场。**侧栏是黄色暂停菜单舞台，带彩虹边、手绘小花和彩虹路上的人物。页面是向右错开的黑色胶囊；选中的变黄、弹一下，旁边转着 ON AIR 圆盘。会话列表是一张黑色节目单卡片。对话放进一台倾斜的显像管电视：兔耳天线、喇叭网、旋钮和电源灯；上方是节目标题（当前页面名）。对话标题是电视字幕：黑条白色衬线字，压在斜切的黄色标签上。日期是黑色胶囊，配描边时段字和带黄圈的天气章。首页有一条真实日期的日历带，从昨天滑到今天，只有今天显示天气，而且仍是按小时取的心情，不是预报。收起时彩虹边留作侧条。弹出菜单是黑色圆角电视卡，带黄色内线和反光，光标下是黄色胶囊，分组标签是橙色名牌。设置是黄色导航配彩虹边，标题是橙色名牌。
+- 切换页面现在也算换场景，会播放该模式的转场（水带 / 电视开机），回声字或节目标题随之滑入。
+- 小窗口会隐藏回声字、塔罗牌、日历带和天线，并收紧边距。减少动态效果会停掉所有新图层，现在也真正停掉伪元素图层（丝带、警戒胶带、雪花噪点）；1.1.0 写在 `:is()` 里的那部分其实没有生效。
+- 预览：`preview/persona.html?persona=p3|p4`，加 `&hero=1`（首页）、`&menu=1`（弹出菜单）或 `&settings=1`（设置）。
+
+## 按参考图重做 P3 / P4（1.3.0）
+
+这一版不再用道具堆出仪表盘，而是按用户六张参考图由父代理提供的观察，重做画面的空间、字体和层级。对应说明和三轮截图修订见 `docs/p34-research.md`。
+
+- **P3：**皇家蓝水下建筑纵深、顶部水面焦散、紧密粗斜体菜单；选中项是白楔形、红字、粉色尾端；巨大青色页面名带斜着扫入。聊天面板保持宽阔、正文笔直。月亮、真实时钟/月相、DARK HOUR、塔罗卡和水带转场保留；不再是竖排店招侧栏。
+- **P4：**全屏黄橙色斜面、蓝天窗口、强透视彩虹地面、小花和裁切的大圆弧。悬浮黄色衬线菜单、细小多色选中条取代黑色胶囊。聊天、弹出菜单和设置使用米白/橙色平面。日期天气、扫描线/薄雾和电视开机转场保留；移除虚构的电视柜、天线和旋钮。
+- 不画人物或剪影，不使用游戏标志或素材。P5 和拼贴开关不变；原生标签、功能、可访问名称保留，减少动态效果继续生效。
+
+## 空间排版（1.4.0）
+
+借鉴 P5 的排版胆量，不借它的造型。P5 文件不变。
+
+- **P3：**真实导航横跨上方；真实项目/会话坞移到右侧；左中区域是独立深蓝阅读纸片，不再套一个大聊天矩形。真实编辑器工具栏坐在阶梯状送信台上；巨大空心页面字从下方裁出画面。右侧坞仍使用原生调整宽度控件，只适配拖动方向。
+- **P4：**真实导航移到斜切黑色底部；项目列表是左上方悬浮索引，日历在其上，品牌在右上。米白阅读纸片与 NEXT ON AIR 输入台浮在透视场景里；首页标题是一块独立黑色衬线节目牌。
+- 预览采用实际宿主 InputBar 结构和 CSS，有可键盘编辑的输入、仅本地的工具栏交互，以及 `&long=1` 合成长对话、表格、代码、工具内容。不读取私人记录，不发送请求。视觉检查仍是夹具，不冒充实机画面。
+- 检查短窗口、完整功能标签、项目列表无渐隐、收起导航与减少动态效果；保留此前 P3/P4 小细节和拼贴选择。
+
 ## 和已确认的 v9 稿之间的差别
 
 v9 是静态原型。下面这些没有做成假页面，也没有用 iframe 去冒充客户端：
@@ -151,7 +206,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 退出目标配置档后，安装下载的包，再启动配置档：
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.0.2.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.4.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -173,7 +228,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 校验压缩包：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.0.2.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.4.0.tgz
 ```
 
 ## 本地构建与夹具

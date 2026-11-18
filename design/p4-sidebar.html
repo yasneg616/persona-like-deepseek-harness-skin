@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 側欄方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Barlow+Condensed:ital,wght@0,700;0,800;1,800;1,900&family=Noto+Sans+TC:wght@500;700;900&family=Noto+Serif+TC:wght@900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root { --y: #ffe600; --o: #ff9d00; --sky: #38b6ff; --k: #12110d; --cy: #26d4ff; --mg: #ff2f8e; --red: #e8231a; --cream: #fff8de;
+    --serif: "Abril Fatface", Georgia, serif; --cond: "Barlow Condensed", sans-serif; --sans: "Noto Sans TC", sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9e4d6; color: #1a1712; font: 15px/1.6 var(--sans); }
+  header.top { max-width: 1440px; margin: 0 auto; padding: 22px 24px 8px; }
+  header.top h1 { margin: 0 0 4px; font: 900 26px/1.3 var(--sans); }
+  header.top p { margin: 0; color: #5a5446; max-width: 980px; }
+  .tabs { max-width: 1440px; margin: 14px auto 0; padding: 0 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .tabs button { font: 800 15px var(--sans); padding: 9px 18px; border: 3px solid var(--k); background: #fff; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--k); color: var(--y); }
+  .tabs button em { font-style: normal; font-size: 12px; background: var(--y); color: var(--k); padding: 0 6px; margin-left: 6px; }
+  .wrap { max-width: 1440px; margin: 14px auto 40px; padding: 0 24px; }
+  .frame { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,.35); }
+  .stage { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; transform-origin: 0 0; background: #0d0b07; overflow: hidden; }
+
+  /* ---------- right: the TV room stand-in ---------- */
+  .room { position: absolute; inset: 0 0 0 470px; background: radial-gradient(ellipse 60% 55% at 55% 45%, #3a3020, #120e08 70%); }
+  .room .tv { position: absolute; left: 70px; right: 60px; top: 70px; bottom: 60px; border-radius: 46px / 52px; background: radial-gradient(ellipse 85% 75% at 50% 38%, #2d2610, #14110a 70%, #0c0a06); box-shadow: 0 0 0 16px #23211f, 0 0 0 19px #0b0a08, 0 0 70px 20px rgba(191,216,255,.18); }
+  .room .tv::after { content: "對話會在這台電視裡（3D 房間，已完成）"; position: absolute; inset: 0; display: grid; place-items: center; color: #8d8063; font: 700 18px var(--sans); }
+
+  /* ---------- left panel: P4G paper ---------- */
+  .side { position: absolute; left: 0; top: 0; bottom: 0; width: 500px; z-index: 2; overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    background: linear-gradient(160deg, var(--y) 0%, #ffd000 55%, var(--o) 100%); }
+  .side::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 1px 1px, rgba(0,0,0,.08) 1px, transparent 1.4px) 0 0 / 7px 7px; mix-blend-mode: multiply; opacity: .5; }
+  .seamline { position: absolute; left: 0; top: 0; bottom: 0; width: 500px; z-index: 3; pointer-events: none; }
+  .sky { position: absolute; left: -60px; top: 210px; width: 700px; height: 120px; background: var(--sky); transform: rotate(-24deg); transform-origin: 0 0; }
+  .sky i { position: absolute; background: #fff; border-radius: 50%; }
+  .slab { position: absolute; left: -40px; top: 46px; width: 640px; height: 230px; background: var(--k); transform: rotate(9deg); transform-origin: 0 0; box-shadow: 0 10px 0 var(--o); }
+
+  /* ---------- the four commands: P4G pause menu ---------- */
+  .menu { position: absolute; left: 34px; top: 66px; z-index: 4; transform: rotate(9deg); transform-origin: 0 0; display: grid; gap: 0; }
+  .menu button { all: unset; cursor: pointer; display: flex; align-items: baseline; gap: 10px; width: max-content; font: 400 44px/1.02 var(--serif); color: var(--y);
+    -webkit-text-stroke: 4px var(--k); paint-order: stroke fill; transform: rotate(-9deg); transform-origin: 0 50%; transition: transform .16s cubic-bezier(.3,1.6,.5,1), color .1s; }
+  .menu button small { -webkit-text-stroke: 0; font: 900 13px var(--sans); color: #fff3b0; letter-spacing: 1px; }
+  .menu button:nth-child(2) { margin-left: 26px; } .menu button:nth-child(3) { margin-left: 52px; } .menu button:nth-child(4) { margin-left: 78px; }
+  .menu button.on { color: #fff; font-size: 54px; text-shadow: -4px 2px 0 var(--cy), 4px -2px 0 var(--mg); animation: chroma 1.4s steps(1) infinite; }
+  .menu button.on small { background: var(--y); color: var(--k); padding: 0 6px; }
+  .menu button.on::before { content: ""; position: absolute; left: -30px; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+    background: conic-gradient(from 0deg, var(--y) 0 25%, #fff 0 50%, var(--y) 0 75%, #fff 0); border: 3px solid var(--k); border-radius: 50%; animation: spin 2.4s linear infinite; }
+  .menu button { position: relative; }
+  @keyframes chroma { 50% { text-shadow: -3px -2px 0 var(--cy), 3px 2px 0 var(--mg); } }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  .list { position: absolute; left: 0; right: 40px; top: 300px; bottom: 74px; z-index: 4; overflow: auto; scrollbar-width: none; padding: 6px 0 40px 22px; }
+  .foot { position: absolute; left: 22px; bottom: 20px; z-index: 5; display: flex; gap: 10px; align-items: center; }
+  .foot b { font: italic 900 22px var(--cond); letter-spacing: 3px; color: var(--k); }
+  .foot b::before { content: "···"; display: inline-grid; place-items: center; width: 44px; height: 30px; margin-right: 8px; background: var(--k); color: var(--y); transform: skewX(-14deg); }
+  .foot i { width: 36px; height: 36px; border: 3px solid var(--k); background: var(--cream); transform: skewX(-14deg); }
+
+  /* =============== A. weather-forecast calendar =============== */
+  .wx { width: 46px; height: 46px; flex: none; border-radius: 50%; background: #fff7d6; border: 4px solid var(--y); box-shadow: 0 0 0 3px var(--k); display: grid; place-items: center; }
+  .wx svg { width: 28px; height: 28px; fill: none; stroke: #2b56a8; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .wx.sun svg { stroke: #ff7a00; } .wx.fog { background: #e9e6dc; } .wx.fog svg { stroke: #7a7568; }
+  .forecast { display: flex; margin: 0 0 14px 0; width: 410px; background: var(--k); padding: 6px 8px 8px; transform: skewX(-8deg); box-shadow: 5px 5px 0 var(--o); }
+  .forecast > * { transform: skewX(8deg); }
+  .forecast .lbl { writing-mode: vertical-rl; font: italic 900 12px var(--cond); color: var(--y); letter-spacing: 2px; margin-right: 6px; }
+  .forecast .d { flex: 1; display: grid; justify-items: center; gap: 2px; color: #fff; font: 800 13px/1 var(--cond); padding: 3px 0; }
+  .forecast .d b { font: italic 900 20px/1 var(--cond); }
+  .forecast .d.we b { color: #7cc8ff; } .forecast .d.sat b { color: #7cc8ff; } .forecast .d.sun2 b { color: #ff7a6a; }
+  .forecast .d.today { background: var(--y); color: var(--k); }
+  .forecast .d .wx { width: 30px; height: 30px; border-width: 3px; box-shadow: 0 0 0 2px var(--k); }
+  .forecast .d .wx svg { width: 18px; height: 18px; }
+  .ws { position: relative; display: flex; align-items: center; gap: 10px; margin: 0 0 10px; width: 420px; padding: 6px 14px 6px 6px; cursor: pointer; background: var(--cream); border: 3px solid var(--k); box-shadow: 5px 5px 0 var(--k); transform: skewX(-8deg); transition: transform .15s cubic-bezier(.3,1.6,.5,1); }
+  .ws > * { transform: skewX(8deg); }
+  .ws:hover { transform: skewX(-8deg) translateX(6px); }
+  .ws .date { flex: none; width: 66px; text-align: center; background: var(--k); color: #fff; padding: 2px 0 4px; }
+  .ws .date b { display: block; font: italic 900 30px/1 var(--cond); }
+  .ws .date small { font: 800 12px/1 var(--cond); letter-spacing: 2px; color: var(--y); }
+  .ws .date.sat small { color: #7cc8ff; } .ws .date.sunday small { color: #ff7a6a; }
+  .ws .name { flex: 1; min-width: 0; font: 400 22px/1.15 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ws .name em { display: block; font: 700 12px/1.3 var(--sans); font-style: normal; color: #6b5a26; }
+  .ws.now { background: var(--y); box-shadow: 5px 5px 0 var(--k), 9px 9px 0 var(--red); }
+  .ws.now::after { content: "TODAY"; position: absolute; right: -8px; top: -12px; font: italic 900 13px var(--cond); letter-spacing: 3px; background: var(--red); color: #fff; padding: 0 10px; transform: skewX(8deg) rotate(4deg); }
+  .slots { margin: -2px 0 14px 34px; width: 380px; display: grid; gap: 4px; }
+  .slot { display: grid; grid-template-columns: 74px 1fr auto; align-items: center; gap: 10px; padding: 4px 12px 4px 8px; cursor: pointer; font: 600 14px var(--sans); color: var(--k); border-left: 4px solid var(--k); background: rgba(255,255,255,.55); }
+  .slot .t { font: italic 900 13px var(--cond); letter-spacing: 1px; color: #fff; background: #2b56a8; padding: 0 6px; text-align: center; }
+  .slot .t.eve { background: #c0571c; } .slot .t.night { background: #3a2d6b; } .slot .t.morn { background: #2d8a4a; }
+  .slot .ago { font: italic 800 12px var(--cond); color: #6b5a26; }
+  .slot:hover { background: #fff; }
+  .slot.sel { background: var(--k); color: var(--y); border-left-color: var(--red); }
+  .slot.sel .ago { color: #ffe9a0; }
+
+  /* =============== B. investigation-team board =============== */
+  .board { position: absolute; left: 0; right: 30px; top: 296px; bottom: 70px; z-index: 4; overflow: auto; scrollbar-width: none; padding: 18px 10px 30px 18px; }
+  .cork { position: absolute; inset: 296px 30px 70px 0; z-index: 3; background: radial-gradient(circle at 20% 30%, rgba(0,0,0,.08) 1px, transparent 2px) 0 0 / 9px 9px, radial-gradient(circle at 70% 60%, rgba(255,255,255,.12) 1px, transparent 2px) 0 0 / 13px 13px, #b88a52;
+    border: 6px solid #6b4520; border-left: 0; box-shadow: inset 0 0 30px rgba(0,0,0,.35); clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%); }
+  .case { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 0 12px; width: 400px; margin: 0 0 18px; }
+  .folder { position: relative; width: 150px; padding: 18px 10px 10px; background: #e8c97a; border: 3px solid var(--k); box-shadow: 4px 5px 0 rgba(0,0,0,.35); cursor: pointer; rotate: -2deg; }
+  .folder::before { content: ""; position: absolute; left: -3px; top: -16px; width: 64px; height: 16px; background: #e8c97a; border: 3px solid var(--k); border-bottom: 0; }
+  .folder .pin { position: absolute; left: 50%; top: 6px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a80, var(--red) 60%, #7a0d08); box-shadow: 1px 2px 0 rgba(0,0,0,.4); }
+  .folder small { display: block; font: italic 900 11px var(--cond); letter-spacing: 2px; color: #8a3a12; }
+  .folder b { display: block; font: 400 18px/1.1 var(--serif); word-break: break-all; }
+  .folder.now { background: var(--y); }
+  .folder.now::after { content: ""; position: absolute; inset: -10px -12px; border: 4px solid var(--red); border-radius: 50%; rotate: 4deg; pointer-events: none; }
+  .notes { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; padding-top: 6px; }
+  .note { position: relative; width: 112px; min-height: 64px; padding: 14px 8px 6px; background: #fffbe2; border: 2px solid var(--k); font: 700 12px/1.35 var(--sans); cursor: pointer; box-shadow: 2px 3px 0 rgba(0,0,0,.3); }
+  .note:nth-child(odd) { rotate: 3deg; } .note:nth-child(even) { rotate: -2deg; background: #e7f6ff; }
+  .note::before { content: ""; position: absolute; left: 50%; top: -6px; width: 30px; height: 12px; margin-left: -15px; background: rgba(255,230,0,.8); rotate: -6deg; }
+  .note .ago { display: block; font: italic 800 11px var(--cond); color: #8a3a12; margin-top: 2px; }
+  .note.sel { outline: 4px solid var(--red); outline-offset: 2px; }
+  .note.sel::after { content: "!"; position: absolute; right: -10px; top: -12px; width: 22px; height: 22px; display: grid; place-items: center; background: var(--red); color: #fff; font: 900 15px var(--sans); border-radius: 50%; }
+  .string { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+  .string path { fill: none; stroke: var(--red); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(1px 2px 0 rgba(0,0,0,.35)); }
+  .board-title { position: absolute; left: 18px; top: 282px; z-index: 6; background: var(--k); color: var(--y); font: italic 900 15px var(--cond); letter-spacing: 3px; padding: 2px 14px; transform: skewX(-12deg); box-shadow: 4px 4px 0 var(--red); }
+
+  [data-variant="a"] .vb, [data-variant="b"] .va { display: none !important; }
+
+  .notes-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 18px; }
+  .notes-panel article { background: #fff; border: 3px solid var(--k); padding: 16px 20px; box-shadow: 6px 6px 0 var(--k); }
+  .notes-panel h2 { margin: 0 0 8px; font: 900 18px var(--sans); }
+  .notes-panel h2 span { font-size: 12px; background: var(--y); padding: 1px 8px; margin-right: 8px; }
+  .notes-panel ul { margin: 0; padding-left: 20px; }
+  .notes-panel li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>P4 側欄：四個指令＋工作區（展示頁）</h1>
+  <p>上方四個指令改成 P4G 暫停選單的樣子：黑色斜帶上的黃色粗襯線字，一行一行往右錯開，選中的變白、帶青紅錯位和旋轉的小圓章。下方工作區用 P4 的標誌元素重新排列，有兩個方案可以切換比較。右邊電視房間沿用已完成的 3D 版，這裡只放示意。</p>
+</header>
+<div class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-v="a">A｜天氣預報月曆 <em>推薦</em></button>
+  <button role="tab" aria-selected="false" data-v="b">B｜搜查本部白板</button>
+</div>
+<main class="wrap">
+  <div class="frame"><div class="stage" id="st" data-variant="a">
+    <div class="room"><div class="tv"></div></div>
+    <div class="side">
+      <div class="sky"><i style="left:120px;top:30px;width:90px;height:34px"></i><i style="left:170px;top:16px;width:60px;height:40px"></i><i style="left:380px;top:58px;width:110px;height:36px"></i><i style="left:430px;top:44px;width:56px;height:36px"></i></div>
+      <div class="slab"></div>
+      <div class="cork vb"></div>
+    </div>
+    <svg class="seamline" viewBox="0 0 500 900" preserveAspectRatio="none"><path d="M500 0 L460 900" stroke="#12110d" stroke-width="12"/><path d="M509 0 L469 900" stroke="#38b6ff" stroke-width="5"/></svg>
+    <nav class="menu" id="menu">
+      <button class="on">New Session<small>新對話</small></button>
+      <button>Plugins<small>外掛</small></button>
+      <button>Automation<small>自動化</small></button>
+      <button>More<small>更多</small></button>
+    </nav>
+    <div class="list va" id="listA"></div>
+    <div class="board-title vb">INVESTIGATION TEAM ／ 搜查本部</div>
+    <div class="board vb" id="listB"><svg class="string" id="str"></svg></div>
+    <div class="foot"><b>MORE</b><i></i><i></i></div>
+  </div></div>
+
+  <section class="notes-panel">
+    <article>
+      <h2><span>A</span>天氣預報月曆（推薦）</h2>
+      <ul>
+        <li>P4 最有代表性的日常就是看月曆和天氣預報：下雨之後起霧，午夜電視才會播。</li>
+        <li>最上面一條「本週天氣」，七天各一個天氣圓章；哪天有用過工作區就是晴天，今天是黃色格子。</li>
+        <li>每個工作區是一張月曆卡：左邊是最後使用的日期和星期（六藍、日紅，跟原作一樣），中間是天氣圓章，右邊是名字和對話數。</li>
+        <li>天氣代表多久沒碰：今天晴、三天內多雲、兩週內下雨、更久就起霧。一眼就看得出哪些專案「起霧」了。</li>
+        <li>展開的工作區底下，對話照時段排：早上、白天、放學後、晚上、深夜，跟原作的時段一樣。</li>
+      </ul>
+    </article>
+    <article>
+      <h2><span>B</span>搜查本部白板</h2>
+      <ul>
+        <li>P4 是推理劇，用搜查本部的軟木板：每個工作區是一個釘起來的案件資料夾，對話是貼在旁邊的便條。</li>
+        <li>正在看的工作區被紅筆圈起來，選中的對話標驚嘆號，用紅線串到資料夾。</li>
+        <li>很有味道，但比較佔空間、工作區多的時候比較難掃，所以推薦 A。</li>
+      </ul>
+    </article>
+    <article>
+      <h2><span>?</span>想請你看的</h2>
+      <ul>
+        <li>四個指令這樣的 P4G 選單感對嗎？選中的小圓章要不要保留？</li>
+        <li>要 A、B，還是混搭（例如 A 的月曆卡加 B 的紅線）？</li>
+        <li>點點看：工作區可以展開收合，對話可以選。</li>
+      </ul>
+    </article>
+  </section>
+</main>
+
+<script>
+const st = document.getElementById('st');
+const fit = () => document.querySelectorAll('.frame').forEach(f => { f.querySelector('.stage').style.transform = `scale(${f.clientWidth / 1440})`; });
+new ResizeObserver(fit).observe(document.body); fit();
+
+const WX = {
+  sun: '<circle cx="16" cy="16" r="6"/><path d="M16 3v4M16 25v4M3 16h4M25 16h4M7 7l3 3M22 22l3 3M7 25l3-3M22 10l3-3"/>',
+  cloud: '<path d="M8 23h15a5 5 0 0 0 0-10a7 7 0 0 0-13 2a4 4 0 0 0-2 8z"/>',
+  rain: '<path d="M8 19h15a5 5 0 0 0 0-10a7 7 0 0 0-13 2a4 4 0 0 0-2 8z"/><path d="M11 23l-2 5M17 23l-2 5M23 23l-2 5"/>',
+  fog: '<path d="M4 11h24M7 16h20M4 21h22M9 26h16"/>',
+};
+const wx = k => `<span class="wx ${k}"><svg viewBox="0 0 32 32">${WX[k]}</svg></span>`;
+const weatherOf = days => days === 0 ? 'sun' : days <= 3 ? 'cloud' : days <= 14 ? 'rain' : 'fog';
+const WEATHER_ZH = { sun: '晴', cloud: '多雲', rain: '雨', fog: '霧' };
+const WD = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const now = new Date(2026, 10, 18, 20, 40);
+const dayOf = off => { const d = new Date(now); d.setDate(d.getDate() - off); return d; };
+
+const spaces = [
+  { name: '游戏英文文本汉化MOD', days: 0, sessions: [['游戏英文文本汉化MOD', 14, 32, 0], ['补全漏翻的对话框', 10, 5, 0]] },
+  { name: 'dsh', days: 0, sessions: [['检查令牌刷新', 20, 38, 0], ['整理交付说明', 17, 40, 0], ['阅读边界用例', 9, 12, 24], ['Refactor auth middleware', 23, 50, 31]] },
+  { name: 'SillyTavern-release', days: 1, sessions: [['续写网文门后亲密场景', 22, 10, 1], ['林晏陈夏酒店亲密场景', 16, 30, 2], ['穿越角色卡世界书设定', 1, 20, 3]] },
+  { name: 'tagger', days: 3, sessions: [['批量标签清理', 13, 0, 3]] },
+  { name: 'SimplePlanes 2', days: 6, sessions: [['机翼升力参数', 19, 45, 6]] },
+  { name: 'character', days: 12, sessions: [['角色设定整理', 8, 30, 12]] },
+  { name: 'dp', days: 20, sessions: [['# Codex 自主开发任务书', 15, 0, 20]] },
+  { name: 'pony', days: 35, sessions: [] },
+  { name: 'stst', days: 60, sessions: [['请制作一个雨夜便利店街', 21, 0, 60]] },
+];
+let open = 1, sel = '1:0';
+const slotOf = h => h < 4 ? ['深夜', 'night'] : h < 11 ? ['早上', 'morn'] : h < 15 ? ['白天', ''] : h < 19 ? ['放學後', 'eve'] : h < 23 ? ['晚上', 'eve'] : ['深夜', 'night'];
+const ago = d => d === 0 ? '今天' : d === 1 ? '昨天' : d < 30 ? `${d} 天前` : `${Math.round(d / 30)} 個月前`;
+
+function renderA() {
+  const used = new Set(spaces.flatMap(s => s.sessions.map(x => x[3])));
+  let html = `<div class="forecast"><span class="lbl">WEEKLY</span>` + Array.from({ length: 7 }, (_, i) => {
+    const off = 6 - i, d = dayOf(off), k = used.has(off) ? 'sun' : off <= 1 ? 'cloud' : 'rain';
+    return `<div class="d ${off === 0 ? 'today' : ''} ${d.getDay() === 6 ? 'sat' : d.getDay() === 0 ? 'sun2' : ''}"><b>${d.getDate()}</b>${WD[d.getDay()]}${wx(k)}</div>`;
+  }).join('') + `</div>`;
+  spaces.forEach((s, i) => {
+    const d = dayOf(s.days), w = weatherOf(s.days), dc = d.getDay() === 6 ? 'sat' : d.getDay() === 0 ? 'sunday' : '';
+    html += `<div class="ws ${i === open ? 'now' : ''}" data-i="${i}"><div class="date ${dc}"><b>${d.getMonth() + 1}/${d.getDate()}</b><small>${WD[d.getDay()]}</small></div>${wx(w)}<div class="name">${s.name}<em>${WEATHER_ZH[w]} · ${s.sessions.length} 個對話 · ${ago(s.days)}</em></div></div>`;
+    if (i === open && s.sessions.length) {
+      html += `<div class="slots">` + s.sessions.map(([t, h, m, dd], j) => { const [lab, cls] = slotOf(h);
+        return `<div class="slot ${sel === i + ':' + j ? 'sel' : ''}" data-s="${i}:${j}"><span class="t ${cls}">${lab} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}</span><span>${t}</span><span class="ago">${ago(dd)}</span></div>`; }).join('') + `</div>`;
+    }
+  });
+  document.getElementById('listA').innerHTML = html;
+}
+
+function renderB() {
+  const box = document.getElementById('listB');
+  box.innerHTML = '<svg class="string" id="str"></svg>' + spaces.map((s, i) => `<div class="case" data-i="${i}">
+    <div class="folder ${i === open ? 'now' : ''}" data-i="${i}"><i class="pin"></i><small>CASE ${String(i + 1).padStart(2, '0')}</small><b>${s.name}</b></div>
+    <div class="notes">${s.sessions.slice(0, i === open ? 6 : 2).map(([t, , , dd], j) => `<div class="note ${sel === i + ':' + j ? 'sel' : ''}" data-s="${i}:${j}">${t}<span class="ago">${ago(dd)}</span></div>`).join('')}${s.sessions.length > (i === open ? 6 : 2) ? `<div class="note" data-i="${i}">＋${s.sessions.length - 2} 張</div>` : ''}</div></div>`).join('');
+  requestAnimationFrame(() => {
+    const svg = box.querySelector('#str'), br = box.getBoundingClientRect(), k = 1440 / document.querySelector('.frame').clientWidth;
+    svg.setAttribute('width', box.scrollWidth); svg.setAttribute('height', box.scrollHeight);
+    svg.innerHTML = [...box.querySelectorAll('.note.sel')].map(n => {
+      const f = n.closest('.case').querySelector('.pin').getBoundingClientRect(), r = n.getBoundingClientRect();
+      const x1 = (f.left - br.left) * k + 7, y1 = (f.top - br.top) * k + box.scrollTop + 7, x2 = (r.left - br.left + r.width / 2) * k, y2 = (r.top - br.top) * k + box.scrollTop;
+      return `<path d="M${x1} ${y1} Q ${(x1 + x2) / 2} ${Math.max(y1, y2) + 40} ${x2} ${y2}"/>`;
+    }).join('');
+  });
+}
+const render = () => { renderA(); renderB(); };
+render();
+
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-s]'); if (s) { sel = s.dataset.s; render(); return; }
+  const w = e.target.closest('[data-i]'); if (w && w.closest('.stage')) { const i = +w.dataset.i; open = open === i ? -1 : i; render(); }
+});
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  st.dataset.variant = b.dataset.v; render();
+}));
+const items = [...document.querySelectorAll('#menu button')];
+items.forEach(b => b.addEventListener('mouseenter', () => items.forEach(x => x.classList.toggle('on', x === b))));
+</script>
+</body>
+</html>

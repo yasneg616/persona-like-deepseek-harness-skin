@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 520"><!-- Original flat vector study of P4 Investigation Team glasses with angular dual-bridge frame, lens glint and five-color broadcast ribbon tail. No gradients, filters or logos. -->
+<g fill="none" stroke-linecap="square">
+  <path fill="#f54329" d="M162 292 204 282 142 520 98 520Z"/>
+  <path fill="#ff9c00" d="M178 290 218 280 162 520 122 520Z"/>
+  <path fill="#ffe600" d="M194 288 234 278 182 520 142 520Z"/>
+  <path fill="#58c322" d="M210 286 248 276 202 520 162 520Z"/>
+  <path fill="#1da5f8" d="M226 284 262 274 222 520 182 520Z"/>
+</g>
+<g transform="rotate(-14 180 210)">
+  <path fill="#12110d" d="M46 152 152 74 166 86 64 166Z"/>
+  <path fill="#ffe600" d="M52 154 148 80 154 85 58 159Z"/>
+  <path fill="#12110d" d="M304 152 218 68 206 80 288 166Z"/>
+  <path fill="#ff9c00" d="M298 154 218 76 212 82 292 160Z"/>
+  <path fill="#12110d" d="M24 160 336 160 326 254 202 254 192 206 168 206 158 254 34 254Z"/>
+  <path fill="#ffe600" d="M18 148 342 148 340 166 16 166Z"/>
+  <path fill="#ff9c00" d="M162 166 198 166 194 196 166 196Z"/>
+  <path fill="#1c2738" d="M42 174 152 174 146 238 48 238Z"/>
+  <path fill="#1c2738" d="M208 174 318 174 312 238 214 238Z"/>
+  <path fill="#79e8ff" d="M56 174 88 174 64 238 48 238Z"/>
+  <path fill="#ffffff" d="M94 174 112 174 88 238 72 238Z"/>
+  <path fill="#79e8ff" d="M224 174 256 174 232 238 216 238Z"/>
+  <path fill="#ffffff" d="M262 174 280 174 256 238 240 238Z"/>
+  <path fill="#ffe600" d="M26 184 38 184 38 204 26 204ZM322 184 334 184 334 204 322 204Z"/>
+  <circle cx="32" cy="194" r="3" fill="#12110d"/>
+  <circle cx="328" cy="194" r="3" fill="#12110d"/>
+</g>
+</svg>

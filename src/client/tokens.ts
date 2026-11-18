@@ -2,9 +2,8 @@
  * Alias and specific tokens overridden through `ctx.theme.overrideTokens`.
  *
  * Both palette modes repeat the same value. DeepSeek Harness keeps the
- * built-in light / dark / system preference; this skin does not add another
- * selector and does not write that preference. Identical pairs keep the
- * calling-card palette when the host switches scheme.
+ * built-in light / dark / system preference. The skin selector stores its
+ * own choice. Identical pairs keep that palette when the host switches scheme.
  *
  * Names are the intersection of the custom properties shipped in
  * `@deepseek-ai/dsh-client-ui-theme` 0.2.0-rc.2 and 0.2.2-rc.1.
@@ -149,6 +148,62 @@ export const CALLING_CARD_TOKENS: ThemeTokenOverrides = {
   '--dsw-specific-sidebar-nav-item-active': same(RED),
   '--dsw-specific-sidebar-nav-item-active-accent': same(PAPER),
   '--dsw-specific-tip': same(PAPER),
+}
+
+export function personaTokens(persona: 'p3' | 'p4' | 'p5'): ThemeTokenOverrides {
+  if (persona === 'p5') return CALLING_CARD_TOKENS
+  // P4 Golden: the conversation is a lit CRT picture, so a warm dark palette with yellow accents
+  const gold = persona === 'p4'
+  const base = gold ? '#14110a' : '#020a2e'
+  const surface = gold ? '#221c0d' : '#102354'
+  const raised = gold ? '#3a2f12' : '#152d63'
+  const text = gold ? '#fbf4dc' : '#eaf9ff'
+  const muted = gold ? '#cbbb8c' : '#a6b9e0'
+  const accent = gold ? '#ffd400' : '#8fe6ff'
+  const border = gold ? '#6b5a26' : '#435d90'
+  const hover = gold ? '#ffd40024' : '#8fe6ff24'
+  const tokens: Record<string, string> = {
+    '--dsw-alias-bg-base': base,
+    '--dsw-alias-bg-layer-1': surface,
+    '--dsw-alias-bg-layer-2': surface,
+    '--dsw-alias-bg-layer-3': raised,
+    '--dsw-alias-bg-module-platform': surface,
+    '--dsw-alias-border-l1': border,
+    '--dsw-alias-border-l2': border,
+    '--dsw-alias-label-primary': text,
+    '--dsw-alias-label-secondary': text,
+    '--dsw-alias-label-tertiary': muted,
+    '--dsw-alias-label-caption': muted,
+    '--dsw-alias-label-dimmed': muted,
+    '--dsw-alias-label-primary-inverted': base,
+    '--dsw-alias-label-primary-foreground': base,
+    '--dsw-alias-brand-primary': accent,
+    '--dsw-alias-brand-primary-invert': base,
+    '--dsw-alias-brand-text': accent,
+    '--dsw-alias-link': accent,
+    '--dsw-alias-button-primary-fill': accent,
+    '--dsw-alias-button-primary-hover': text,
+    '--dsw-alias-button-contrast-fill': text,
+    '--dsw-alias-button-elevated-fill': raised,
+    '--dsw-alias-interactive-bg-hover': hover,
+    '--dsw-alias-interactive-bg-active': hover,
+    '--dsw-alias-markdown-code-block': surface,
+    '--dsw-alias-markdown-code-block-banner': raised,
+    '--dsw-alias-markdown-inline-code': accent,
+    '--dsw-alias-markdown-citation': accent,
+    '--dsw-alias-menu-icon': text,
+    '--dsw-alias-settings-card-fill': surface,
+    '--dsw-alias-settings-card-stroke': border,
+    '--dsw-specific-bubble': surface,
+    '--dsw-specific-bubble-highlight': raised,
+    '--dsw-specific-input-major': surface,
+    '--dsw-specific-menu': surface,
+    '--dsw-specific-selector': raised,
+    '--dsw-specific-sidebar-fill': base,
+    '--dsw-specific-sidebar-nav-item-active': raised,
+    '--dsw-specific-sidebar-nav-item-active-accent': text,
+  }
+  return Object.fromEntries(Object.entries(tokens).map(([name, value]) => [name, same(value)]))
 }
 
 export function assertUnifiedTokens(tokens: ThemeTokenOverrides): void {

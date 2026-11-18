@@ -19,19 +19,6 @@ export function installSkinStyle(documentRef: Document, css: string): () => void
   }
 }
 
-/** Keep UA form controls on the dark calling-card ink without writing theme settings. */
-export function holdDarkColorScheme(documentRef: Document): () => void {
-  const html = documentRef.documentElement
-  const previous = html.style.colorScheme
-  const apply = () => {
-    html.style.colorScheme = 'dark'
-  }
-  apply()
-  return () => {
-    html.style.colorScheme = previous
-  }
-}
-
 export interface TitleWatch {
   stop(): void
 }

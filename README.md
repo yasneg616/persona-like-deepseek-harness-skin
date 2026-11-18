@@ -1,6 +1,24 @@
 # Persona 5-like Skin for DeepSeek Harness
 
-Calling-card skin for the DeepSeek Harness **web** client. One red / black / white palette, a two-line paper-cut **DEEPSEEK / HARNESS** mark, stepped session rows, black prompt slips, and collage response sheets. It is a separate installable bundle. It does not replace DeepSeek Harness, `dsh-industrial-acid-skin`, or `dsh-audio-reactive`.
+## 1.5.2 — narrow P3 title margin / 左侧窄留白
+P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+
+
+## 1.5.1 — whole-app immersion / 整个界面入水
+P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
+
+
+## 1.5.0 — P3 capsule descent / 胶囊下潜
+P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
+
+
+Three selectable skins for the DeepSeek Harness web and desktop client.
+
+- **P3 Reload** pairs a blue-and-white sidebar with an underwater night train, workspace station markers, and diagonal shard transitions.
+- **P4 Golden** pairs a golden sidebar with a rainy 3D TV room. The 2D design remains available with reduced motion or without WebGL.
+- **P5 Calling Card** uses red, black and white paper cutouts.
+
+Open **Settings → General → Appearance** and use the **Skin** row. The choice applies immediately, is saved in this client profile, and defaults to P5.
 
 中文说明见 [README.zh.md](README.zh.md). Compatibility evidence is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
@@ -8,13 +26,14 @@ Calling-card skin for the DeepSeek Harness **web** client. One red / black / whi
 
 The demo shows the diagonal navigation, cut-in transitions, collage letters, pop-up menu, and collapsible sidebar with sample sessions.
 
-[Download the 1.0.2 plugin](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2). The tarball includes the compiled plugin, styles, and fonts. Install it as `dsh-calling-card-skin` in a compatible Harness Web profile.
+The P5-only stable package is available on [GitHub Releases](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.0.2). To try all three skins from this branch, run `npm ci` and `npm pack` and use the resulting tarball in the installation steps below.
 
 ## What it actually changes
 
 | Seam | Used |
 | --- | --- |
-| `ctx.theme.overrideTokens` | Yes. Both `light` and `dark` carry the same value, so the host Appearance control does not grow a second theme and this plugin does not write that setting. |
+| `ctx.theme.overrideTokens` | Yes. Each skin uses the same palette for both host color schemes. |
+| `settings.general.item` | Adds the Skin selector directly below the host Appearance options. |
 | Plugin stylesheet | Yes. One `<style data-plugin="dsh-calling-card-skin">` removed when the bundle unloads. Rules sit under `html[data-dsh-calling-card-skin]`. |
 | `shell.overlay` | Yes. Architectural type, paper-cut, the letters switch, the desktop caption cluster and the collapsed-rail tickets. The overlay root is click-through. |
 | `sidebar.brand.mark` / `sidebar.brand.name` | Yes, at priority `-1`, released on unload. |
@@ -32,7 +51,7 @@ Live sessions, Markdown, streaming, the composer, and tool rows stay the host's.
 
 Messages and the composer use a heavy, condensed set that ships with the skin and works offline: Barlow Semi Condensed (SemiBold for body, ExtraBold for prompts and bold) for Latin, Noto Sans SC Bold / Black subsets (`CcHeavy`) for Chinese, and Anton for headings. Fallbacks are Microsoft YaHei UI, Microsoft YaHei, PingFang SC and Noto Sans CJK SC. No brush or calligraphy face is used for reading text.
 
-A **LETTERS 信笺** switch sits on the sheet's top-right corner: **平文 PLAIN** (default) or **拼贴 COLLAGE**. The choice is stored in `localStorage` under `dsh-cc-message-style` (the only value this skin stores) and survives restarts. In collage mode, settled paragraphs and headings in prompts and replies are shown as cutout letters in mixed faces. The host's own text stays in place underneath (zero size), so streaming, copying and screen readers still use the real text. Code, links, lists, tables, quotes and tool cards stay plain. A paragraph over 220 characters stays plain, each message cuts at most 480 letters, and only the latest 12 messages are cut. The welcome headline is cut in both modes. DSH 0.2.x has no settings API for client plugins, so the switch lives in the overlay.
+In P5, a **LETTERS 信笺** switch sits on the sheet's top-right corner: **平文 PLAIN** (default) or **拼贴 COLLAGE**. The choice is stored in `localStorage` under `dsh-cc-message-style` and survives restarts. In collage mode, settled paragraphs and headings in prompts and replies are shown as cutout letters in mixed faces. The host's own text stays in place underneath (zero size), so streaming, copying and screen readers still use the real text. Code, links, lists, tables, quotes and tool cards stay plain. A paragraph over 220 characters stays plain, each message cuts at most 480 letters, and only the latest 12 messages are cut. The welcome headline is cut in both modes.
 
 ## Window chrome and collapsed rail (0.5.2)
 
@@ -113,6 +132,42 @@ Reduced brand-to-navigation spacing and workspace-header margins give the worksp
 
 Compact navigation cards share a 2° tilt and step 10px to the right per card. The selected highlight stays still after the selection animation. Text-only updates in existing replies skip the full skin refresh, while collage letters still settle as before.
 
+## P3 Reload and P4 Golden (1.1.0)
+
+Pick a mode under Settings → General → Skin. P5 is unchanged; P3 and P4 each get their own scene, type, selection, transition and tagline. All drawing is original CSS and SVG: no game art, logos or lettering.
+
+- **P3 Reload** (tagline MEMENTO MORI): navy-to-black sea with two drifting caustic layers, bubbles rising past the sidebar, and a large moon behind a glassy SESSION title. Leaves rest in thin italic and turn into a heavy condensed label on a slanted cyan bar with white text and a cyan ribbon flowing underneath; the open session row gets the same bar. The landing headline is glass lettering on a frosted slab. A tilted clock shows local time, a period label (MORNING, AFTER SCHOOL…) and today's real moon phase. From 0:00 to 0:59 local time it reads DARK HOUR, the sea turns green and the moon swells. Tool cards are framed like arcana cards, numbered with roman numerals. Switching scenes sends a water band with a foam crest up through the conversation.
+- **P4 Golden** (tagline SEEK YOUR TRUTH): yellow world with scanlines, a grain band and drifting fog. The sidebar becomes a black panel with a hazard-tape edge; leaves and the open session become a yellow block with black text that bounces once when chosen. The conversation sits in a rounded CRT bezel with an "ON AIR" tab, and the landing turns that screen to a dark static channel with a TV-title headline. A calendar box shows the date, a weekday tab (Saturday blue, Sunday red) and a weather glyph. The glyph is a mood picked from the hour, not a forecast. Prompts are pop-art speech boxes, tool cards are halftone yellow alert boxes, and scene switches play a TV switch-on (static burst collapsing into a line while the screen bends open).
+- Reduced motion stops every P3/P4 layer and skips both transitions. No animation blinks or changes opacity.
+- Preview: `preview/persona.html?persona=p3` or `?persona=p4`, add `&hero=1` for the landing.
+
+## Each mode its own screen (1.2.0)
+
+The 1.1.0 details stay; 1.2.0 rebuilds the composition of each mode from the game's own UI grammar (notes and sources in `docs/p34-research.md`).
+
+- **P3 Reload, the night sea.** No header band: the brand runs down the far-left edge as vertical signage, and the pages are a tilted pause list that steps right. The chosen page swells on the cyan bar with its ribbon, the hovered one glides right on a cyan wash, and the entries after it make room. The chosen page's name echoes huge and outlined in the water between the list and the conversation. On the landing it reads NEW SESSION, elsewhere SESSION. A moonlight shaft falls over the list. The date chip floats top-right with the date, weekday, period, time and moon phase, over a WEEKDAY / WEEKEND / DARK HOUR banner. The conversation is a narrower slanted glass slab pushed right, and its title is a white name tab with a TALK label. On the landing, a moon arcana card turns over in the water beside the glass headline. Collapsed, the vertical brand stays as the rail. Popups are deep-blue slanted slabs with a cyan edge, thin italic entries and a cyan bar under the cursor. Settings get a CONFIG name tab and a nav in the same thin italic, with the cyan bar and ribbon on the open page.
+- **P4 Golden, the Midnight Channel set.** The sidebar is the yellow pause-menu stage, with a rainbow edge, drawn flowers and the user's figures on the rainbow road. Pages are black pills that step right. The chosen one turns yellow, bounces, and gets a spinning ON AIR disc. The session list is a black TV-guide card. The conversation plays inside a tilted CRT cabinet with rabbit-ear antennas, a speaker grille, knobs and a power LED, under a programme title (the chosen page's name). Its title is a TV caption: white serif on a black bar riding a slanted yellow tab. The date is a black pill with an outlined period and a ringed weather medallion. On the landing, a calendar strip of the real surrounding dates slides from yesterday to today; only today shows weather, and that is still an hourly mood, not a forecast. Collapsed, the rainbow edge stays as the rail. Popups are black rounded TV cards with a yellow inner line and glare, yellow pills under the cursor and orange name-plate section labels. Settings get a yellow nav with the rainbow edge and an orange name plate.
+- Page changes now count as scene changes, so moving between pages plays the mode's transition (water band / TV switch-on) and the echo or title slides in.
+- Small windows drop the echo, card, strip and antennas and tighten the margins. Reduced motion stops every new layer. It now also really stops the pseudo-element layers (ribbon, tape, grain), which 1.1.0's `:is()` list skipped.
+- Preview: `preview/persona.html?persona=p3|p4`, plus `&hero=1` (landing), `&menu=1` (popups) or `&settings=1` (settings dialog).
+
+## Reference-driven P3 / P4 (1.3.0)
+
+1.3.0 replaces the 1.2 prop-heavy dashboard grammar using the six reference-image descriptions supplied by the user via the parent. See `docs/p34-research.md` for the precise mappings and three critique/refine rounds.
+
+- **P3:** underwater royal-blue architectural depth, surface caustics, compact bold italic commands, red selected text on a white wedge with a pink tip, and an oversized cyan page-name ribbon sweeping diagonally across the scene. Broad straight chat, arcana cards, clock/moon/Dark Hour and water transition remain. No giant vertical shop-sign sidebar.
+- **P4:** full-bleed yellow/orange planes, diagonal blue-sky windows, a converging rainbow floor, flowers and a cropped circular arc. Floating yellow serif navigation with a tiny multicolour cursor stripe replaces black pills. Reading planes, popups and settings are cream/orange. Compact calendar/weather, scanlines/fog and TV-on transition remain; the invented cabinet/antennas/knobs are retired.
+- No figures, silhouettes, game logos or game assets. P5 and the collage option are unchanged. Body text stays straight, native labels and controls remain, reduced motion is respected.
+
+## Spatial composition (1.4.0)
+
+P5 is the benchmark for compositional confidence, not a template for the other modes. Its files are unchanged.
+
+- **P3:** real navigation flies across the top, the real project/session dock moves to the right, and independent navy reading papers occupy the left/centre. The real input toolbar sits on a stepped transmitter dock. Large outlined page type is intentionally cropped below the stage. Native right-dock resizing is adapted without replacing its controls.
+- **P4:** real navigation sits on a sloped black footer, projects form a floating upper-left index, calendar sits above it and brand moves upper-right. Cream reading papers and the NEXT ON AIR input dock float over the perspective stage. Landing gets its own black serif programme-title cut.
+- The preview now has the actual host InputBar shape/CSS, keyboard-editable text, local toolbar interactions and `&long=1` synthetic multi-turn prose/table/code/tool content. No model/network request is sent. Visual QA remains fixture-only.
+- Short-window containment, complete functional labels, workspace-fade removal, compact navigation and reduced motion checked. Original P3/P4 details and collage choice retained.
+
 ## Honest gaps
 
 - There is no supported layout-replacement API that keeps sessions, streaming, and the composer. The center column's content box stays a rectangle. The stepped white frame and the offset red backing are `::before` / `::after` in the margin. They do not clip the transcript, the composer, or the workspace controls.
@@ -138,7 +193,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 With the target profile stopped, install the package and start the profile:
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.0.2.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.4.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -158,7 +213,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 Stop the DSH process first. The command drops this dependency and its line in `dsh.profile.bundles`. It does not edit the industrial package, the audio package, or `$env:USERPROFILE\.dsh\cordis.patch.yml`. Start DSH again. The web client then has no calling-card style, root attribute, or architectural word. Settings → Plugins can deselect the bundle without deleting the files; that selection is saved immediately and the client drops it on the next process start, not on a page reload. Launch the previous profile to leave `calling-card` unused. Do not grant `allow-version` unless you accept an untested host.
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.0.2.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.4.0.tgz
 ```
 
 ## Develop

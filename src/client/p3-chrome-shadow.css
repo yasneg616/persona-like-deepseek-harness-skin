@@ -1,0 +1,24 @@
+/* Existing OPEN preload roots only. Decorative host planes never clip native targets. */
+:host-context(html[data-dsh-persona="p3"]) {color:#0d3b9e!important;-webkit-app-region:no-drag!important;}
+:host-context(html[data-dsh-persona="p3"]) button {
+ box-sizing:border-box;position:relative;min-width:44px;height:40px!important;margin-block:0!important;padding-inline:8px;
+ border:0!important;border-radius:0!important;background:transparent!important;color:#0d3b9e!important;box-shadow:none!important;
+ font:900 italic 19px/1 var(--dsh-cc-chat-head,system-ui)!important;letter-spacing:-.05em;-webkit-app-region:no-drag!important;cursor:pointer;
+}
+:host([data-dsh-p3-native="caption"]):host-context(html[data-dsh-persona="p3"])::before {
+ content:"";position:absolute;inset:0 0 0 -62px;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%234ee2ec%22%20d%3D%22M30%200h14L14%2040H0Z%22%2F%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M48%200h152v40H14Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat;pointer-events:none;z-index:-1;
+}
+:host([data-dsh-p3-native="caption"]):host-context(html[data-dsh-persona="p3"])::after {
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20138%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%230d3b9e%22%20d%3D%22m48%200%203%200-7%2040-3%200Zm46%200h3l-7%2040h-3Z%22%2F%3E%3Cpath%20fill%3D%22%234ee2ec%22%20d%3D%22M0%2038h118l-4%202H0Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat;
+}
+:host([data-dsh-p3-native="caption"]):host-context(html[data-dsh-persona="p3"]) {isolation:isolate;background:transparent!important;border:0!important;box-shadow:none!important;}
+:host([data-dsh-p3-native="caption"]):host-context(html[data-dsh-persona="p3"]) button {min-width:46px;font:700 17px/1 system-ui!important;letter-spacing:0;}
+:host-context(html[data-dsh-persona="p3"]) button:where(:hover:not(:disabled):not([aria-disabled="true"])) {
+ background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2044%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%234ee2ec%22%20d%3D%22m0%2034%2044-8-4%209-40%205Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat!important;color:#df174b!important;
+}
+:host([data-dsh-p3-native="caption"]):host-context(html[data-dsh-persona="p3"]) button:where(:hover:not(:disabled):not([aria-disabled="true"])) {background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2046%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%234ee2ec%22%20d%3D%22M8%200h38L38%2040H0Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat!important;color:#0d3b9e!important;}
+:host-context(html[data-dsh-persona="p3"]) button:focus-visible {outline:2px solid #ed2455!important;outline-offset:-4px;}
+:host-context(html[data-dsh-persona="p3"]) button[aria-expanded="true"] {background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2044%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%23ee4275%22%20d%3D%22M0%2010%2044%201%2043%2036%201%2040Z%22%2F%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M0%204%2041%200%2038%2032%200%2036Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat!important;color:#df174b!important;}
+:host-context(html[data-dsh-persona="p3"]) button[data-dsh-p3-action="close"]:hover:not(:disabled):not([aria-disabled="true"]) {background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2046%2040%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22%23ed2455%22%20d%3D%22M8%200h38v40H0Z%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat!important;color:white!important;}
+:host-context(html[data-dsh-persona="p3"]) button:active {color:#df174b!important;}
+:host-context(html[data-dsh-persona="p3"]) button:is(:disabled,[aria-disabled="true"]) {color:#627daf!important;background:transparent!important;cursor:default;}

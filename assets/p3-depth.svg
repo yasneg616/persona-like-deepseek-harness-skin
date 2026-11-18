@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="none">
+<!-- Original abstract architecture: no game assets or characters. -->
+<defs><linearGradient id="depth" x2="0.1" y2="1"><stop stop-color="#1e6bff"/><stop offset=".34" stop-color="#0d32b8"/><stop offset="1" stop-color="#020c42"/></linearGradient><linearGradient id="ray" x2="1" y2="1"><stop stop-color="#1be0ff" stop-opacity=".35"/><stop offset="1" stop-color="#1be0ff" stop-opacity="0"/></linearGradient></defs>
+<path fill="url(#depth)" d="M0 0h1440v900H0z"/>
+<path fill="#04226c" d="M0 240L800 70l640 20v50L820 140 0 440z"/>
+<path fill="#174be0" d="M0 0h550L800 70 0 240z"/>
+<path fill="#030e50" d="M0 900l800-650 640 160v490z"/>
+<g fill="none" stroke="#3276ee" stroke-width="2" opacity=".35"><path d="M0 430L800 180l640 80M0 640L800 180l640 430M0 900L800 180l640 720M280 900L800 180M620 900L800 180M1030 900L800 180"/><path d="M0 760h1440M220 580h1220M460 420h980"/></g>
+<path fill="url(#ray)" d="M120 0h300L760 900H0zM710 0h130l600 800v100z"/>
+<path fill="#12d8ff" d="M0 680L1440 40v26L0 740z" opacity=".13"/>
+</svg>

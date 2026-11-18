@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-Hans" data-dsh-calling-card-skin data-input-modality="keyboard" data-windows-titlebar style="--dsh-windows-titlebar-height: 40px">
+<head>
+<script>
+  /* Persona fixture: ?persona=p3|p4|p5 picks the stored mode before the plugin loads. */
+  (() => {
+    const persona = new URLSearchParams(location.search).get('persona') || 'p3'
+    try { localStorage.setItem('dsh-calling-card-skin:persona', persona) } catch {}
+  })()
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona modes fixture · DeepSeek Harness · desktop fixture</title>
+<style data-plugin-css="dsh-calling-card-skin/skin.css">@import url("../lib/skin.css");</style>
+<!--
+  Fixture for the Windows desktop shell. Not the Harness client and not the
+  desktop app. It imitates what the desktop preload and host layout put on the
+  page: a 40px web-rendered caption (menubar host + window-control host, both
+  open shadow roots), `window.dshDesktop.windowControls` (a stub that only logs),
+  frame padding with a drag strip, and a sidebar whose collapsed state hides
+  its lists the way the host does. Class names are made-up stand-ins for the
+  host's CSS-module names. ?collapsed=1 starts collapsed; ?api=0 drops the stub.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #000; }
+  #frame { height: 100vh; display: grid; position: relative; box-sizing: border-box; grid-template-columns: 280px minmax(400px, 1fr) minmax(0px, 0px); }
+  html[data-windows-titlebar] #frame { padding-top: var(--dsh-windows-titlebar-height); background: #1b1b1c; }
+  html[data-windows-titlebar] #frame::before { content: ""; height: var(--dsh-windows-titlebar-height); background: #1b1b1c; -webkit-app-region: drag; position: absolute; inset: 0 0 auto; }
+  #frame[data-animating] { transition: grid-template-columns 250ms ease; }
+  .xx_sidebarCol, #center { min-width: 0; min-height: 0; }
+  .xx_sidebarCol { position: relative; overflow: hidden; }
+  #center { display: flex; flex-direction: column; }
+  #center > [data-phase] { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  #frame > [data-shell-overlay] { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+  [data-conversation-header-leading] { padding: 16px 20px 8px; color: var(--dsw-alias-label-primary, #f7f4ee); }
+  [data-conversation-scroll] { flex: 1; overflow: auto; padding: 12px 28px 24px; }
+  [data-composer-seat] { padding: 8px 20px 16px; }
+  [data-composer-card] { position: relative; padding: 12px 14px; }
+  [data-composer-input] { width: 100%; min-height: 52px; border: 0; background: transparent; resize: none; }
+  button.send { background: #e60012; color: #fff; border: 0; font-weight: 800; padding: 8px 12px; }
+  /* host-like sidebar */
+  .wtg9ga_root { display: flex; flex-direction: column; height: 100%; padding: 8px; box-sizing: border-box; color: var(--dsw-alias-label-primary, #ddd); }
+  .wtg9ga_logoRow { display: flex; align-items: center; justify-content: space-between; height: 40px; }
+  .wtg9ga_iconButton { width: 28px; height: 28px; display: grid; place-items: center; background: transparent; border: 0; color: var(--dsw-alias-label-primary, #ddd); padding: 0; }
+  .wtg9ga_iconButton svg, .wtg9ga_panelGlyph svg, .wtg9ga_newSession svg { width: 16px; height: 16px; }
+  .wtg9ga_newSession, .wtg9ga_panelRow { display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--dsw-alias-label-primary, #ddd); padding: 6px 8px; text-align: left; }
+  .wtg9ga_panelList { display: flex; flex-direction: column; }
+  .wtg9ga_regionArea { flex: 1; min-height: 0; overflow: auto; }
+  .GAkraW_sectionHeader { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 36px; padding-left: 8px; color: var(--dsw-alias-label-tertiary, #999); }
+  .GAkraW_sectionLabel { flex: 1; font-size: 13px; }
+  .GAkraW_searchButton { width: 24px; height: 24px; display: grid; place-items: center; background: transparent; border: 0; color: var(--dsw-alias-label-tertiary, #aaa); padding: 0; }
+  .GAkraW_listArea { position: relative; }
+  .GAkraW_listArea [role="treeitem"] { padding: 4px 8px; }
+  /* host-like project row (Rows module): flex row of folder, chevron, title and actions */
+  .wnFoaW_projectRow { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px !important; box-sizing: border-box; color: #ccc; cursor: pointer; }
+  .wnFoaW_slot { display: inline-flex; width: 16px; height: 16px; flex: none; }
+  .wnFoaW_slot svg { width: 16px; height: 16px; }
+  .wnFoaW_projectRow .wnFoaW_chevron { display: none; }
+  .wnFoaW_projectRow:hover .wnFoaW_chevron { display: inline-flex; }
+  .wnFoaW_projectText { flex: 1; min-width: 0; overflow: hidden; } .wnFoaW_title { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 13px; }
+  .wnFoaW_rowActions { display: inline-flex; gap: 2px; height: 20px; }
+  /* host-like session row (Rows module): slot, title, resting time, then inline actions (worst case: always shown) */
+  .wnFoaW_sessionRow { display: flex; align-items: center; gap: 0; height: 32px; padding: 0 8px; box-sizing: border-box; color: var(--dsw-alias-label-primary, #ddd); cursor: pointer; border-radius: 8px; }
+  .wnFoaW_sessionRow .wnFoaW_title { flex: 1; margin: 0 6px 0 8px; font-size: 14px; }
+  .wnFoaW_rowResting { display: inline-flex; flex: none; }
+  .wnFoaW_time { color: #888; font-size: 10px; line-height: 16px; flex: none; }
+  .wnFoaW_sessionRow .wnFoaW_rowActions { margin-left: auto; gap: 13px; }
+  .wnFoaW_rowQuickActions, .wnFoaW_rowQuickActions > [data-slot] { display: inline-flex; gap: 13px; }
+  .wnFoaW_sessionRow:hover .wnFoaW_rowResting { display: none; }
+  .wnFoaW_sessionRow.wnFoaW_selected, .wnFoaW_sessionRow:hover { background-color: #333; }
+  .wnFoaW_dot { width: 6px; height: 6px; border-radius: 50%; background: #4c8; margin: 5px; }
+  .wnFoaW_iconButton { width: 20px; height: 20px; display: grid; place-items: center; border: 0; background: transparent; color: var(--dsw-alias-label-tertiary, #999); padding: 0; }
+  .wnFoaW_iconButton svg { width: 14px; height: 14px; }
+  /* host bottom fade over the list (WorkspaceBrowser .fade) */
+  .GAkraW_fade { left: 0; right: 0; background: linear-gradient(to bottom, transparent, #1b1b1c); pointer-events: none; height: 24px; position: absolute; bottom: 0; }
+  .wtg9ga_footArea { margin-top: auto; display: flex; flex-direction: column; }
+  .wtg9ga_footerActions { display: flex; }
+  .wtg9ga_settingsArea { display: flex; }
+  ._5Qcc8a_root { flex: 1; min-width: 0; } ._5Qcc8a_anchor { width: 100%; }
+  ._5Qcc8a_trigger { width: 100%; height: 32px; padding: 6px 8px; border: 0; border-radius: 8px; color: var(--dsw-alias-label-primary, #ddd); background: transparent; display: flex; align-items: center; gap: 8px; font: inherit; font-size: 14px; cursor: pointer; }
+  ._5Qcc8a_trigger svg { width: 14px; height: 14px; }
+  .wtg9ga_brand { display: inline-flex; align-items: center; flex: 1; background: none; border: 0; padding: 0 0 0 8px; color: inherit; }
+  .wtg9ga_brandIdentity { display: inline-flex; align-items: center; gap: 5px; height: 24px; }
+  html[data-windows-titlebar] .wtg9ga_toggle { position: fixed; top: 6px; left: 12px; z-index: 30; }
+  html[data-windows-titlebar] .wtg9ga_collapsed { padding: 0; }
+  html[data-windows-titlebar] .wtg9ga_collapsed .wtg9ga_logoRow { height: 0; }
+  html[data-windows-titlebar] .wtg9ga_collapsed .wtg9ga_newSession { position: fixed; top: 6px; left: 48px; z-index: 30; width: 28px; height: 28px; padding: 0; justify-content: center; }
+  html[data-windows-titlebar] .wtg9ga_collapsed :is(.wtg9ga_panelList, .wtg9ga_regionArea, .wtg9ga_footArea) { display: none; }
+  .wtg9ga_collapsed .xx_wide, .wtg9ga_collapsed .GAkraW_listArea, .wtg9ga_root:not(.wtg9ga_collapsed) .GAkraW_rail { display: none; }
+  .GAkraW_rail { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  #fixture-log { position: fixed; left: 50%; bottom: 4px; z-index: 50; margin: 0; background: #fff; color: #111; font: 700 11px/1.4 sans-serif; padding: 3px 8px; pointer-events: none; }
+  #fixture-menu { position: fixed; z-index: 60; display: none; background: #2b2b2b; color: #eee; font: 13px/1.8 sans-serif; padding: 6px 14px; box-shadow: 0 6px 18px #000a; }
+  /* host-like Menu primitive (account menu) */
+  ._list_1p5el_7 { box-sizing: border-box; padding: 4px; display: flex; flex-direction: column; gap: 0; box-shadow: 0 10px 30px #000a; border-radius: 12px; min-width: 144px; }
+  ._portal_1p5el_46 { position: fixed; z-index: 1100; }
+  ._surface_1w4el_1 { isolation: isolate; }
+  ._material_1w4el_21 { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--dsw-menu-surface-fill); backdrop-filter: blur(20px); pointer-events: none; }
+  ._itemWrap_1p5el_105 { position: relative; }
+  ._item_1p5el_105 { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px; padding: 6px 8px; border: none; border-radius: var(--dsw-radius-md); background: transparent; cursor: pointer; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); text-align: left; }
+  ._item_1p5el_105:hover { background: #ffffff14; }
+  ._itemIcon_1p5el_165 { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--dsw-alias-menu-icon); }
+  ._itemIcon_1p5el_165 svg, ._check_1p5el_197 { width: 14px; height: 14px; flex: none; }
+  ._itemLabel_1p5el_208 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ._shortcut_1p5el_216 { flex: none; margin-inline-start: auto; }
+  html:not([data-input-modality=keyboard]) ._shortcut_1p5el_216 { display: none; }
+  ._label_1p5el_146 { padding: 6px 8px; font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }
+  ._separator_1p5el_89 { height: .5px; margin: 3px 8px; background: var(--dsw-alias-border-l2); }
+</style>
+<script>
+  /* Preload stand-ins, created before the plugin loads (like the real preload). */
+  (() => {
+    const params = new URLSearchParams(location.search)
+    const log = (text) => {
+      window.__ccLog = (window.__ccLog || []).concat(text)
+      const out = document.getElementById('fixture-log')
+      if (out) out.textContent = `夹具窗口桩：${text}`
+    }
+    let maximized = params.get('max') === '1'
+    if (params.get('api') !== '0') {
+      window.dshDesktop = {
+        protocolVersion: 1,
+        windowControls: {
+          invoke: async (action) => {
+            log(action)
+            if (action === 'maximize') maximized = true
+            if (action === 'restore') maximized = false
+            return { maximized, minimized: false }
+          },
+          menu: async (name, x, y) => {
+            log(`menu ${name} @ ${Math.round(x)},${Math.round(y)}`)
+            const menu = document.getElementById('fixture-menu')
+            menu.textContent = name === 'edit' ? '撤销 · 重做 · 剪切 · 复制 · 粘贴' : '关于 · 设置 · 退出'
+            menu.style.left = `${x}px`
+            menu.style.top = `${y}px`
+            menu.style.display = 'block'
+            await new Promise((resolve) => setTimeout(resolve, 900))
+            menu.style.display = 'none'
+            return true
+          },
+        },
+      }
+    }
+    const shadowHost = (attr, css, labels) => {
+      const host = document.createElement('div')
+      host.setAttribute(attr, '')
+      const root = host.attachShadow({ mode: 'open' })
+      root.innerHTML = `<style>${css} button{height:40px;border:0;background:transparent;color:#ccc;font:13px sans-serif;padding:0 10px}</style>` + labels.map((label) => `<button type="button">${label}</button>`).join('')
+      document.documentElement.append(host)
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      shadowHost('data-windows-menu', ':host{position:fixed;top:0;left:var(--dsh-windows-menu-start,48px);height:40px;z-index:1100;display:flex}', ['应用', '编辑'])
+      shadowHost('data-industrial-caption-fallback', ':host{position:fixed;top:0;right:0;height:40px;z-index:1101;display:flex} button{width:46px}', ['—', '☐', '✕'])
+    })
+  })()
+</script>
+<style>/* Actual shipped InputBar.module CSS; structural fixture, no app state. */
+.GRgSLq_root{padding:0 var(--dsh-composer-side-clearance) 4px;flex-direction:column;align-items:center;display:flex}.GRgSLq_dock{justify-content:center;align-items:center;gap:12px;max-width:100%;padding-top:4px;display:flex}.GRgSLq_root:not(.GRgSLq_hero)>.GRgSLq_dock{min-height:calc(22px + var(--dsh-content-font-delta-secondary,0px))}.GRgSLq_hero .GRgSLq_dock:empty{display:none}.GRgSLq_hero{padding:0 var(--dsh-composer-side-clearance)}.GRgSLq_notice{width:100%;max-width:var(--dsh-composer-card-max-width);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);margin-bottom:6px;padding:4px 8px;font-size:12px;line-height:18px}.GRgSLq_card{box-sizing:border-box;width:100%;max-width:var(--dsh-composer-card-max-width);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-panel);background:var(--dsw-specific-input-major);box-shadow:var(--dsw-elevation-soft);font-size:var(--dsh-content-font-size,14px);line-height:calc(24px + var(--dsh-content-font-delta,0px));--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);border:0;flex-direction:column;gap:12px;padding-top:8px;display:flex;position:relative}@media (pointer:coarse){.GRgSLq_card{font-size:max(16px, var(--dsh-content-font-size,14px))}}.GRgSLq_cardWorkspaceTrigger{--dsw-elevation-stroke-color:transparent;cursor:pointer}.GRgSLq_cardWorkspaceTrigger:after{content:"";box-sizing:border-box;border-radius:var(--dsw-radius-panel);color:var(--dsw-alias-border-l4);pointer-events:none;border:1px dashed;transition:color .1s;position:absolute;inset:0}.GRgSLq_cardWorkspaceTrigger :disabled{pointer-events:none}@media (hover:hover){.GRgSLq_cardWorkspaceTrigger:hover:after{color:var(--dsw-alias-state-business-primary)}}.GRgSLq_accessory{align-items:center;gap:8px;padding:10px 12px 0;display:flex}.GRgSLq_overlayAnchor{height:0;position:absolute;inset:0 0 auto}.GRgSLq_scroll{max-height:var(--dsh-composer-text-max-height);margin-right:4px;overflow-y:auto}.GRgSLq_scroll::-webkit-scrollbar-track{margin-top:8px}.GRgSLq_grow{position:relative}.GRgSLq_pending{corner-shape:round;background:var(--dsw-alias-state-business-primary);border-radius:50%;width:8px;height:8px;animation:1s ease-in-out infinite alternate GRgSLq_input-pending}@keyframes GRgSLq_input-pending{0%{opacity:.35}to{opacity:1}}.GRgSLq_input{box-sizing:border-box;min-height:36px;font-family:var(--dsw-font-family);font-size:inherit;line-height:inherit;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;color:var(--dsw-alias-label-primary);caret-color:var(--dsw-alias-state-business-primary);outline:none;padding:4px 8px 0 14px}.GRgSLq_input p{margin:0}.GRgSLq_input p:last-child:after{content:var(--dsh-composer-hint);color:var(--dsw-alias-label-caption)}.GRgSLq_input[data-composer-composing] p:last-child:after{content:none}.GRgSLq_input[data-composer-chip-selected]{caret-color:#0000}.GRgSLq_input[data-composer-composing]+.GRgSLq_placeholder{visibility:hidden}.GRgSLq_placeholder{color:var(--dsw-alias-label-caption);white-space:nowrap;text-overflow:ellipsis;pointer-events:none;user-select:none;position:absolute;inset:4px 8px auto 14px;overflow:hidden}.GRgSLq_inputDisabled{color:var(--dsw-alias-label-tertiary);cursor:not-allowed}.GRgSLq_input[aria-haspopup=menu]{cursor:pointer}.GRgSLq_hero .GRgSLq_input{min-height:52px}.GRgSLq_hero .GRgSLq_placeholder{white-space:normal;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;display:-webkit-box}.GRgSLq_row{flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;min-width:0;padding:2px 8px 6px;display:flex;container-type:inline-size}.GRgSLq_row[data-model-compact]{--dsh-composer-model-text-display:none;--dsh-composer-model-icon-display:block}.GRgSLq_tools,.GRgSLq_modes,.GRgSLq_trailing{align-items:center;min-width:0;display:flex}.GRgSLq_tools,.GRgSLq_modes{gap:12px}.GRgSLq_trailing{flex:none;gap:12px;margin-left:auto}@container (width<=560px){.GRgSLq_tools,.GRgSLq_modes,.GRgSLq_trailing{gap:8px}}.GRgSLq_add{corner-shape:round;background:var(--dsw-specific-selector);width:28px;height:28px;color:var(--dsw-alias-label-primary);cursor:pointer;border:none;border-radius:999px;flex:none;place-items:center;display:grid}@media (hover:hover){.GRgSLq_add:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-solid)}}.GRgSLq_add:disabled{opacity:.5;cursor:default}.GRgSLq_select{border-radius:var(--dsw-radius-sm);max-width:220px;height:28px;color:var(--dsw-alias-label-secondary);white-space:nowrap;cursor:pointer;appearance:none;background-color:#0000;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2381858C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:right 4px center;background-repeat:no-repeat;background-size:12px 12px;border:none;outline:none;padding:0 20px 0 8px;font-size:13px;font-weight:500;line-height:20px}@media (hover:hover){.GRgSLq_select:hover:not(:disabled){background-color:var(--dsw-alias-interactive-bg-hover)}}.GRgSLq_select:disabled{opacity:.5;cursor:default}.GRgSLq_primary{corner-shape:round;background:var(--dsw-alias-button-info-fill);color:#fff;cursor:pointer;border:none;border-radius:999px;flex:none;place-items:center;width:34px;height:34px;transition:background-color .1s;display:grid;transform:translateY(-2px)}@media (hover:hover){.GRgSLq_primary:hover:not(:disabled){background:var(--dsw-alias-button-info-hover)}}.GRgSLq_primary:disabled{opacity:.4;cursor:default}.GRgSLq_primary[data-sending]:disabled{opacity:1;cursor:progress}.GRgSLq_sendingSpinner{animation:.8s linear infinite GRgSLq_input-sending}@media (prefers-reduced-motion:reduce){.GRgSLq_sendingSpinner{animation-duration:2.4s}}@keyframes GRgSLq_input-sending{to{transform:rotate(360deg)}}.GRgSLq_retry{border-radius:var(--dsw-radius-sm);color:inherit;cursor:pointer;background:0 0;border:1px solid;margin-left:8px;padding:1px 8px;font-size:12px}.GRgSLq_standardControls{align-items:center;gap:12px;min-width:0;display:flex}.GRgSLq_tools[hidden],.GRgSLq_standardControls[hidden]{display:none}.GRgSLq_trailingActive{flex:1;margin-left:0}.GRgSLq_activity{flex:none;align-items:center;display:flex}.GRgSLq_activity:empty{display:none}.GRgSLq_activityExpanded{flex:1;min-width:0}
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="xx_sidebarCol">
+    <div class="xx_slotHost" data-fixture-slot style="height:100%"><div class="wtg9ga_root" id="sideRoot">
+      <div class="wtg9ga_logoRow" data-window-drag>
+        <button type="button" class="wtg9ga_brand xx_wide"><span class="wtg9ga_brandIdentity" aria-hidden="true"><span class="wtg9ga_brandMark"><span class="dsh-cc-mark dsh-cc-void" aria-hidden="true"></span></span><span class="wtg9ga_brandName"><span class="dsh-cc-name dsh-cc-void" aria-hidden="true"></span></span></span></button>
+        <button type="button" data-sidebar-toggle class="wtg9ga_iconButton wtg9ga_toggle" aria-label="收起侧边栏"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><line x1="6" y1="3" x2="6" y2="13"/></svg></button>
+      </div>
+      <button type="button" class="wtg9ga_newSession" aria-label="New Session"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v10M3 8h10"/></svg><span class="xx_wide">New Session</span></button>
+      <nav class="wtg9ga_panelList" aria-label="全局面板">
+        <button type="button" class="wtg9ga_panelRow" aria-label="Plugins" data-fixture-panel><span class="wtg9ga_panelGlyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="4" height="4"/><rect x="9" y="3" width="4" height="4"/><rect x="3" y="9" width="4" height="4"/><rect x="9" y="9" width="4" height="4"/></svg></span><span class="xx_wide">Plugins</span></button>
+        <button type="button" class="wtg9ga_panelRow" aria-label="Automation tasks"><span class="wtg9ga_panelGlyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v3l2 2"/></svg></span><span class="xx_wide">Automation tasks</span></button>
+      </nav>
+      <div class="wtg9ga_regionArea">
+        <div class="GAkraW_root">
+          <div class="GAkraW_sectionHeader xx_wide"><span class="GAkraW_sectionLabel">工作区</span><button type="button" class="GAkraW_searchButton" aria-label="搜索会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg></button><button type="button" class="GAkraW_searchButton" aria-label="添加工作区"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h5l1 1h6v7H2z"/></svg></button></div>
+          <div class="GAkraW_rail">
+            <button type="button" class="wtg9ga_iconButton" aria-label="添加项目"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h5l1 1h6v7H2z"/></svg></button>
+            <button type="button" class="wtg9ga_iconButton" aria-label="搜索会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg></button>
+          </div>
+          <div class="GAkraW_listArea">
+            <div class="wnFoaW_projectRow" data-row-key="workspace:dsh" role="treeitem" aria-expanded="true"><span class="wnFoaW_slot wnFoaW_folder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="wnFoaW_slot wnFoaW_chevron"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4z"/></svg></span><span class="wnFoaW_projectText"><span class="wnFoaW_title">dsh</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="dsh 的更多操作" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="在 dsh 中新建会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v7H7l-3 3v-3H3z"/><path d="M8 5v3M6.5 6.5h3"/></svg></button></span></div>
+            <div class="wnFoaW_sessionRow wnFoaW_selected" role="treeitem" data-row-key="session:demo-1" aria-selected="true" tabindex="0"><span class="wnFoaW_slot"><span class="wnFoaW_dot" data-state="running"></span></span><span class="wnFoaW_title">检查令牌刷新</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">2分钟</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="检查令牌刷新 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+            <div class="wnFoaW_sessionRow" role="treeitem" data-row-key="session:demo-2" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">整理交付说明</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">3小时</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="整理交付说明 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+            <div class="wnFoaW_sessionRow" role="treeitem" data-row-key="session:demo-3" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">阅读边界用例</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">24天前</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="阅读边界用例 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+            <div class="wnFoaW_sessionRow" role="treeitem" data-row-key="session:demo-4" aria-selected="false" tabindex="0"><span class="wnFoaW_slot"></span><span class="wnFoaW_title">Refactor auth middleware and the session refresh path</span><span class="wnFoaW_rowResting"><span class="wnFoaW_time wnFoaW_timestamp">1个月</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="Refactor auth middleware and the session refresh path 的会话操作"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><span class="wnFoaW_rowQuickActions"><span data-slot><button type="button" class="wnFoaW_iconButton wnFoaW_pinnedAction" aria-label="置顶"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="归档"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="3" width="11" height="3"/><path d="M3.5 6v7h9V6M6.5 8.5h3"/></svg></button></span></span></span></div>
+            <div class="wnFoaW_projectRow" data-row-key="workspace:stst" role="treeitem" aria-expanded="false"><span class="wnFoaW_slot wnFoaW_folder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="wnFoaW_slot wnFoaW_chevron"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4z"/></svg></span><span class="wnFoaW_projectText"><span class="wnFoaW_title">stst</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="stst 的更多操作" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="在 stst 中新建会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v7H7l-3 3v-3H3z"/><path d="M8 5v3M6.5 6.5h3"/></svg></button></span></div>
+            <div class="wnFoaW_projectRow" data-row-key="workspace:atrium" role="treeitem" aria-expanded="false"><span class="wnFoaW_slot wnFoaW_folder"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4.5h4l1.2 1.3H14v6.7H2z"/></svg></span><span class="wnFoaW_slot wnFoaW_chevron"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6 4l5 4-5 4z"/></svg></span><span class="wnFoaW_projectText"><span class="wnFoaW_title">atrium-renovation-notes</span></span><span class="wnFoaW_rowActions"><button type="button" class="wnFoaW_iconButton" data-context-menu-trigger aria-label="atrium-renovation-notes 的更多操作" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg></button><button type="button" class="wnFoaW_iconButton" aria-label="在 atrium-renovation-notes 中新建会话"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v7H7l-3 3v-3H3z"/><path d="M8 5v3M6.5 6.5h3"/></svg></button></span></div>
+            <span class="GAkraW_fade"></span>
+          </div>
+        </div>
+      </div>
+      <div class="wtg9ga_footArea">
+        <div class="wtg9ga_footerActions"><button type="button" class="wtg9ga_iconButton" aria-label="远程访问"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="8"/><path d="M5 14h6M8 11v3"/></svg></button></div>
+        <div class="wtg9ga_settingsArea"><div class="_5Qcc8a_root"><div class="_5Qcc8a_anchor"><button type="button" class="_5Qcc8a_trigger" data-collapsed="false" data-signed-out="true" aria-label="账号菜单" aria-haspopup="menu" aria-expanded="false" id="acct"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.5" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="12.5" cy="8" r="1.4"/></svg><span class="_5Qcc8a_label xx_wide">更多</span></button></div></div></div>
+      </div>
+    </div></div>
+  </div>
+  <div id="center">
+   <!-- Host conversation structure: ConversationRoot root > content (chat region) > scroll body (flows + composer seat). -->
+   <div data-phase="active" id="convRoot" style="display:flex;flex-direction:column;min-height:0;flex:1">
+    <div data-conversation-header-leading>整理中庭方案</div>
+    <div data-conversation-content data-conversation-session="demo-1" data-conversation-region="chat" data-content-phase="active" style="display:flex;flex-direction:column;min-height:0;flex:1">
+     <div data-conversation-scroll style="flex:1;overflow:auto;padding:12px 28px 24px;display:flex;flex-direction:column">
+      <div id="flows">
+       <article data-chat-flow-kind="user"><p>按这张图改一下中庭，再写个说明。</p></article>
+       <article data-chat-flow-kind="assistant-step">
+         <h2>改造方案</h2>
+         <p>中庭改成双层挑空，北侧加一道光井，说明写在 <a href="#">notes/atrium.md</a>。示例正文，没有模型调用。</p>
+         <ul><li>保留原有柱网</li><li>楼梯移到东侧</li></ul>
+         <pre><code>npm run render -- atrium --out after-atrium.png</code></pre>
+       </article>
+       <article data-chat-flow-kind="tool-call"><h3>read_file</h3><p>工具状态示例。没有读取磁盘。</p></article>
+      </div>
+      <form data-composer-seat data-conversation-region="composer" style="margin-top:auto;padding:8px 0 4px">
+        <!-- Actual InputBar shape from dsh-client-ui-conversation, GRgSLq classes:
+             card > scroll/grow/input + row > tools/modes + trailing/model/primary.
+             Slot contents below are local fixtures; never a network send. -->
+        <div class="GRgSLq_root" style="--dsh-composer-card-max-width:100%;--dsh-composer-text-max-height:180px">
+         <div data-composer-card class="GRgSLq_card" tabindex="-1">
+          <div data-composer-overlay class="GRgSLq_overlayAnchor"></div>
+          <div class="GRgSLq_scroll"><div class="GRgSLq_grow"><div data-composer-input class="GRgSLq_input" contenteditable="true" role="textbox" aria-multiline="true" aria-label="下一步，要让 DSH 做什么？"><p>继续检查布局，让正文更清楚。</p></div></div></div>
+          <div class="GRgSLq_row">
+           <div class="GRgSLq_tools">
+            <button type="button" class="GRgSLq_add" aria-label="添加附件或命令" aria-haspopup="listbox" aria-expanded="false" data-preview-menu>＋</button>
+            <div class="GRgSLq_modes"><button type="button" aria-label="权限模式" aria-haspopup="menu" data-preview-menu>默认权限⌄</button><button type="button" aria-label="计划模式" aria-pressed="false" data-preview-toggle>计划</button></div>
+           </div>
+           <div class="GRgSLq_trailing"><div class="GRgSLq_standardControls"><button type="button" aria-label="选择模型" aria-haspopup="menu" data-preview-menu>DeepSeek · Preview⌄</button></div><button type="button" class="GRgSLq_primary" aria-label="发送（仅夹具，不调用模型）" data-preview-submit>↑</button></div>
+          </div>
+         </div>
+         <div class="GRgSLq_dock"><span>⌘ / 命令</span><span>Enter 发送 · Shift+Enter 换行</span></div>
+        </div>
+      </form>
+     </div>
+    </div>
+   </div>
+  </div>
+<script>
+(() => {
+ const params = new URLSearchParams(location.search)
+ if (params.get('long') === '1') {
+   const flows=document.querySelector('#flows')
+   flows.innerHTML = `<article data-chat-flow-kind="user"><p>把这版中庭方案整理成一份能交付的说明，核对动线、结构和材料，并保留可修改的依据。</p></article>
+    <article data-chat-flow-kind="assistant-step"><h2>方案说明 / 空间与光线</h2><p>这是一段合成的长对话夹具，不来自任何用户记录，也没有模型调用。主厅保留原有柱网，二层环廊向北侧退让，天窗引入连续的自然光。文字保持正常水平排版，不为装饰倾斜。</p><p>从入口望向庭院，应当先看见中庭的公共活动面，再看到楼梯。走道净宽、无障碍回转空间和设备检修路径分别核对，不以示意图代替工程测量。</p><h3>核对清单</h3><ul><li>入口与主楼梯之间保持清楚的视线。</li><li>材料分缝与结构轴线对齐；扶手高度由施工图复核。</li><li>长段落、中文标点、英文文件名都应自然换行。</li></ul><table><thead><tr><th>区域</th><th>处理方式</th><th>状态</th></tr></thead><tbody><tr><td>北侧光井</td><td>连续磨砂玻璃与可维护遮阳</td><td>待复核</td></tr><tr><td>环廊</td><td>保留柱网，局部退台</td><td>方案通过</td></tr></tbody></table><pre><code>npm run render -- atrium --out after-atrium.png
+# Local fixture only: no command is executed.</code></pre><p><a href="#deliverable">设计说明.md</a> · <a href="#deliverable">平面核对表.csv</a></p></article>
+    <article data-chat-flow-kind="tool-call"><h3>校验结果 · 仅演示</h3><p>12 个区域已检查，2 项需要现场尺寸。没有读取文件或调用服务。</p><details><summary>查看完整演示记录</summary><p>尺寸、材料、照明三类检查均为合成占位数据。</p></details></article>
+    <article data-chat-flow-kind="user"><p>保持这个方向，再把材料选择的理由写清楚。</p></article>
+    <article data-chat-flow-kind="assistant-step"><h2>材料的选择依据</h2><p>浅色矿物面层降低大面积反射的杂乱感，扶手采用温暖而耐磨的接触面。所有材料仍需防火与耐久性复核；此处只记录设计意图，不替代采购或施工建议。</p><p>接下来的版本将保留原有信息层级，逐项补充样板照片与尺寸。长对话应当可以滚动回顾，编辑器、模型选择和附件入口不能被装饰遮挡。</p></article>`
+ }
+ document.querySelectorAll('[data-preview-toggle]').forEach(b=>b.onclick=()=>b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true')))
+ document.querySelectorAll('[data-preview-menu]').forEach(b=>b.onclick=()=>{
+  document.querySelector('#preview-local-menu')?.remove()
+  const m=document.createElement('div');m.id='preview-local-menu';m.setAttribute('data-menu-material','');m.setAttribute('role','menu');m.style.cssText='position:fixed;z-index:2000;padding:12px;right:60px;bottom:190px';m.innerHTML='<button type="button" role="menuitem">夹具选项：保持当前选择</button>';m.onclick=()=>m.remove();document.body.append(m)
+ })
+ document.querySelector('[data-preview-submit]').onclick=()=>{ document.querySelector('[data-fixture-status]').textContent='仅本地夹具：未发送请求'; }
+})()
+</script>
+<script>
+  window.__p3NativeChat=document.querySelector('#center').innerHTML
+  /* ?hero=1: the blank-session landing, as the host renders it (hero mark slot, headline group, composer). */
+  if (new URLSearchParams(location.search).get('hero') === '1') {
+    const root = document.getElementById('convRoot')
+    root.dataset.phase = 'hero'
+    root.querySelector('[data-conversation-header-leading]').remove()
+    const content = root.querySelector('[data-conversation-content]')
+    content.dataset.contentPhase = 'hero'
+    document.getElementById('flows').outerHTML = '<div style="margin:auto 0 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:0 4px"><span><div><svg class="dsh-cc-hero" width="40" height="40" aria-hidden="true"></svg></div></span><span><span>探索未至之境</span><span>预览版</span></span></div>'
+    content.querySelector('[data-composer-seat]').style.margin = '28px 0 auto'
+  }
+</script>
+
+<script>
+/* Optional native frame audit: copied host widget markup, synthetic data only. */
+if(new URLSearchParams(location.search).get('frames')==='1') {
+ document.head.insertAdjacentHTML('beforeend', "<style>\n  /* Host-like widget styles (approximations of the installed modules; class names as built). */\n  body { --dsw-radius-sm: 6px; --dsw-radius-lg: 12px; --dsw-radius-xl: 16px; }\n  .xMeOpW_body { display: flex; flex-direction: column; gap: 16px; }\n  .xMeOpW_stopped { border-radius: 6px; background: #2a2a2a; color: #999; align-self: flex-start; padding: 0 6px; font-size: 11px; line-height: 18px; }\n  .hSzSIW_root { border: .5px solid #333; border-radius: 16px; background: #1c1c1c; margin: 10px 0; }\n  .hSzSIW_header { width: 100%; color: #999; font: inherit; text-align: left; cursor: pointer; background: none; border: 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px; }\n  .hSzSIW_title { font-size: 14px; } .hSzSIW_time { margin-left: auto; font-size: 12px; }\n  .hSzSIW_openChevron { transform: rotate(180deg); }\n  .hSzSIW_body { padding: 0 16px 12px 40px; color: #bbb; font-size: 12px; } .hSzSIW_explanation { margin: 8px 0; }\n  .hSzSIW_content { white-space: pre-wrap; max-height: 240px; overflow: auto; }\n  .LOmM4q_turnErrorRow { font-size: 13px; line-height: 20px; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; padding: 2px 0; margin: 10px 0; }\n  .LOmM4q_turnErrorDot { margin-top: 5px; } .LOmM4q_turnErrorTitle { color: #e5484d; margin-right: 6px; font-weight: 600; } .LOmM4q_turnErrorMessage { color: #aaa; }\n  .LOmM4q_turnErrorCode { color: #888; font: 12px monospace; }\n  ._dot_1i3xo_2 { position: relative; display: inline-block; flex: none; width: 10px; height: 10px; }\n  ._dot_1i3xo_2::after { content: \"\"; position: absolute; inset: 20%; border-radius: 50%; background: currentColor; }\n  ._dot_1i3xo_2[data-state=error] { color: #e5484d; } ._dot_1i3xo_2[data-state=warning] { color: #f5a524; } ._dot_1i3xo_2[data-state=done] { color: #3fb950; }\n  .LOmM4q_attachmentRow { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin: 6px 0; }\n  .LOmM4q_fileCard { border: .5px solid #444; border-radius: 12px; background: #222; box-sizing: border-box; flex: 0 0 240px; display: inline-flex; align-items: center; gap: 10px; width: 240px; min-height: 64px; padding: 8px 12px; }\n  .LOmM4q_fileIcon { flex: none; width: 28px; height: 28px; } .LOmM4q_fileContent { display: flex; flex-direction: column; flex: 1; min-width: 0; }\n  .LOmM4q_fileName { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; color: #eee; font-size: 14px; font-weight: 500; } .LOmM4q_fileMeta { color: #888; font-size: 12px; }\n  .K5rwea_root { display: flex; flex-direction: column; gap: 16px; margin: 12px 0; container-type: inline-size; }\n  .K5rwea_presented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }\n  .K5rwea_file { box-sizing: border-box; border: .5px solid #333; border-radius: 12px; background: #262626; height: 60px; color: #eee; display: flex; align-items: center; gap: 10px; padding: 8px 10px; position: relative; overflow: hidden; }\n  .K5rwea_cardPreview { z-index: 1; border-radius: inherit; cursor: pointer; background: none; border: 0; padding: 0; position: absolute; inset: 0; }\n  .K5rwea_fileIcon { z-index: 2; pointer-events: none; border: .5px solid #333; width: 40px; height: 40px; color: #6aa0ff; border-radius: 10px; display: grid; place-items: center; position: relative; overflow: hidden; flex: none; }\n  .K5rwea_fileBody { z-index: 2; pointer-events: none; flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; position: relative; }\n  .K5rwea_details { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }\n  .K5rwea_fileName { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 13px; font-weight: 500; line-height: 20px; }\n  .K5rwea_description { color: #888; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 10px; line-height: 16px; }\n  .K5rwea_previewHint { display: none; } .K5rwea_actions { pointer-events: auto; display: inline-flex; flex: none; }\n  .mOxcpG_menuAnchor { display: inline-flex; align-self: center; }\n  .mOxcpG_split { box-sizing: border-box; border: .5px solid #555; border-radius: 6px; height: 24px; display: inline-flex; align-items: stretch; overflow: hidden; }\n  .mOxcpG_main, .mOxcpG_chevron { color: #eee; background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; font-size: 11px; }\n  .mOxcpG_main { gap: 4px; padding: 3px 5px; } .mOxcpG_chevron { border-left: .5px solid #555; color: #aaa; padding: 3px 4px 3px 3px; }\n  ._card_1mqf1_1 { position: relative; margin: 16px 0; background: #161616; border-radius: 12px; }\n  ._header_1mqf1_10 { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px 8px 22px; color: #999; font: 11px/18px sans-serif; }\n  ._heading_1mqf1_23 { display: flex; gap: 12px; } ._actions_1mqf1_43 { display: flex; gap: 4px; }\n  ._action_1mqf1_43 { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; color: #aaa; background: transparent; cursor: pointer; }\n  ._body_1mqf1_81 { padding: 6px 22px 20px; overflow-x: auto; }\n  ._block_15hvo_1 { position: relative; margin: 16px 0; padding-left: 30px; color: #eee; background: #161616; border-radius: 12px; overflow: hidden; font: 13px/22px monospace; }\n  ._header_15hvo_32 { display: flex; gap: 12px; margin-left: -30px; padding: 9px 14px 9px 30px; } ._block_15hvo_1[data-body] ._header_15hvo_32 { border-bottom: .5px solid #333; }\n  ._prompt_15hvo_70 { flex: 1; } ._cwd_15hvo_108 { color: #888; } ._status_15hvo_124 { color: #e5484d; }\n  ._copyButton_15hvo_132 { background: #161616; border: none; padding: 0; color: #aaa; cursor: pointer; font: 13px sans-serif; }\n  ._output_15hvo_152 { padding: 12px 14px 12px 0; } ._line_15hvo_179 { white-space: pre; }\n  .hKdVjq_root { display: flex; flex-direction: column; } .hKdVjq_row { display: flex; align-items: center; gap: 6px; color: #aaa; font-size: 13px; line-height: 24px; }\n  .hKdVjq_sep { background: #777; width: 2px; height: 2px; margin: 0 8px; } .hKdVjq_errorSummary { color: #e5484d; } .hKdVjq_stoppedSummary { color: #f5a524; }\n  .hKdVjq_diffAdded { color: #3fb950; } .hKdVjq_diffRemoved { color: #e5484d; } .hKdVjq_summarySuffix { margin-left: 4px; }\n  .Zf6DNq_root { margin: 14px 0; } .Zf6DNq_card { border: .5px solid #444; border-radius: 12px; background: #1f1f1f; overflow: hidden; }\n  .Zf6DNq_strip { display: flex; align-items: center; gap: 8px; padding: 8px 14px; color: #f5a524; font-size: 12px; background: #2a2416; }\n  .Zf6DNq_body { padding: 10px 14px; color: #ddd; font-size: 13px; } .Zf6DNq_command { font: 12px monospace; color: #eee; background: #111; padding: 6px 8px; border-radius: 6px; margin-top: 6px; }\n  .Zf6DNq_actionRow { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 14px; }\n  .Zf6DNq_actionRow button { border-radius: 8px; border: .5px solid #555; background: #333; color: #eee; padding: 5px 14px; font-size: 13px; cursor: pointer; }\n  .Zf6DNq_actionRow button.Zf6DNq_reject { background: transparent; }\n  ._spinner_1i3xo_37 { color: #888; }\n  [data-chat-flow-kind=\"widgets\"] { display: block; margin: 8px 0; }\n</style>");
+ const sample=document.createElement('section');sample.setAttribute('data-frame-audit','');sample.innerHTML="<section class=\"hSzSIW_root\" data-turn-trigger=\"true\" id=\"trigger\">\n<button aria-controls=\"tb\" aria-expanded=\"false\" class=\"hSzSIW_header\" type=\"button\"><span aria-hidden=\"true\" class=\"hSzSIW_icon\"><svg height=\"14\" viewbox=\"0 0 16 16\" width=\"14\"><path d=\"M2 4h12M2 8h12M2 12h8\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></svg></span><span class=\"hSzSIW_title\">\u540e\u53f0\u4efb\u52a1\u72b6\u6001\u66f4\u65b0</span><time class=\"hSzSIW_time\" datetime=\"2026-11-11T09:41:00Z\">18:41</time><svg aria-hidden=\"true\" class=\"hSzSIW_chevron\" height=\"12\" viewbox=\"0 0 16 16\" width=\"12\"><path d=\"M4 6l4 4 4-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></svg></button>\n</section><div class=\"hKdVjq_root\" data-state=\"done\" data-tool=\"bash\" data-variant=\"row\"><div class=\"hKdVjq_row\"><span class=\"hKdVjq_title\">\u8fd0\u884c</span><span class=\"hKdVjq_sep\"></span><span class=\"hKdVjq_summary\">npm run render -- atrium</span></div></div><div class=\"hKdVjq_root\" data-state=\"done\" data-tool=\"edit_file\" data-variant=\"row\"><div class=\"hKdVjq_row\"><span class=\"hKdVjq_title\">\u7f16\u8f91</span><span class=\"hKdVjq_sep\"></span><span class=\"hKdVjq_summary\">notes/atrium.md</span><span class=\"hKdVjq_summarySuffix hKdVjq_diffStat\"><span class=\"hKdVjq_diffAdded\">+42</span> <span class=\"hKdVjq_diffRemoved\">-7</span></span></div></div><div class=\"hKdVjq_root\" data-state=\"error\" data-tool=\"bash\" data-variant=\"row\"><div class=\"hKdVjq_row\"><span class=\"hKdVjq_title\">\u8fd0\u884c</span><span class=\"hKdVjq_sep\"></span><span class=\"hKdVjq_summary hKdVjq_errorSummary\">python export.py \u5931\u8d25</span></div></div><article data-chat-flow-kind=\"assistant-step\"><div class=\"xMeOpW_root\"><div class=\"xMeOpW_body\">\n<p>\u4e2d\u5ead\u6539\u6210\u53cc\u5c42\u6311\u7a7a\uff0c\u8bf4\u660e\u5199\u5728 <a href=\"#\">notes/atrium.md</a>\u3002\u6e32\u67d3\u547d\u4ee4\u5982\u4e0b\uff1a</p>\n<div class=\"_card_1mqf1_1\"><div class=\"_header_1mqf1_10\" data-code-block-banner=\"true\"><div class=\"_heading_1mqf1_23\"><span class=\"_language_1mqf1_30\">bash</span></div><div class=\"_actions_1mqf1_43\"><button aria-label=\"\u81ea\u52a8\u6362\u884c\" aria-pressed=\"false\" class=\"_action_1mqf1_43\" type=\"button\"><svg height=\"14\" viewbox=\"0 0 16 16\" width=\"14\"><path d=\"M2 4h12M2 8h9a2 2 0 0 1 0 4H8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"></path></svg></button><button aria-label=\"\u590d\u5236\" class=\"_action_1mqf1_43\" type=\"button\"><svg height=\"14\" viewbox=\"0 0 16 16\" width=\"14\"><rect fill=\"none\" height=\"8\" stroke=\"currentColor\" stroke-width=\"1.5\" width=\"8\" x=\"5\" y=\"5\"></rect><path d=\"M3 11V3h8\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"></path></svg></button></div></div><div class=\"_body_1mqf1_81\"><pre><code>npm run render -- atrium --out after-atrium.png</code></pre></div></div>\n<div class=\"_block_15hvo_1\" data-body=\"\" data-terminal=\"\"><div class=\"_header_15hvo_32\"><div class=\"_prompt_15hvo_70\"><div class=\"_promptLine_15hvo_78\"><span class=\"_cwd_15hvo_108\">~/work</span><span class=\"_command_15hvo_115\">python export.py --dpi 300</span></div></div><span class=\"_status_15hvo_124\">\u9000\u51fa\u7801 1</span><button class=\"_copyButton_15hvo_132\" type=\"button\">\u590d\u5236</button></div><div class=\"_output_15hvo_152\"><div class=\"_line_15hvo_179\">Traceback (most recent call last):</div><div class=\"_line_15hvo_179\">  KeyError: 'dpi'</div></div></div>\n<span class=\"xMeOpW_stopped\">\u5df2\u505c\u6b62</span>\n</div></div></article><div class=\"Zf6DNq_root\" data-approval-key=\"req-1\"><div class=\"Zf6DNq_card\"><div class=\"Zf6DNq_strip\"><span class=\"_dot_1i3xo_2\" data-state=\"warning\"></span>\u7b49\u5f85\u6279\u51c6</div><div aria-label=\"\u8bf7\u6c42\u8be6\u60c5\" class=\"Zf6DNq_body\" data-approval-scroll=\"\" role=\"group\">\u8fd0\u884c\u547d\u4ee4\u4ee5\u8986\u76d6\u8f93\u51fa\u6587\u4ef6<div class=\"Zf6DNq_command\">rm -f out/after-atrium.png</div></div><div class=\"Zf6DNq_actionRow\"><button class=\"Zf6DNq_reject\" type=\"button\">\u62d2\u7edd</button><button type=\"button\">\u5141\u8bb8</button></div></div></div><div class=\"LOmM4q_turnErrorRow\" role=\"status\"><span class=\"_dot_1i3xo_2 LOmM4q_turnErrorDot\" data-state=\"error\"></span><div class=\"LOmM4q_turnErrorCopy\"><span class=\"LOmM4q_turnErrorTitle\">\u4efb\u52a1\u5df2\u505c\u6b62</span><span class=\"LOmM4q_turnErrorMessage\">DSH \u8fdb\u7a0b\u5728\u672c\u8f6e\u5b8c\u6210\u524d\u9000\u51fa\uff08\u4f8b\u5982\u88ab\u5f3a\u5236\u7ed3\u675f\u3001\u5d29\u6e83\u6216\u5173\u95ed\u8d85\u65f6\uff09\uff0c\u91cd\u65b0\u542f\u52a8\u540e\u672c\u8f6e\u5df2\u4e2d\u6b62\u3002\u672a\u5b8c\u6210\u7684\u5de5\u5177\u8c03\u7528\u7ed3\u679c\u672a\u77e5\u3002</span></div></div><div class=\"K5rwea_root\" data-turn-tail=\"\"><div class=\"K5rwea_presented\">\n<div class=\"K5rwea_file\" data-presented-file=\"true\"><button aria-label=\"\u9884\u89c8 atrium-notes.md\" class=\"K5rwea_cardPreview\" title=\"/work/atrium-notes.md\" type=\"button\"></button><span class=\"K5rwea_fileIcon\"><svg aria-hidden=\"true\" fill=\"none\" height=\"20\" viewbox=\"0 0 28 28\" width=\"20\"><path d=\"M8 3h9l6 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\" fill=\"#2f6fed\"></path><g color=\"#fff\" data-file-type-mark=\"\"><path d=\"M10 15h8M10 18h6\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></g></svg></span><div class=\"K5rwea_fileBody\"><div class=\"K5rwea_details\"><span class=\"K5rwea_fileName\">atrium-notes.md</span><span class=\"K5rwea_description\" data-presented-description=\"true\"><span class=\"K5rwea_secondaryText\">\u4e2d\u5ead\u6539\u9020\u8bf4\u660e</span><span class=\"K5rwea_previewHint\">\u9884\u89c8</span></span></div><div class=\"K5rwea_actions\"><div class=\"mOxcpG_menuAnchor\"><div class=\"mOxcpG_split\" data-open-path=\"\" data-open-target=\"file\" data-size=\"compact\" data-state=\"idle\"><button aria-label=\"\u7528 WPS Office \u6253\u5f00\" class=\"mOxcpG_main\" data-open-path-open=\"\" type=\"button\"><span style=\"display:inline-block;width:13px;height:13px;background:#d33;border-radius:3px\"></span></button><button aria-expanded=\"false\" aria-haspopup=\"menu\" aria-label=\"\u66f4\u591a\u6253\u5f00\u65b9\u5f0f\" class=\"mOxcpG_chevron\" data-open-path-more=\"\" type=\"button\"><svg height=\"10\" viewbox=\"0 0 16 16\" width=\"10\"><path d=\"M4 6l4 4 4-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></svg></button></div></div></div></div></div>\n<div class=\"K5rwea_file\" data-presented-file=\"true\"><button aria-label=\"\u9884\u89c8 after-atrium.png\" class=\"K5rwea_cardPreview\" title=\"/work/after-atrium.png\" type=\"button\"></button><span class=\"K5rwea_fileIcon\"><svg aria-hidden=\"true\" fill=\"none\" height=\"20\" viewbox=\"0 0 28 28\" width=\"20\"><path d=\"M8 3h9l6 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\" fill=\"#8b5cf6\"></path><g color=\"#fff\" data-file-type-mark=\"\"><path d=\"M10 15h8M10 18h6\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></g></svg></span><div class=\"K5rwea_fileBody\"><div class=\"K5rwea_details\"><span class=\"K5rwea_fileName\">after-atrium.png</span><span class=\"K5rwea_description\" data-presented-description=\"true\"><span class=\"K5rwea_secondaryText\">PNG</span><span class=\"K5rwea_previewHint\">\u9884\u89c8</span></span></div><div class=\"K5rwea_actions\"><div class=\"mOxcpG_menuAnchor\"><div class=\"mOxcpG_split\" data-open-path=\"\" data-open-target=\"file\" data-size=\"compact\" data-state=\"idle\"><button aria-label=\"\u7528 WPS Office \u6253\u5f00\" class=\"mOxcpG_main\" data-open-path-open=\"\" type=\"button\"><span style=\"display:inline-block;width:13px;height:13px;background:#d33;border-radius:3px\"></span></button><button aria-expanded=\"false\" aria-haspopup=\"menu\" aria-label=\"\u66f4\u591a\u6253\u5f00\u65b9\u5f0f\" class=\"mOxcpG_chevron\" data-open-path-more=\"\" type=\"button\"><svg height=\"10\" viewbox=\"0 0 16 16\" width=\"10\"><path d=\"M4 6l4 4 4-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"></path></svg></button></div></div></div></div></div>\n</div></div>";
+ const flow=document.querySelector('[data-chat-flow-kind="tool-call"]');if(flow)flow.insertAdjacentElement("afterend",sample);
+ sample.addEventListener('click',(event)=>{const button=event.target.closest('button');if(!button)return;
+  window.__frameAuditActions=(window.__frameAuditActions||[]).concat(button.getAttribute('aria-label')||button.textContent.trim());
+  if(button.classList.contains('hSzSIW_header')){const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));sample.querySelector('.hSzSIW_body')?.remove();if(open)button.parentElement.insertAdjacentHTML('beforeend','<div id="tb" class="hSzSIW_body">本地合成任务已结束；控件展开测试，不读取用户任务。</div>');}
+ });
+}
+</script>
+  <div data-shell-overlay></div>
+</div>
+<p id="fixture-log" data-fixture-status>测试夹具 · 不是桌面端</p>
+<div id="fixture-menu"></div>
+<script>
+  /* Host-like collapse: attribute + inline grid + collapsed class; lists stop rendering. */
+  (() => {
+    const frame = document.getElementById('frame')
+    const root = document.getElementById('sideRoot')
+    const toggle = document.querySelector('[data-sidebar-toggle]')
+    const set = (collapsed, animate) => {
+      if (animate) {
+        frame.setAttribute('data-animating', '')
+        setTimeout(() => frame.removeAttribute('data-animating'), 260)
+      }
+      frame.toggleAttribute('data-sidebar-collapsed', collapsed)
+      document.getElementById('acct')?.setAttribute('data-collapsed', String(collapsed))
+      root.classList.toggle('wtg9ga_collapsed', collapsed)
+      frame.style.gridTemplateColumns = `${collapsed ? 0 : 280}px minmax(400px, 1fr) minmax(0px, 0px)`
+      toggle.setAttribute('aria-label', collapsed ? '打开侧边栏' : '收起侧边栏')
+      document.documentElement.style.setProperty('--dsh-windows-menu-start', collapsed ? '84px' : '48px')
+      const list = document.querySelector('.GAkraW_listArea')
+      if (collapsed) { window.__ccRows = list.innerHTML; list.innerHTML = '' } else if (window.__ccRows) list.innerHTML = window.__ccRows
+    }
+    toggle.addEventListener('click', () => set(!frame.hasAttribute('data-sidebar-collapsed'), true))
+    document.querySelector('.GAkraW_listArea').addEventListener('click', (event) => {
+      const row = event.target.closest('[data-row-key^="session:"]')
+      if (!row || event.target.closest('button')) return
+      for (const other of document.querySelectorAll('[data-row-key^="session:"]')) other.setAttribute('aria-selected', String(other === row))
+      if(['p3','p4'].includes(document.documentElement.dataset.dshPersona))window.__p3OpenSession?.(row.getAttribute('data-row-key').slice(8))
+      const out = document.getElementById('fixture-log')
+      out.textContent = `夹具：打开 ${row.textContent}`
+      window.__ccLog = (window.__ccLog || []).concat(`open ${row.getAttribute('data-row-key')}`)
+    })
+    /* Account menu stand-in: opens above the trigger like the host's (side: top), toggles aria-expanded. */
+    const acct = document.getElementById('acct')
+    const acctMenu = document.createElement('div')
+    acctMenu.setAttribute('role', 'menu')
+    acctMenu.id = 'fixture-acct-menu'
+    acctMenu.setAttribute('data-menu-material', 'translucent')
+    acctMenu.className = '_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 _signedOutMenu_5Qcc8a_1'
+    acctMenu.style.cssText = 'position:fixed;z-index:60;display:none;min-width:180px'
+    acctMenu.innerHTML = '<div aria-hidden="true" class="_material_1w4el_21"></div>'
+      + '<div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg></span><span class="_itemLabel_1p5el_208">设置</span><span class="_shortcut_1p5el_216"><kbd class="_shortcutKeys_x_1">Ctrl</kbd><kbd class="_shortcutKeys_x_1">,</kbd></span></button></div>'
+      + '<div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg></span><span class="_itemLabel_1p5el_208">意见反馈</span></button></div>'
+      + '<div role="separator" class="_separator_1p5el_89"></div>'
+      + '<div class="_itemWrap_1p5el_105"><button type="button" role="menuitem" class="_item_1p5el_105"><span class="_itemIcon_1p5el_165"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 3h4v10H9M2.5 8h7M7 5.5 9.5 8 7 10.5"/></svg></span><span class="_itemLabel_1p5el_208">登录</span></button></div>'
+    document.body.appendChild(acctMenu)
+    acct.addEventListener('click', () => {
+      const open = acct.getAttribute('aria-expanded') !== 'true'
+      acct.setAttribute('aria-expanded', String(open))
+      const rect = acct.getBoundingClientRect()
+      acctMenu.style.left = `${rect.left}px`
+      acctMenu.style.bottom = `${innerHeight - rect.top + 6}px`
+      acctMenu.style.display = open ? 'flex' : 'none'
+      acctMenu.setAttribute('data-menu-phase', 'enter')
+      window.__ccLog = (window.__ccLog || []).concat(`account ${open ? 'open' : 'close'}`)
+    })
+    window.__ccSetCollapsed = set
+    if (new URLSearchParams(location.search).get('collapsed') === '1') {
+      /* The skin remembers rows while expanded, like a real session that started open. */
+      window.__ccCollapseAfterBoot = true
+    }
+  })()
+</script>
+<script>
+  /* ?menu=1 opens host-like popups (account menu, session context menu, a tooltip) copied from menus.html;
+     ?settings=1 opens a host-like settings dialog (SettingsRoot structure and its built CSS) with the skin picker. */
+  (() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('menu') === '1') {
+      document.head.insertAdjacentHTML('beforeend', "<style>  html, body { margin: 0; height: 100%; background: #141414; color: #ddd; font: 14px/1.5 system-ui, sans-serif; }\n  body { --dsw-radius-md: 8px; --dsw-radius-sm: 6px; --dsw-radius-lg: 12px; --dsw-menu-surface-fill: #2b2b2dcc; --dsw-alias-label-primary: #eee; --dsw-alias-label-tertiary: #999; --dsw-alias-menu-icon: #bbb; --dsw-alias-border-l2: #444; }\n  ._list_1p5el_7 { box-sizing: border-box; padding: 4px; display: flex; flex-direction: column; gap: 0; box-shadow: 0 10px 30px #000a; border-radius: 12px; min-width: 144px; }\n  ._portal_1p5el_46 { position: fixed; z-index: 1100; }\n  ._surface_1w4el_1 { isolation: isolate; }\n  ._material_1w4el_21 { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--dsw-menu-surface-fill); backdrop-filter: blur(20px); pointer-events: none; }\n  ._itemWrap_1p5el_105 { position: relative; }\n  ._item_1p5el_105 { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px; padding: 6px 8px; border: none; border-radius: var(--dsw-radius-md); background: transparent; cursor: pointer; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); text-align: left; }\n  ._item_1p5el_105:hover { background: #ffffff14; }\n  ._denseList_1p5el_141 ._item_1p5el_105 { min-height: 30px; padding-block: 4px; }\n  ._compactList_1p5el_150 ._item_1p5el_105 { min-height: 24px; gap: 5px; padding: 2px 6px; font-size: 11px; line-height: 17px; }\n  ._itemIcon_1p5el_165 { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--dsw-alias-menu-icon); }\n  ._itemIcon_1p5el_165 svg, ._check_1p5el_197 { width: 14px; height: 14px; flex: none; }\n  ._itemLabel_1p5el_208 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n  ._shortcut_1p5el_216 { flex: none; margin-inline-start: auto; }\n  html:not([data-input-modality=keyboard]) ._shortcut_1p5el_216 { display: none; }\n  ._label_1p5el_146 { padding: 6px 8px; font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }\n  ._separator_1p5el_89 { height: .5px; margin: 3px 8px; background: var(--dsw-alias-border-l2); }\n  ._danger_1p5el_250 { color: #ff5d5d; }\n  ._bubble_44yfq_1 { display: inline-flex; align-items: center; gap: 8px; position: fixed; z-index: 1100; width: max-content; padding: 3px 7px; border-radius: 6px; background: #3a3a3c; color: #eee; font-size: 12px; }\n  ._bubble_44yfq_1[data-side=bottom] { transform: translate(-50%); }\n  ._bubble_44yfq_1[data-side=right] { transform: translateY(-50%); }\n  ._portal_bgejw_96 { display: contents; }\n  ._card_bgejw_9 { --dsw-hovercard-bg: #2C2C2E; position: fixed; z-index: 100; box-sizing: border-box; width: 244px; padding: 12px 16px; border-radius: 12px; background: var(--dsw-hovercard-bg); }\n  .fixture-banner { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; background: #fff; color: #111; font: 700 12px/1.4 sans-serif; padding: 6px 10px; }\n  .anchor { position: fixed; padding: 4px 10px; border: 1px dashed #555; color: #888; font-size: 12px; }</style>")
+      document.body.insertAdjacentHTML('beforeend', "<div id=\"m-acct\" role=\"menu\" data-menu-material=\"translucent\" data-menu-phase=\"enter\" class=\"_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 _sideTop_1p5el_54 _signedOutMenu_5Qcc8a_1\" style=\"left:150px;bottom:70px;min-width:200px\" ><div aria-hidden=\"true\" class=\"_material_1w4el_21\"></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><circle cx=\"8\" cy=\"8\" r=\"2.2\"/><path d=\"M8 2v2M8 12v2M2 8h2M12 8h2\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u8bbe\u7f6e</span><span class=\"_shortcut_1p5el_216\"><span class=\"_shortcutKeys_1p5el_221\"><kbd>Ctrl</kbd><kbd>,</kbd></span></span></button></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u610f\u89c1\u53cd\u9988</span></button></div><div role=\"separator\" class=\"_separator_1p5el_89\"></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M9 3h4v10H9M2.5 8h7M7 5.5 9.5 8 7 10.5\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u767b\u5f55</span></button></div></div><div id=\"m-ctx\" role=\"menu\" data-menu-material=\"translucent\" data-menu-phase=\"enter\" class=\"_surface_1w4el_1 _list_1p5el_7 _portal_1p5el_46 \" style=\"left:330px;top:300px;min-width:210px\" data-context-menu><div aria-hidden=\"true\" class=\"_material_1w4el_21\"></div><div role=\"presentation\" class=\"_label_1p5el_146\">\u4f1a\u8bdd</div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M6 2.5h4l-.5 4 2 2H4.5l2-2zM8 8.5V14\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u7f6e\u9876</span></button></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" data-highlighted><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M3 13l1-3 7-7 2 2-7 7z\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u91cd\u547d\u540d</span><span class=\"_shortcut_1p5el_216\"><span class=\"_shortcutKeys_1p5el_221\"><kbd>F2</kbd></span></span></button></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" aria-haspopup=\"menu\" aria-expanded=\"false\"><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><circle cx=\"4\" cy=\"3.5\" r=\"1.5\"/><circle cx=\"12\" cy=\"3.5\" r=\"1.5\"/><circle cx=\"8\" cy=\"12.5\" r=\"1.5\"/><path d=\"M4 5c0 4 4 3 4 6M12 5c0 4-4 3-4 6\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u6d3e\u751f\u5230\u65b0\u4f1a\u8bdd</span><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"currentColor\" width=\"12\" height=\"12\"><path d=\"M6 4l5 4-5 4z\"/></svg></span></button></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 \" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><rect x=\"2.5\" y=\"3\" width=\"11\" height=\"3\"/><path d=\"M3.5 6v7h9V6\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u5f52\u6863</span><span class=\"_shortcut_1p5el_216\"><span class=\"_shortcutKeys_1p5el_221\"><kbd>Ctrl</kbd><kbd>E</kbd></span></span></button></div><div role=\"separator\" class=\"_separator_1p5el_89\"></div><div class=\"_itemWrap_1p5el_105\"><button type=\"button\" role=\"menuitem\" class=\"_item_1p5el_105 _danger_1p5el_250\" ><span class=\"_itemIcon_1p5el_165\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M3 4.5h10M6 4.5V3h4v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5\"/></svg></span><span class=\"_itemLabel_1p5el_208\">\u5220\u9664</span><span class=\"_shortcut_1p5el_216\"><span class=\"_shortcutKeys_1p5el_221\"><kbd>Del</kbd></span></span></button></div></div><span role=\"tooltip\" class=\"_bubble_44yfq_1\" data-side=\"bottom\" data-align=\"center\" data-portal style=\"left:220px;top:236px\"><span class=\"_label_44yfq_30\">\u65b0\u4f1a\u8bdd</span><span class=\"_keys_38b9q_1\"><kbd>Ctrl</kbd><kbd>N</kbd></span></span>")
+    }
+    const openSettings = () => {
+      const persona = params.get('persona') || 'p3'
+      const option = (value, label) => `<option value="${value}"${value === persona ? ' selected' : ''}>${label}</option>`
+      document.head.insertAdjacentHTML('beforeend', '<style>' + ".AnXs9G_triggerRow{flex:none;align-items:center;gap:8px;width:100%;margin:4px 0;display:flex;position:relative}.AnXs9G_triggerRow.AnXs9G_railRow{width:36px;margin:8px 0 10px}.AnXs9G_trigger{align-items:center;gap:var(--dsh-sidebar-label-gap);width:auto;min-width:0;height:42px;padding:0 calc(var(--dsh-sidebar-row-padding) - var(--dsh-sidebar-paint-inset));box-sizing:border-box;border-radius:var(--dsw-radius-md);border:none;border-inline:var(--dsh-sidebar-paint-inset) solid transparent;cursor:pointer;color:var(--dsw-alias-label-primary);background:padding-box padding-box;flex:1;margin:0;font-family:inherit;font-size:14px;line-height:22px;display:flex;overflow:hidden}@media (hover:hover){.AnXs9G_trigger:hover{background-color:var(--dsw-alias-interactive-bg-hover)}}.AnXs9G_trigger.AnXs9G_rail{background-clip:border-box;border-inline:0;flex:none;justify-content:center;gap:0;width:36px;height:36px;margin:0;padding:0}.AnXs9G_triggerLabel{white-space:nowrap;overflow:hidden}.AnXs9G_overlay{z-index:1000;justify-content:center;align-items:center;display:flex;position:fixed;inset:0}.AnXs9G_mask{inset:var(--dsh-frame-chrome-top,0px) 0 0;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);position:absolute}.AnXs9G_panel{z-index:1;width:800px;height:min(800px, calc(100vh - 2 * max(24px, var(--dsh-frame-overlay-top,24px))));border-radius:var(--dsw-radius-panel);background:var(--dsw-alias-bg-layer-2);max-width:calc(100vw - 48px);box-shadow:var(--dsw-elevation-prominent);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);grid-template:\"AnXs9G_title AnXs9G_header\"\"AnXs9G_nav AnXs9G_options\"minmax(0,1fr)/188px minmax(0,1fr);display:grid;position:relative;overflow:hidden}.AnXs9G_panel:focus{outline:none}.AnXs9G_nav{box-sizing:border-box;flex-direction:column;grid-area:AnXs9G_nav;min-width:0;min-height:0;padding:10px 12px 0;display:flex}.AnXs9G_navTitle{color:var(--dsw-alias-label-primary);grid-area:AnXs9G_title;padding:22px 12px 8px 24px;font-size:16px;font-weight:500;line-height:24px}.AnXs9G_navList{flex-direction:column;gap:4px;min-height:0;display:flex;overflow-y:auto}.AnXs9G_navCell{box-sizing:border-box;border-radius:var(--dsw-radius-md);cursor:pointer;height:40px;color:var(--dsw-alias-label-primary);text-align:left;background:0 0;border:none;align-items:center;gap:8px;padding:9px 16px 9px 12px;font-family:inherit;font-size:14px;font-weight:400;line-height:22px;display:flex}@media (hover:hover){.AnXs9G_navCell:hover{background-color:var(--dsw-alias-interactive-bg-hover)}}.AnXs9G_navCell.AnXs9G_active{background:var(--dsw-specific-sidebar-nav-item-active)}.AnXs9G_navIcon{flex:none;display:flex}.AnXs9G_navLabel{white-space:nowrap;text-overflow:ellipsis;flex:1;min-width:0;overflow:hidden}.AnXs9G_header{box-sizing:border-box;grid-area:AnXs9G_header;justify-content:space-between;align-items:flex-start;gap:8px;height:54px;padding:20px 14px 8px 10px;display:flex}.AnXs9G_actions{justify-content:flex-end;align-items:center;gap:8px;min-width:0;margin-left:auto;display:flex}.AnXs9G_close{border-radius:var(--dsw-radius-sm);cursor:pointer;width:28px;height:28px;color:var(--dsw-alias-label-primary);background:0 0;border:none;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}@media (hover:hover){.AnXs9G_close:hover{background-color:var(--dsw-alias-interactive-bg-hover)}}.AnXs9G_options{grid-area:AnXs9G_options;min-width:0;min-height:0;padding:0 24px 24px;overflow-y:auto}@media (width<=767px){html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_overlay{background:var(--dsw-alias-bg-layer-2);height:100%;position:absolute}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_panel{border-radius:0;grid-template:\"AnXs9G_title AnXs9G_header\"\"AnXs9G_nav AnXs9G_nav\"\"AnXs9G_options AnXs9G_options\"minmax(0,1fr)/minmax(0,1fr) auto;width:100%;max-width:none;height:100%}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_navTitle{white-space:nowrap;text-overflow:ellipsis;padding:22px 0 0 16px;overflow:hidden}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_header{height:auto;padding:20px 16px 0 10px}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_nav{padding:0}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_navList{overscroll-behavior:none;scrollbar-width:none;flex-direction:row;gap:4px;padding:12px 16px 14px;overflow:auto hidden}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_navList::-webkit-scrollbar{display:none}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_navCell{flex:1 0 auto;justify-content:center;min-width:108px;padding:0 14px}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_navLabel{flex:none}html:not([data-windows-titlebar]):not([data-platform=darwin]) .AnXs9G_options{padding:0 16px 24px}}.AnXs9G_hiddenLabel{clip:rect(0 0 0 0);white-space:nowrap;width:1px;height:1px;position:absolute;overflow:hidden}.Iwzhua_group{display:flex;flex-direction:column;gap:8px}.Iwzhua_cubeRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.Iwzhua_themeCube{display:flex;align-items:center;justify-content:center;min-height:66px;padding:10px;border:1px solid #444;border-radius:10px;background:#222;color:#eee;cursor:pointer;font:inherit}.Iwzhua_configBtn,.AnXs9G_configBtn{padding:5px 12px;font:inherit;cursor:pointer}" + '</style>')
+      const nav = [['general', '通用', true], ['model', '模型', false], ['shortcuts', '快捷键', false], ['appearance', '外观', false], ['about', '关于', false]]
+        .map(([id, label, active]) => `<button type="button" class="AnXs9G_navCell${active ? ' AnXs9G_active' : ''}"${active ? ' aria-current="true"' : ''}><span class="AnXs9G_navIcon" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5"/></svg></span><span class="AnXs9G_navLabel">${label}</span></button>`).join('')
+      document.body.insertAdjacentHTML('beforeend', `<div class="AnXs9G_overlay" role="presentation"><div class="AnXs9G_mask" aria-hidden="true"></div>
+        <div tabindex="-1" data-shortcut-modal="settings" class="AnXs9G_panel" role="dialog" aria-modal="true" aria-labelledby="st-title">
+          <div class="AnXs9G_navTitle" id="st-title">设置</div>
+          <nav class="AnXs9G_nav"><div class="AnXs9G_navList">${nav}</div></nav>
+          <div class="AnXs9G_header"><div class="AnXs9G_actions"><button type="button" class="AnXs9G_configBtn">打开配置文件</button></div><button type="button" class="AnXs9G_close"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg><span class="AnXs9G_hiddenLabel">关闭</span></button></div>
+          <div class="AnXs9G_options"><div class="RmVo8q_section">
+            <div data-slot="settings.general.item"><div class="dsh-persona-settings"><label for="st-skin">皮肤</label><select id="st-skin" data-dsh-persona-picker>${option('p3', 'P3 · Reload')}${option('p4', 'P4 · Golden')}${option('p5', 'P5 · Calling Card')}</select></div></div>
+            <div data-slot="settings.general.item"><div class="Iwzhua_group"><div class="Iwzhua_title">外观</div><div class="Iwzhua_cubeRow" role="group" aria-label="外观"><button type="button" class="Iwzhua_themeCube" aria-pressed="false">浅色</button><button type="button" class="Iwzhua_themeCube Iwzhua_selected" aria-pressed="true">深色</button><button type="button" class="Iwzhua_themeCube" aria-pressed="false">跟随系统</button></div></div></div>
+            <div data-slot="settings.general.item"><div class="_7qxJPq_row" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="uYSObG_title">字号大小</div><div class="uYSObG_description">仅影响会话内容的字号</div></div><div class="_7qxJPq_control" style="display:flex;align-items:center"><div class="_7qxJPq_stepper" style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px"><span class="_7qxJPq_value">14</span><span class="_7qxJPq_unit">px</span><span class="_7qxJPq_arrows" style="display:inline-flex;gap:4px"><button type="button" class="_7qxJPq_arrow" aria-label="放大字号" style="background:none;border:none;padding:2px 4px;cursor:pointer">▲</button><button type="button" class="_7qxJPq_arrow" aria-label="缩小字号" style="background:none;border:none;padding:2px 4px;cursor:pointer">▼</button></span></div></div></div></div>
+            <div data-slot="settings.general.item"><div class="_0NG6bG_row">当前版本 0.2.2-rc.1（夹具文本）</div></div>
+            <div data-slot="settings.general.item"><div class="uYSObG_row" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="uYSObG_title">开发者工具</div><div class="uYSObG_description">夹具里的说明文字，用来检查正文可读性。</div></div><button type="button" role="switch" aria-checked="true" aria-label="开发者工具" class="_switch_1ik0f_5" style="width:42px;height:22px;padding:2px;display:inline-flex;justify-content:flex-end;align-items:center;cursor:pointer"><span class="_thumb_1ik0f_33" style="width:14px;height:14px;display:block"></span></button></div></div>
+          </div></div>
+        </div></div>`)
+      const ov=document.querySelector('.AnXs9G_overlay')
+      ov.querySelector('.AnXs9G_close').onclick=()=>ov.remove()
+      ov.querySelectorAll('.AnXs9G_navCell').forEach(btn=>btn.onclick=()=>{ov.querySelectorAll('.AnXs9G_navCell').forEach(n=>{n.classList.remove('AnXs9G_active');n.removeAttribute('aria-current')});btn.classList.add('AnXs9G_active');btn.setAttribute('aria-current','true')})
+      ov.querySelectorAll('.Iwzhua_themeCube').forEach(cube=>cube.onclick=()=>{ov.querySelectorAll('.Iwzhua_themeCube').forEach(c=>{c.classList.remove('Iwzhua_selected');c.setAttribute('aria-pressed','false')});cube.classList.add('Iwzhua_selected');cube.setAttribute('aria-pressed','true')})
+      const sw=ov.querySelector('[role="switch"]');if(sw)sw.onclick=()=>{const next=sw.getAttribute('aria-checked')!=='true';sw.setAttribute('aria-checked',String(next));sw.style.justifyContent=next?'flex-end':'flex-start'}
+    }
+    window.__p3OpenSettings=openSettings
+    if(params.get('settings')==='1')openSettings()
+  })()
+</script>
+<script src="fixture.js"></script>
+<script>
+  if (window.__ccCollapseAfterBoot) {
+    const wait = () => document.querySelector('.dsh-cc-chrome') ? setTimeout(() => window.__ccSetCollapsed(true, false), 50) : setTimeout(wait, 20)
+    wait()
+  }
+</script>
+<style>
+#center[data-secondary-fixture]{display:block;min-width:0;overflow:auto}
+.fixture-secondary-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:28px}
+.fixture-secondary-toolbar input{background:#071d52;color:#efffff;border:1px solid #3c88c0;padding:12px;min-width:160px;max-width:100%;box-sizing:border-box}
+.fixture-secondary-toolbar button,.fixture-secondary-list button{background:#0b387e;color:#efffff;border:1px solid #51cce6;padding:9px 16px;cursor:pointer}
+.fixture-secondary-list{display:grid;gap:18px;position:relative}
+.fixture-secondary-list article{background:#052165e8;padding:23px 26px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 20px;border-bottom:1px solid #5ed7ff77}
+.fixture-secondary-list h2{font-size:20px;margin:0 0 6px}.fixture-secondary-list p{font-size:14px;line-height:1.6;margin:0;color:#c6eaff}.fixture-secondary-list small{font-size:12px;color:#9acde9}.fixture-secondary-list label{display:flex;gap:8px;align-items:center}
+</style>
+<script>
+// Actual host AppFrame/sidebar, real data-plugin-package hook and native input/button semantics.
+// Inner plugin/automation rows are synthetic local fixtures, NOT claimed as exact unavailable route component DOM.
+(()=>{
+ const center=document.querySelector('#center'),chat=window.__p3NativeChat||center.innerHTML;
+ window.__p3OpenSession=id=>{
+  center.removeAttribute('data-secondary-fixture');center.innerHTML=chat;
+  center.querySelector('[data-conversation-content]').setAttribute('data-conversation-session',id);
+  for(const e of document.querySelectorAll('[data-cc-leaf]'))e.removeAttribute('aria-current');
+  for(const e of document.querySelectorAll('[data-row-key^="session:"]'))e.setAttribute('aria-selected',String(e.getAttribute('data-row-key')==='session:'+id));
+ };
+ if(['p3','p4'].includes(new URLSearchParams(location.search).get('persona')||'p3')){
+  const list=document.querySelector('.GAkraW_listArea'),copy=list.querySelector('[data-row-key="session:demo-2"]').cloneNode(true);copy.setAttribute('data-row-key','session:other-workspace');copy.setAttribute('aria-selected','false');copy.querySelector('[class$="_title"]').textContent='另一工作区示例';copy.querySelector('[class$="_age"]')?.remove();for(const b of copy.querySelectorAll('button[aria-label]'))b.setAttribute('aria-label','另一工作区示例 的操作');list.querySelector('[data-row-key="workspace:stst"]').after(copy);
+  for(const row of list.querySelectorAll('[data-row-key^="session:"]'))row.tabIndex=0;
+  list.addEventListener('keydown',e=>{const row=e.target.closest('[data-row-key^="session:"]');if(row&&e.target===row&&['Enter',' '].includes(e.key)){e.preventDefault();window.__p3OpenSession(row.getAttribute('data-row-key').slice(8))}});
+  list.addEventListener('click',e=>{const project=e.target.closest('[data-row-key^="workspace:"]');if(project&&!e.target.closest('button'))project.setAttribute('aria-expanded',String(project.getAttribute('aria-expanded')!=='true'))});
+ }
+ const show=kind=>{
+  if(!['p3','p4','p5'].includes(document.documentElement.dataset.dshPersona))return;
+  const isPlugin=kind==='plugins';center.dataset.secondaryFixture=kind;
+  center.innerHTML=`<h1>${isPlugin?'PLUGINS / 插件':'AUTOMATION / 自动化'}</h1><div class="fixture-secondary-toolbar"><input aria-label="${isPlugin?'搜索插件':'搜索任务'}" placeholder="${isPlugin?'搜索已安装插件':'查找自动化任务'}"><button type="button">${isPlugin?'添加插件':'新建任务'}</button><small>本地合成夹具 · 不连接服务</small></div><section class="fixture-secondary-list" aria-label="${isPlugin?'已安装插件':'自动化任务'}">${(isPlugin?[
+ ['dsh-calling-card-skin','Calling Card Skin','1.5.6 · 界面皮肤','P3 / P4 / P5 模式，保留原生会话与设置'],
+ ['dsh-industrial-acid-skin','Industrial Skin','版本文字仅为夹具','独立皮肤组件，不在这次更新中修改'],
+ ['dsh-audio-reactive','Audio Reactive','版本文字仅为夹具','音频插件不在这次更新中修改']
+ ]:[['task:review','方案核对','手动触发 · 已暂停','核对材料与结构清单；示例内容不来自用户任务'],['task:export','导出交付包','手动触发 · 就绪','导出文件的本地交互示例，不执行真实任务'],['task:notes','整理说明','手动触发 · 草稿','可编辑名称、状态和操作按钮的布局检查']]).map(([id,title,meta,desc])=>`<article ${isPlugin?'data-plugin-package="'+id+'"':'data-fixture-automation="'+id+'"'}><div><h2>${title}</h2><small>${meta}</small><p>${desc}</p></div><div><label><input type="checkbox" checked aria-label="启用 ${title}">启用</label><button type="button" aria-label="${title} 的设置">设置</button></div></article>`).join('')}</section>`;
+  for(const e of document.querySelectorAll('[data-cc-leaf]'))e.removeAttribute('aria-current');
+  document.querySelectorAll('.wtg9ga_panelRow')[isPlugin?0:1].setAttribute('aria-current','page');
+ };
+ window.__p3ShowSecondary=show;
+ center.addEventListener('click',event=>{if(event.target.closest('button[aria-label$="的设置"]'))window.__p3OpenSettings?.()});
+ document.querySelectorAll('.wtg9ga_panelRow').forEach((b,i)=>b.addEventListener('click',()=>show(i?'automation':'plugins')));
+ document.querySelector('.wtg9ga_newSession')?.addEventListener('click',()=>{center.removeAttribute('data-secondary-fixture');center.innerHTML=chat;for(const e of document.querySelectorAll('[data-cc-leaf]'))e.removeAttribute('aria-current')});
+ const page=new URLSearchParams(location.search).get('secondary');if(page)setTimeout(()=>show(page),700);
+})();
+</script>
+</body>
+</html>

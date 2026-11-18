@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- Original P4 studio test-pattern and broadcast reel wheel for secondary pages and modals. -->
+<g opacity=".34" fill="none" stroke="#d97b00">
+  <circle cx="200" cy="200" r="182" stroke="#12110d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="166" stroke="#ff9c00" stroke-width="3" stroke-dasharray="18 8"/>
+  <circle cx="200" cy="200" r="146" stroke-width="2"/>
+  <circle cx="200" cy="200" r="118" stroke="#12110d" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="200" cy="200" r="56" stroke="#12110d" stroke-width="4"/>
+  <circle cx="200" cy="200" r="18" fill="#ffe600" stroke="#12110d" stroke-width="3"/>
+  <path stroke="#12110d" stroke-width="2" d="M200 18 200 382M18 200 382 200"/>
+</g>
+<g opacity=".22">
+  <path fill="#f54329" d="M200 200 295 46A180 180 0 0 1 342 92Z"/>
+  <path fill="#ff9c00" d="M200 200 342 92A180 180 0 0 1 372 148Z"/>
+  <path fill="#ffe600" d="M200 200 372 148A180 180 0 0 1 380 206Z"/>
+  <path fill="#58c322" d="M200 200 105 354A180 180 0 0 1 58 308Z"/>
+  <path fill="#1da5f8" d="M200 200 58 308A180 180 0 0 1 28 252Z"/>
+</g>
+</svg>
