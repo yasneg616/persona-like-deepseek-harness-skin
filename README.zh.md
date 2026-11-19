@@ -1,32 +1,48 @@
 # Persona 风格的 DeepSeek Harness 皮肤
 
-## 1.5.2 — narrow P3 title margin / 左侧窄留白
-P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+为 DeepSeek Harness 桌面版和网页版打造的三个完整视觉世界。在设置里选一个，整个应用都会跟着变：侧栏、外框、转场，甚至对话周围的房间。会话、流式回复、Markdown 和输入框照常使用，什么都不用重新学。
 
+![P5 Calling Card、P3 Reload、P4 Golden 循环展示](media/three-skins.gif)
 
-## 1.5.1 — whole-app immersion / 整个界面入水
-P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
-
-
-## 1.5.0 — P3 capsule descent / 胶囊下潜
-P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
-
-
-DeepSeek Harness 网页和桌面客户端的三款可选皮肤。
-
-- **P3 Reload** 使用蓝白侧栏、水下夜车、工作区站点和斜向碎片转场。
-- **P4 Golden** 使用金黄色侧栏与雨夜 3D 电视房。开启减少动态效果或无法使用 WebGL 时会使用 2D 版。
-- **P5 Calling Card** 使用红、黑、白剪纸拼贴。
+**[下载 2.0.0](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v2.0.0)** · [English](README.md) · [兼容性证据](docs/COMPATIBILITY.md)
 
 打开 **设置 → 通用设置 → 外观** 下的 **皮肤**。选择即时生效，保存在当前客户端，默认使用 P5。
 
-兼容性证据见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。英文安装说明见 [README.md](README.md)。
+## 三款皮肤
 
-![Persona 5 风格皮肤的动效演示](media/persona5-like-skin-demo.gif)
+### P3 Reload：海底的午夜电车
 
-演示使用示例会话，展示斜排导航、切页转场、拼贴信、弹出菜单和侧栏收放。
+![P3 Reload：整个界面沉入水中，落进夜里的电车](media/p3-reload.gif)
 
-[下载 1.6.0 插件](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v1.6.0)。安装包内含三款皮肤，默认使用 P5 Calling Card。
+切到 P3 时，整个界面会穿过同一片水面沉下去：气泡涌过，然后一切落进深宝蓝色的夜间电车车厢。工作区变成白色留白里一条纵向路线上的站点，当前那站挂着红色 NEW 标签，车窗上方的 LED 看板滚动显示下一站。超大直排字、青色接缝和一台漂浮的小胶囊播放器让留白有生命，阅读区则保持安静、宽敞。
+
+### P4 Golden：雨夜的房间、电视，和午夜频道
+
+![P4 Golden：3D 房间、推进电视、退后看房间，再调频进电视塔](media/p4-golden.gif)
+
+P4 是用 three.js 做的真 3D 房间：低面数家具、PS2 时代的平涂光影、窗外的雨、墙上的日历。你的对话就在电视屏幕里。镜头推进屏幕时文字保持清晰，按 **退后看看房间** 就拉回整个房间。切到 **电视塔**，一段 TUNING IN 切入画面把你送进一座由电视堆成的塔，每个会话一台电视。侧栏是金黄色的案件卡片板，配上手绘天空和一朵小花。开启减少动态效果或没有 WebGL 时，会换成平面的 2D 节目舞台。
+
+### P5 Calling Card：红黑白剪纸预告信
+
+![P5 Calling Card：斜排导航、切页转场、拼贴信和可收起的侧栏](media/p5-calling-card.gif)
+
+P5 用剪纸拼出一切：斜排的导航纸条、画在各栏后面的巨大结构字、页面之间的切入转场。可以开关的勒索信式 **拼贴** 字体，盖章票券样式的弹出菜单，侧栏还能收成一条窄窄的票根。
+
+## 设计原则
+
+- **原生优先。** 宿主的会话、Markdown、流式输出、输入框和菜单都不会被替换或搬走。皮肤只负责框住和装扮它们，你点到的永远是真正的控件。
+- **原创美术。** 每一张插画都是为这套皮肤画的：不使用游戏素材，不画角色，也不画剪影。
+- **尊重你的动效。** 进场动画只播一次，打字时不会重播；开启 `prefers-reduced-motion` 时直接显示静止的最终画面。
+- **从设计上保护隐私。** P4 的电视只读取侧栏本来就显示的内容（会话标题和时间），加上发送状态和滚动高度，从不读取对话内容。
+
+上面的演示都是用带标注的夹具（`preview/persona.html`）和示例会话录制的，不是真实账号。
+
+## 2.0.0 新内容
+
+- 新增支持 DeepSeek Harness **0.2.2-rc.4、0.2.2-rc.5**（rc.1–rc.3 继续支持）。三款皮肤都在 0.2.2-rc.5 上实际启动过，console 没有错误。
+- P4 房间：点到某个会话的电视、而它所在的工作区是收起来的时候，现在会先打开侧栏、展开那个工作区，再打开会话；以前只会显示提示。
+- 仓库改名为 **persona-like-deepseek-harness-skin**，因为它同时包含 P3、P4、P5。
+- README 新增 P3、P4 的演示动图和三款皮肤的循环展示。
 
 ## 它真正接上的接口
 
@@ -166,6 +182,19 @@ Windows 桌面端顶部那条 40px 的栏不是系统原生的。主窗口无边
 - 预览采用实际宿主 InputBar 结构和 CSS，有可键盘编辑的输入、仅本地的工具栏交互，以及 `&long=1` 合成长对话、表格、代码、工具内容。不读取私人记录，不发送请求。视觉检查仍是夹具，不冒充实机画面。
 - 检查短窗口、完整功能标签、项目列表无渐隐、收起导航与减少动态效果；保留此前 P3/P4 小细节和拼贴选择。
 
+## P3 细修（1.5.0–1.5.2）
+
+### 1.5.2 — narrow P3 title margin / 左侧窄留白
+P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+
+
+### 1.5.1 — whole-app immersion / 整个界面入水
+P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
+
+
+### 1.5.0 — P3 capsule descent / 胶囊下潜
+P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
+
 ## 和已确认的 v9 稿之间的差别
 
 v9 是静态原型。下面这些没有做成假页面，也没有用 iframe 去冒充客户端：
@@ -206,7 +235,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 退出目标配置档后，安装下载的包，再启动配置档：
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.6.0.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-2.0.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -228,7 +257,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 校验压缩包：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.6.0.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-2.0.0.tgz
 ```
 
 ## 本地构建与夹具

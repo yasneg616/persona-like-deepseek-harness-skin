@@ -34,12 +34,20 @@ export function findScreen(frame: Element): HTMLElement | null {
 
 /** Conversations as listed by the host sidebar: key, title and age label (row chrome only, never chat text). */
 export function readSessionRows(root: ParentNode) {
-  return Array.from(root.querySelectorAll<HTMLElement>('[data-row-key^="session:"]')).map(row => ({
-    key: row.getAttribute('data-row-key')!,
-    title: (row.querySelector('[class*="_title"]')?.textContent || row.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim(),
-    time: (row.querySelector('[class*="_time"]')?.textContent || '').trim(),
-    selected: row.getAttribute('aria-selected') === 'true' || /_selected\b/.test(row.className),
-  }))
+  const out: { key: string; title: string; time: string; selected: boolean; ws: string }[] = []
+  let ws = ''
+  for (const row of Array.from(root.querySelectorAll<HTMLElement>('[data-row-key^="workspace:"], [data-row-key^="session:"]'))) {
+    const key = row.getAttribute('data-row-key')!
+    if (key.startsWith('workspace:')) { ws = key; continue }
+    out.push({
+      key,
+      title: (row.querySelector('[class*="_title"]')?.textContent || row.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim(),
+      time: (row.querySelector('[class*="_time"]')?.textContent || '').trim(),
+      selected: row.getAttribute('aria-selected') === 'true' || /_selected\b/.test(row.className),
+      ws,
+    })
+  }
+  return out
 }
 
 export function readMode(win: Window): P4Mode {
@@ -281,11 +289,11 @@ export function createP4Room(doc: Document, win: Window, frame: HTMLElement, art
     frame.addEventListener('input', onInput, true)
 
     // ---------- the tower's conversations (titles from the sidebar rows) ----------
-    const known = new Map<string, { key: string; title: string; time: string }>()
+    const known = new Map<string, { key: string; title: string; time: string; ws: string }>()
     let selectedKey = ''
     const syncSessions = () => {
       const rows = readSessionRows(frame)
-      for (const r of rows) known.set(r.key, { key: r.key, title: r.title, time: r.time })
+      for (const r of rows) known.set(r.key, { key: r.key, title: r.title, time: r.time, ws: r.ws || known.get(r.key)?.ws || '' })
       const sel = rows.find(r => r.selected)?.key ?? ''
       const changed = sel !== selectedKey
       selectedKey = sel
@@ -327,11 +335,26 @@ export function createP4Room(doc: Document, win: Window, frame: HTMLElement, art
       win.setTimeout(go, Math.max(wait, tower.band() !== b ? 440 : 0))
     }
     const unfocus = (dur = 800) => { if (view !== 'focus') return; setView('orbit', dur) }
+    // a TV can belong to a workspace that is folded (or a folded sidebar): open the sidebar, unfold the
+    // workspace, then press the real row once the host renders it
+    let opening = 0
     const openSession = (key: string) => {
-      const row = frame.querySelector<HTMLElement>(`[data-row-key="${CSS.escape(key)}"]`)
-      if (!row) { showTip(words.closed); return }
       if (key === selectedKey) { focusOn(key); return }
-      row.click()
+      const find = (k: string) => frame.querySelector<HTMLElement>(`[data-row-key="${CSS.escape(k)}"]`)
+      const ws = known.get(key)?.ws ?? ''
+      const job = ++opening
+      let unfolded = false, unhid = false, tries = 0
+      const attempt = () => {
+        if (job !== opening) return
+        const row = find(key)
+        if (row) { row.scrollIntoView({ block: 'nearest' }); row.click(); return }
+        if (!unhid && frame.hasAttribute('data-sidebar-collapsed') && !frame.hasAttribute('data-sidebar-drawer')) { unhid = true; frame.querySelector<HTMLElement>('[data-sidebar-toggle]')?.click() }
+        const wsRow = ws ? find(ws) : null
+        if (wsRow && !unfolded && wsRow.getAttribute('aria-expanded') !== 'true') { unfolded = true; wsRow.click() }
+        if (++tries < 30) win.setTimeout(attempt, 60)
+        else showTip(words.closed)
+      }
+      attempt()
     }
 
     // ---------- crossing between the worlds ----------

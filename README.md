@@ -1,32 +1,48 @@
 # Persona-like Skin for DeepSeek Harness
 
-## 1.5.2 — narrow P3 title margin / 左侧窄留白
-P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+Three complete visual worlds for the DeepSeek Harness desktop and web client. Pick one in Settings and the whole app changes: sidebar, frame, transitions, even the room around your conversation. Sessions, streaming replies, Markdown and the composer keep working exactly as before.
 
+![P5 Calling Card, P3 Reload and P4 Golden in one loop](media/three-skins.gif)
 
-## 1.5.1 — whole-app immersion / 整个界面入水
-P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
-
-
-## 1.5.0 — P3 capsule descent / 胶囊下潜
-P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
-
-
-Three selectable skins for the DeepSeek Harness web and desktop client.
-
-- **P3 Reload** pairs a blue-and-white sidebar with an underwater night train, workspace station markers, and diagonal shard transitions.
-- **P4 Golden** pairs a golden sidebar with a rainy 3D TV room. The 2D design remains available with reduced motion or without WebGL.
-- **P5 Calling Card** uses red, black and white paper cutouts.
+**[Download 2.0.0](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v2.0.0)** · [中文说明](README.zh.md) · [Compatibility](docs/COMPATIBILITY.md)
 
 Open **Settings → General → Appearance** and use the **Skin** row. The choice applies immediately, is saved in this client profile, and defaults to P5.
 
-中文说明见 [README.zh.md](README.zh.md). Compatibility evidence is in [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
+## The three skins
 
-![Animated preview of the Persona 5-like skin](media/persona5-like-skin-demo.gif)
+### P3 Reload: the midnight train under the sea
 
-The demo shows the diagonal navigation, cut-in transitions, collage letters, pop-up menu, and collapsible sidebar with sample sessions.
+![P3 Reload: the interface dives under water and settles into the night train](media/p3-reload.gif)
 
-[Download the 1.6.0 plugin](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v1.6.0). The package includes all three skins, with P5 Calling Card selected by default.
+On entry, the whole interface sinks through a single water surface. Bubbles rush past, then everything settles into a deep royal-blue train carriage at night. Your workspaces become stations on a vertical route line down the white margin, and the current one wears a red NEW tag. An LED sign above the windows scrolls the next stop. Oversized vertical type, a cyan seam and a small floating capsule player keep the margin alive, while the reading column stays calm and wide.
+
+### P4 Golden: a rainy room, a TV, and the Midnight Channel
+
+![P4 Golden: the 3D room, pushing into the TV, stepping back, and tuning in to the TV tower](media/p4-golden.gif)
+
+P4 is a real 3D room built with three.js. It has low-poly furniture, flat PS2-era shading, rain on the window and a calendar on the wall. Your conversation lives on the TV screen. The camera pushes into the screen so text stays sharp, and **Step back** pulls out into the room. Switch to **TV tower** and a TUNING IN cut-in warps you into a tower of televisions, one for each session. The sidebar is a golden board of case-file cards, with a hand-drawn sky and a flower. With reduced motion, or without WebGL, a flat 2D programme stage takes over.
+
+### P5 Calling Card: red, black and white paper cutouts
+
+![P5 Calling Card: diagonal navigation, cut-in transitions, collage letters and the collapsible rail](media/p5-calling-card.gif)
+
+P5 is built from cut paper: diagonal navigation slips, a giant architectural word behind the columns, and cut-in transitions between pages. A ransom-note **Collage** letter mode can be switched on and off. Pop-up menus are styled as stamped tickets, and the sidebar folds into a narrow rail.
+
+## Design rules
+
+- **Native first.** The host's sessions, Markdown, streaming, composer and menus are never replaced or moved. The skin frames and styles them; your clicks still go to the real controls.
+- **Original artwork.** Every illustration is drawn for this skin: no game assets, characters or silhouettes.
+- **Motion that respects you.** Entrances play once and never replay while you type. With `prefers-reduced-motion`, you get the still final composition.
+- **Private by construction.** P4's TVs read only what the sidebar already shows (session titles and times), plus sending state and scroll height. They never read the chat.
+
+The demos above were recorded from the labeled fixture (`preview/persona.html`) with sample sessions, not from a real account.
+
+## What's new in 2.0.0
+
+- Supports DeepSeek Harness **0.2.2-rc.4 and 0.2.2-rc.5** in addition to rc.1–rc.3. All three skins were booted on 0.2.2-rc.5 with no console errors.
+- P4 room: clicking the TV for a session inside a folded workspace now opens the sidebar, unfolds that workspace, and then opens the session. Previously it only showed a hint.
+- The repository is now **persona-like-deepseek-harness-skin**, because it ships P3, P4 and P5.
+- New README demos for P3 and P4, plus a three-skin loop.
 
 ## What it actually changes
 
@@ -168,6 +184,19 @@ P5 is the benchmark for compositional confidence, not a template for the other m
 - The preview now has the actual host InputBar shape/CSS, keyboard-editable text, local toolbar interactions and `&long=1` synthetic multi-turn prose/table/code/tool content. No model/network request is sent. Visual QA remains fixture-only.
 - Short-window containment, complete functional labels, workspace-fade removal, compact navigation and reduced motion checked. Original P3/P4 details and collage choice retained.
 
+## P3 refinements (1.5.0–1.5.2)
+
+### 1.5.2 — narrow P3 title margin / 左侧窄留白
+P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
+
+
+### 1.5.1 — whole-app immersion / 整个界面入水
+P3's entire interface crosses one viewport-wide water surface on mode entry, then settles to stable readable text and controls. The capsule is flat black/white/cyan editorial art, subordinate to a natural curved white/blue boundary. No replay while typing; reduced motion starts at the static final composition. P4/P5 remain unchanged.
+
+
+### 1.5.0 — P3 capsule descent / 胶囊下潜
+P3 alone is recomposed around a white/royal-blue diagonal seam and an original silver capsule-player illustration, researched from official ATLUS/Sony photographs. Real commands stack by the seam, projects stay in the white index, straight reading remains in the blue. A one-time descent settles into a seamless slow float. P4 1.4 and P5 remain unchanged. See `docs/p34-research.md` for device-identification limits, references, three refinement rounds and isolation QA.
+
 ## Honest gaps
 
 - There is no supported layout-replacement API that keeps sessions, streaming, and the composer. The center column's content box stays a rectangle. The stepped white frame and the offset red backing are `::before` / `::after` in the margin. They do not clip the transcript, the composer, or the workspace controls.
@@ -193,7 +222,7 @@ dsh --profile calling-card --from-default-profile web --dump-config
 With the target profile stopped, install the package and start the profile:
 
 ```powershell
-dsh plugin --profile calling-card add .\dsh-calling-card-skin-1.6.0.tgz
+dsh plugin --profile calling-card add .\dsh-calling-card-skin-2.0.0.tgz
 dsh --profile calling-card --dump-config
 dsh --profile calling-card
 ```
@@ -213,7 +242,7 @@ dsh plugin --profile calling-card remove dsh-calling-card-skin
 Stop the DSH process first. The command drops this dependency and its line in `dsh.profile.bundles`. It does not edit the industrial package, the audio package, or `$env:USERPROFILE\.dsh\cordis.patch.yml`. Start DSH again. The web client then has no calling-card style, root attribute, or architectural word. Settings → Plugins can deselect the bundle without deleting the files; that selection is saved immediately and the client drops it on the next process start, not on a page reload. Launch the previous profile to leave `calling-card` unused. Do not grant `allow-version` unless you accept an untested host.
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-1.6.0.tgz
+Get-FileHash -Algorithm SHA256 .\dsh-calling-card-skin-2.0.0.tgz
 ```
 
 ## Develop

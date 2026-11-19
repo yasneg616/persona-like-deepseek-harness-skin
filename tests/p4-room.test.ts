@@ -96,7 +96,7 @@ test('P4 tower: conversations come from the sidebar rows (key, title, age, selec
     <div data-row-key="session:a" aria-selected="true"><span class="x_title">  修正 側欄 </span><span class="x_time">2分钟</span></div>
     <div data-row-key="session:b" class="x_sessionRow"><span class="x_title">B</span></div><main><p data-conversation-content>secret chat</p></main></div>`)
   const rows = readSessionRows(window.document)
-  assert.deepEqual(rows, [{ key: 'session:a', title: '修正 側欄', time: '2分钟', selected: true }, { key: 'session:b', title: 'B', time: '', selected: false }])
+  assert.deepEqual(rows, [{ key: 'session:a', title: '修正 側欄', time: '2分钟', selected: true, ws: 'workspace:w' }, { key: 'session:b', title: 'B', time: '', selected: false, ws: 'workspace:w' }])
   assert.ok(!JSON.stringify(rows).includes('secret'))
 })
 
