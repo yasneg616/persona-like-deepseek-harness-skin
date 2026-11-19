@@ -1,4 +1,4 @@
-# Persona 5 风格的 DeepSeek Harness 皮肤
+# Persona 风格的 DeepSeek Harness 皮肤
 
 ## 1.5.2 — narrow P3 title margin / 左侧窄留白
 P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
@@ -26,7 +26,7 @@ DeepSeek Harness 网页和桌面客户端的三款可选皮肤。
 
 演示使用示例会话，展示斜排导航、切页转场、拼贴信、弹出菜单和侧栏收放。
 
-[下载 1.6.0 插件](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.6.0)。安装包内含三款皮肤，默认使用 P5 Calling Card。
+[下载 1.6.0 插件](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v1.6.0)。安装包内含三款皮肤，默认使用 P5 Calling Card。
 
 ## 它真正接上的接口
 
@@ -195,7 +195,7 @@ v9 是静态原型。下面这些没有做成假页面，也没有用 iframe 去
 dsh --version
 ```
 
-输出必须落在 `>=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3`。
+输出必须落在 `>=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3 || 0.2.2-rc.4 || 0.2.2-rc.5`。
 
 建议为皮肤使用单独的 Web 配置档。仅首次安装时初始化 `calling-card`。`--from-default-profile` 会替换同名配置档，升级时跳过这一步。
 

@@ -1,4 +1,4 @@
-# Persona 5-like Skin for DeepSeek Harness
+# Persona-like Skin for DeepSeek Harness
 
 ## 1.5.2 — narrow P3 title margin / 左侧窄留白
 P3's white margin is now about10%, reserved for oversized vertical type and restrained arcana/depth/cyan seam marks. All native commands, projects and compact controls move into blue; reading gains actual width. The capsule is a small seam easter egg. Whole-app immersion, typing cancellation and reduced motion remain unchanged; P4/P5 unchanged.
@@ -26,7 +26,7 @@ Open **Settings → General → Appearance** and use the **Skin** row. The choic
 
 The demo shows the diagonal navigation, cut-in transitions, collage letters, pop-up menu, and collapsible sidebar with sample sessions.
 
-[Download the 1.6.0 plugin](https://github.com/yasneg616/persona5-like-deepseek-harness-skin/releases/tag/v1.6.0). The package includes all three skins, with P5 Calling Card selected by default.
+[Download the 1.6.0 plugin](https://github.com/yasneg616/persona-like-deepseek-harness-skin/releases/tag/v1.6.0). The package includes all three skins, with P5 Calling Card selected by default.
 
 ## What it actually changes
 
@@ -181,7 +181,7 @@ P5 is the benchmark for compositional confidence, not a template for the other m
 
 ## Install
 
-Use the `dsh` that belongs to the installed app. `dsh --version` must print a version inside `>=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3`. The old checkout at `0.1.3-alpha.2` is outside that range.
+Use the `dsh` that belongs to the installed app. `dsh --version` must print a version inside `>=0.2.0-rc.2 <0.2.2-0 || 0.2.2-rc.1 || 0.2.2-rc.2 || 0.2.2-rc.3 || 0.2.2-rc.4 || 0.2.2-rc.5`. The old checkout at `0.1.3-alpha.2` is outside that range.
 
 Use a **separate Web profile** for this skin. In Windows PowerShell, from the folder containing the release tarball, initialize `calling-card` on first install only. `--from-default-profile` replaces the named profile, so skip this step when upgrading it.
 
